@@ -190,7 +190,7 @@ git config core.hooksPath .githooks
 
 ## 출처
 
-원칙, 플레이북, 스킬 상당수는 [pstack 원본 저장소](https://github.com/cursor/plugins/tree/main/pstack)(커밋 50b3a32)를 고쳐 썼다. 원본의 스킬과 플레이북을 모두 옮겼고, 이름 대응표는 `docs/authoring.md` 에 있다.
+원칙, 플레이북, 스킬 상당수는 [pstack 원본 저장소](https://github.com/cursor/plugins/tree/main/pstack)(커밋 7a58391)를 고쳐 썼다. 원본의 스킬과 플레이북을 모두 옮겼고, 이름 대응표는 `docs/authoring.md` 에 있다.
 
 Copyright (c) 2026 Lauren Tan, MIT License
 
