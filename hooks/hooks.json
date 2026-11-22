@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "f=\"${CLAUDE_PLUGIN_ROOT}/skills/mode/SKILL.md\"; [ -f \"$f\" ] || exit 0; printf '/dev:mode 가 켜져 있다. 모든 요청을 아래 작업 방식으로 한다. 이 파일은 %s 이고, 본문의 상대 경로는 이 파일 기준이다.\\n\\n' \"$f\"; awk 'NR==1&&/^---$/{fm=1;next} fm&&/^---$/{fm=0;next} !fm' \"$f\"",
+            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh\"",
             "timeout": 10
           }
         ]

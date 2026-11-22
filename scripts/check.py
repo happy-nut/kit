@@ -140,6 +140,16 @@ def check_session_hook_injects_mode():
     out = r.stdout
     if r.returncode or '/dev:mode 가 켜져 있다' not in out or '## 꼭 지킬 것' not in out or out.lstrip().startswith('---') or '\n---\nname:' in out:
         errors.append(f'hooks/hooks.json: SessionStart 훅이 mode 본문을 넣지 않는다 (종료 {r.returncode}, 출력 {len(out)}자)')
+    import tempfile
+    with tempfile.TemporaryDirectory() as bare:
+        subprocess.run(['git', 'init', '-q', bare], check=True, env={k: v for k, v in os.environ.items() if not k.startswith('GIT_')})
+        clean = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+        nudge = lambda: subprocess.run(['sh', '-c', hook['command']], cwd=bare, capture_output=True, text=True, env={**clean, 'CLAUDE_PLUGIN_ROOT': root}).stdout
+        if '격리 검증(.verify/run.sh)이 없다' not in nudge():
+            errors.append('hooks/session-start.sh: 격리 검증이 없는 저장소에서 verify-setup 안내를 넣지 않는다')
+        os.makedirs(f'{bare}/.verify'); open(f'{bare}/.verify/run.sh', 'w').close()
+        if '격리 검증' in nudge():
+            errors.append('hooks/session-start.sh: .verify/run.sh 가 있는데도 안내를 넣는다')
 
 
 def run_self_tests():

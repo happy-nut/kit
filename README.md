@@ -57,7 +57,7 @@ skills/mode/playbooks/           플레이북 22개
 skills/mode/references/          플레이북이 읽는 참고 문서
 skills/mode/scripts/             플레이북이 돌리는 스크립트
 skills/<이름>/SKILL.md           /dev:<이름> 으로 부르는 스킬. mode 를 넣어 32개
-hooks/hooks.json                 대화마다 mode 를 켜는 SessionStart 훅
+hooks/session-start.sh           대화마다 mode 를 켜고, 격리 검증이 없는 저장소면 verify-setup 을 안내하는 SessionStart 훅
 agents/                          서브에이전트 dev:worker, dev:comment-reviewer
 scripts/check.py                 저장소 검사
 docs/guide/                      사람이 읽는 사용 안내서 10장
