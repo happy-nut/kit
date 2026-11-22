@@ -29,11 +29,9 @@
 8. PR 은 늘 ready 로 연다.
    `gh pr create` 에 `--draft` 를 붙이지 않는다. 그래도 draft 로 열리면 `gh pr ready <number>`.
 9. PR 을 열었다고 babysit 을 시작하지 않는다.
-   URL 을 올리고 phase 나 스택을 마저 만든다. 개인 저장소에서 사용자가 「고쳐」라고 했으면 그 말이 CI 통과와 머지까지라서 스택이 다 생긴 뒤 `babysit.md` 와 `shipping.md` 로 이어 간다.
+   URL 을 올리고 phase 나 스택을 마저 만든다.
 
 PR 을 여는 서브에이전트는 URL 을 올리고 babysit 없이 부모에게 돌아온다. 예외는 `autopilot-full.md`·`autopilot-stack.md` 의 담당이다. 그 브리프가 babysit 루프를 맡긴다.
-
-**회사 저장소.** 개인/회사 구분은 `/dev:mode` 의 「저장소 구분」이다. 회사면 자기 브랜치 push 와 PR 열기는 하되, 공유 브랜치 push 와 머지는 사용자가 그 말을 했을 때만 한다.
 
 ## 답변에 넣을 것
 

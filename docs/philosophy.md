@@ -67,12 +67,12 @@ kit 이 끝내 도달하려는 이상이다. 판단이 갈리면 이 이상에 �
 
 | 이 문서의 생각 | kit 의 장치 |
 |---|---|
-| 신뢰 피라미드, 공장보다 기초 | `/dev:mode` 의 「신뢰 피라미드」 절, `skills/mode/playbooks/autonomous-run.md` 0단계 |
-| 교정은 장치로 | `/dev:correct`, `/dev:mode` 의 「사용자에게 교정을 받음」, `hooks/correction-stop.py` |
-| 주석은 탈출구 | `/dev:no-comments`, `hooks/no-new-comments.py` |
+| 신뢰 피라미드, 공장보다 기초 | `skills/mode/playbooks/autonomous-run.md` 0단계 |
+| 교정은 장치로 | `/dev:correct`, principles.md 의 Encode Lessons in Structure |
+| 주석은 탈출구 | `/dev:no-comments`, `/dev:deslop` |
 | 런타임 검증과 기능 지도 | `/dev:verify-setup` |
 | 형식 검증과 상태 차트 | `/dev:formal-setup`, `/dev:statechart` |
-| 검증 산출물로 리뷰 | `/dev:mode` 의 「화면·CLI 를 내보낼 때」, principles.md 의 Prove It Works |
+| 검증 산출물로 리뷰 | `/dev:control-ui`, `/dev:control-cli`, principles.md 의 Prove It Works |
 | 이상과 현재의 갭 찾기 | `/dev:idea` |
 
 새 스킬이나 규칙을 더할 때는 이 표의 어느 칸을 채우는지 먼저 말한다. 어느 칸에도 들지 않으면 이 이상에 기여하는지부터 따진다.

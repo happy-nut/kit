@@ -40,7 +40,7 @@ claude plugin update dev@kit
 
 프롬프트에는 원하는 것과 「됐다」를 확인할 방법만 적는다. 방법은 에이전트가 고른다.
 
-에이전트가 틀리면 대화에서 「이거 틀렸어, 원래 X 여야 해」처럼 말한다. `/dev:mode` 안이면 에이전트가 고친 뒤 같은 실수를 막는 장치를 넣고, 신뢰 피라미드의 어느 층에 넣었는지 보고한다. 모드 밖이면 `/dev:correct <지적>` 을 쓴다.
+같은 실수가 되풀이되면 `/dev:correct <지적>` 을 쓴다. 에이전트가 그 실수를 구조, 타입, 린트, 테스트로 막는다.
 
 플러그인 자체가 마음에 안 들면 `/dev:reflect <무엇이 별로였나>` 를 쓴다. 에이전트가 이 저장소(또는 내 포크)를 고쳐 PR 을 올린다.
 
@@ -52,13 +52,12 @@ claude plugin update dev@kit
 
 ```
 skills/mode/SKILL.md             /dev:mode. 플레이북을 고르는 라우터
-skills/mode/principles.md        원칙 25개. 한 파일에 절마다 "## 영어 이름"
+skills/mode/principles.md        원칙 24개. 한 파일에 절마다 "## 영어 이름"
 skills/mode/playbooks/           플레이북 23개
 skills/mode/references/          플레이북이 읽는 참고 문서
 skills/mode/scripts/             플레이북이 돌리는 스크립트
-skills/<이름>/SKILL.md           /dev:<이름> 으로 부르는 스킬. mode 를 넣어 26개
+skills/<이름>/SKILL.md           /dev:<이름> 으로 부르는 스킬. mode 를 넣어 31개
 agents/                          서브에이전트 dev:worker, dev:comment-reviewer
-hooks/                           설치하면 켜지는 훅
 scripts/check.py                 저장소 검사
 docs/philosophy.md               최종 이상(high trust 루프)과 거기로 가는 길
 docs/authoring.md                이 저장소를 고치는 규칙
@@ -69,17 +68,6 @@ docs/authoring.md                이 저장소를 고치는 규칙
 플레이북은 일의 종류마다 단계를 정해 둔 문서다. 조사, 버그 수정, 기능, 리팩터링, 성능, PR 열기와 돌보기, 자율 실행, 일시 중지, 워크트리 정리 같은 것이 있고, 전체 목록은 `skills/mode/playbooks/` 에 있다.
 
 원칙은 판단이 갈릴 때 쓰는 기준이다. `Prove It Works` 를 따르면 에이전트는 돌려 보기 전에 됐다고 말하지 않는다. `Never Block on the Human` 을 따르면 사람 답을 기다리는 동안 막히지 않은 다른 일을 한다.
-
-### 교정은 신뢰 피라미드의 가장 높은 층에 넣는다
-
-신뢰 피라미드는 에이전트를 믿게 만드는 장치를 강한 것부터 늘어놓은 목록이다.
-
-1. 코드 구조. 잘못 쓸 수 없는 API 와 디렉터리 구조
-2. 결정적 검사. 린트, 타입, 테스트, 훅, CI
-3. 검증. 직접 실행, 스크린샷, 형식 검증 같은 산출물
-4. 산문. `AGENTS.md`, 스킬, 메모리. 판단이 필요한 것만, 마지막에
-
-잘못 쓰기 쉬운 API 는 감싼 한 곳만 남기고 지운다. 그렇게 못 하면 린트나 테스트가 오류를 내게 한다. 기계로 판정할 수 없는 판단이면 그 저장소 `AGENTS.md` 에 한 줄 적는다. 메모리에는 여러 저장소에 걸친 개인 습관만 둔다.
 
 ## 스킬
 
@@ -105,6 +93,10 @@ docs/authoring.md                이 저장소를 고치는 규칙
 | `/dev:no-comments` | 주석을 심사해 지우고, 주석이 변명하던 우회 코드를 고친다 |
 | `/dev:ts` | `.ts`, `.tsx` 를 고칠 때 따르는 TypeScript 규칙 |
 | `/dev:write` | 문서, README, PR 설명, 커밋 메시지를 쓰는 규칙 |
+| `/dev:deslop` | 커밋 전에 diff 에서 에이전트가 남긴 군더더기(서술 주석, 근거 없는 방어 코드, 관계없는 수정)를 지운다 |
+| `/dev:control-ui` | 웹·데스크톱 화면을 직접 띄워 조작하고 전과 후 증거를 남긴다 |
+| `/dev:control-cli` | CLI·대화형 터미널 프로그램을 직접 돌려 조작하고 확인한다 |
+| `/dev:sharpen` | 일을 더 크게가 아니라 더 깊게 만들도록 프롬프트를 다시 쓴다 |
 
 코드와 작업 맥락을 이해하는 스킬이다.
 
@@ -134,39 +126,16 @@ docs/authoring.md                이 저장소를 고치는 규칙
 | `/dev:triage` | 채널에 올라온 이슈 보고를 분류하고, 스레드에 판정 답글 하나를 단다 |
 | `/dev:repro-fix` | 분류된 버그를 실제 UI 에서 재현하고, 재현한 뒤에만 수정 PR 초안을 낸다 |
 | `/dev:bot-ui` | 누르면 Claude Code 루틴을 깨우는 로컬 페이지를 만든다 |
-| `/dev:setup` | 개인 설정 파일 `~/.claude/devkit.json` 을 만들거나 고친다 |
+| `/dev:setup` | 역할마다 쓸 서브에이전트 모델과 추론 예산을 `~/.claude/rules/dev-models.md` 에 쓴다 |
 | `/dev:help` | 상황에 맞는 스킬을 고르고, 보낼 프롬프트를 써 준다 |
 
-## 훅
+## 개인 낱말을 막는다
 
-플러그인을 설치하면 `hooks/hooks.json` 에 적힌 훅이 켜진다.
-
-| 훅 | 막는 것 |
-|---|---|
-| `hooks/korean-stop.py` (Stop) | 사용자에게 한 마지막 말이 한국어가 아니면 한 번 되돌려 다시 쓰게 한다. 코드, 경로, 짧은 줄은 세지 않는다 |
-| `hooks/open-plan-stop.py` (Stop) | 작업 목록(`update_plan`, `TodoWrite`)에 끝나지 않은 단계가 남았는데 `wrap_up` 없이 턴을 닫으면 한 번 되돌린다. 기다리는 백그라운드 작업이 있으면 통과한다. 사람에게 물어 `wrap_up(blocked: true)` 로 멈춘 목록은 다음 사람 메시지에 되살아나서, 한 단계도 잇지 않고 닫으면 되돌린다 |
-| `hooks/correction-stop.py` (Stop) | 이번 턴의 사람 메시지가 교정(`/dev:correct` 또는 「제대로」「아직도」「할 때만」 같은 말)인데, 그 턴에 검사·테스트·훅·린트 파일이 하나도 바뀌지 않았으면 한 번 되돌린다. 바뀐 파일은 대화 기록의 편집과 작업 폴더 git(그 턴 이후 커밋, 커밋 안 한 변경)으로 본다. 메모리와 `.md` 는 장치로 치지 않는다. 보고에 「판단이라 장치화 불가: <이유>」 나 「교정 아님: <이유>」 를 쓰면 통과한다 |
-| `hooks/open-pr-stop.py` (Stop) | 이 세션이 `gh pr create` 로 연 개인 저장소 PR 이 아직 열려 있는데 턴을 닫으면 한 번 되돌린다. PR 상태는 `gh` 로 본다. 기다리는 백그라운드 작업이 있거나, 사람이 머지하지 말라고 했거나, 사람을 기다리며 `wrap_up(blocked: true)` 로 멈췄거나, 보고에 「머지 안 함: <이유>」 를 쓰면 통과한다. 회사 저장소(`~/.claude/devkit.json` 의 개인 목록 밖)는 보지 않는다 |
-| `hooks/guard-bash.py` (PreToolUse, Bash) | 바뀐 파일이 0개인 PR, 체크가 아직 안 붙었거나 돌고 있거나 실패한 PR 의 `gh pr merge` 를 막는다. 테스트 출력을 `tail` 같은 파이프로 넘긴 뒤 `&&` 로 커밋이나 머지를 잇는 명령도 막는다. 그런 명령에서는 테스트 실패가 묻힌다 |
-| `hooks/no-new-comments.py` (PreToolUse, Edit·Write) | 코드 파일에 새 주석을 넣는 편집을 한 번 막는다. 같은 편집을 다시 하면 통과한다 |
-| `hooks/tool-text.py` (PreToolUse) | 사용자가 읽는 도구 글이 한국어가 아니면 막는다. 작업 요약과 작업 목록(`wrap_up`, `update_plan`), 파일 캡션(`SendUserFile`), `AskUserQuestion` 의 질문과 선택지, Bash 명령 설명이 대상이다. `AskUserQuestion` 에 질문이 둘 이상이어도 막는다 |
-
-`korean-stop.py` 와 `tool-text.py` 는 `hooks/korean.py` 로 한국어인지 판정한다. 훅을 고치면 `scripts/test_hooks.py` 에 막아야 할 예와 통과해야 할 예를 함께 넣는다.
-
-## 개인 설정을 둔다
-
-개인 설정은 없어도 된다. 쓰려면 저장소 밖 `~/.claude/devkit.json` 에 두고, `/dev:setup` 으로 만든다.
+이 저장소를 고칠 때만 쓴다. 저장소 밖 `~/.claude/devkit.json` 에 이 저장소에 들어오면 안 되는 낱말(정규식)을 둔다. `scripts/check.py` 가 그 낱말이 들어오면 실패한다.
 
 ```json
-{
-  "personal": { "owners": ["<내 GitHub 계정>"], "paths": ["~/code/"] },
-  "private_words": ["<이 저장소에 들어오면 안 되는 내 앱·회사 이름(정규식)>"]
-}
+{ "private_words": ["<내 앱·회사·계정 이름>"] }
 ```
-
-- `personal` 은 개인 저장소를 가린다. `origin` 의 소유자가 `owners` 에 있거나 저장소가 `paths` 아래에 있으면, 에이전트는 개인 저장소로 보고 머지까지 한다. 나머지는 회사 저장소로 보고, 머지, 배포, 공유 브랜치 push 는 사용자가 말했을 때만 한다. 파일이 없으면 모두 회사 저장소로 본다.
-- `private_words` 는 이 저장소를 고칠 때 쓴다. `scripts/check.py` 가 이 낱말이 저장소의 파일에 들어오면 실패한다.
-- `models` 는 역할별 서브에이전트 모델이다. 기본값과 다르게 쓸 역할만 적는다.
 
 ## 이 저장소를 고친다
 
@@ -176,7 +145,7 @@ docs/authoring.md                이 저장소를 고치는 규칙
 python3 scripts/check.py
 ```
 
-`check.py` 는 스킬과 에이전트의 frontmatter, 본문이 가리키는 파일과 스킬 이름, 긴 대시 같은 금지 낱말, `private_words`, 판 번호를 검사하고, 이어서 `scripts/test_hooks.py` 를 돌린다. CI(`.github/workflows/check.yml`)도 push 와 PR 마다 `check.py` 를 돌린다.
+`check.py` 는 매니페스트, 스킬과 에이전트의 frontmatter, 본문이 가리키는 파일·스킬·원칙 이름, README 의 개수와 스킬 표, `private_words`, 작성자 메일을 검사하고, 이어서 스크립트의 `--self-test` 를 돌린다. CI 는 `skills/*/scripts/test/*.test.ts` 도 Node 22 로 돌린다. CI(`.github/workflows/check.yml`)도 push 와 PR 마다 `check.py` 를 돌린다.
 
 커밋할 때마다 검사하려면 훅 경로를 한 번 지정한다. 이 저장소는 공개라 커밋 작성자 메일도 공개된다. 그래서 로컬 `user.email` 이 GitHub noreply 주소가 아니면 `check.py` 가 실패한다.
 
@@ -184,7 +153,7 @@ python3 scripts/check.py
 git config core.hooksPath .githooks
 ```
 
-`.claude-plugin/plugin.json` 의 `version` 은 끝자리만 1 올린다. 0.6.2 다음은 0.6.3 이다. 다른 자리를 올리거나 2 이상 건너뛰면 `check.py` 와 CI 가 실패한다. `main` 에 push 되면 `.github/workflows/release.yml` 이 그 판으로 태그와 GitHub Release 를 만든다. 그러니 `gh release create` 를 따로 부르지 않는다.
+`main` 에 push 되면 `.github/workflows/release.yml` 이 그 판으로 태그와 GitHub Release 를 만든다. 그러니 `gh release create` 를 따로 부르지 않는다.
 
 스킬에 문장을 더 쓰기 전에, 검사나 구조로 막을 수 있는지 먼저 본다.
 
