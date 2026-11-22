@@ -86,6 +86,7 @@ scripts/check.py                저장소 검사. 고치면 반드시 돌린다
 - 본문은 한국어. 짧은 평서문, 한 문장 한 생각. 긴 대시(—) 쓰지 않는다.
 - 에이전트가 읽는 글이다. 비유·수사 없이 할 일과 판단 기준만. 원문에 있던 구체 기준·숫자·예외는 빠뜨리지 않는다(번역하면서 줄이지 않는다).
 - 글을 줄인 PR 은 `python3 -I scripts/shrink.py` 출력(사라진 숫자·코드 이름·인용 낱말)을 본문에 붙이고, 하나마다 일부러 뺐는지 잘렸는지 적는다.
+- `evals/<스킬>.md` 가 있는 스킬을 줄이면 줄이기 전과 뒤에 그 상황을 `skills/mode/playbooks/eval.md` 로 돌리고, 기대 결정이 그대로인지 PR 본문에 적는다. 근거 문장이 스킬에서 사라지면 `check.py` 가 실패한다.
 - 같은 규칙은 한 파일에만 쓰고 다른 곳은 그 절을 가리킨다. `check.py` 의 `check_single_source` 가 훅 표, README 개수, 설치 경로, 정해 둔 규칙 문장을 검사한다.
 - frontmatter: `name`, `description`(한 줄, 따옴표. 한국어 뜻 + 영어 트리거 문구 + `/dev:<이름>`), `disable-model-invocation: true`.
 - Cursor 전용이라 Claude Code 에서 못 하는 단계는 지우거나 위 표대로 바꾼다. 「Skipped」 같은 줄을 남기지 않는다.

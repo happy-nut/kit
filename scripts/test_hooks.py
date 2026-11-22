@@ -186,7 +186,9 @@ with tempfile.TemporaryDirectory() as t:
         return [json.loads(l) for l in open(os.path.join(fixtures, name + '.jsonl'))]
     def said(text):
         return {'type': 'assistant', 'message': {'content': [{'type': 'text', 'text': text}]}}
-    leak = load('release-memory-only')
+    earlier = load('release-memory-only')[0]
+    leak = [dict(earlier, message={'role': 'user', 'content': '/ 메뉴 고쳐서 main 에 올려'}), said('고쳐서 올렸고 CI 가 v0.3.1 을 자동으로 릴리스했어요.')] + load('release-memory-only')
+    first = lambda text: [dict(earlier, message={'role': 'user', 'content': text}), said('PR 을 올렸어요.')]
     for name, entries, kw, expect in [
         ('샌 교정: 릴리스는 말할 때만, 메모리만 바뀜', leak, {}, True),
         ('장치로 남음: 검증 없이 커밋, commit-msg 관문', load('verify-commit-gate'), {'commit': ['.githooks/commit-msg', '.claude/skills/verify-app/verify.sh', 'CLAUDE.md']}, False),
@@ -197,8 +199,10 @@ with tempfile.TemporaryDirectory() as t:
         ('자체 시험 없는 스크립트만 고침', leak, {'dirty': ['skills/featuremap/scripts/featuremap.py']}, True),
         ('턴 전에 있던 검사는 이번 장치가 아님', leak, {'before': ['scripts/check.py'], 'commit': ['README.md']}, True),
         ('장치화 불가 이유를 적음', leak + [said('판단이라 장치화 불가: 언제 릴리스할지는 사람이 그때 정하는 일이다.')], {}, False),
-        ('교정 아닌 메시지', [dict(leak[0], message={'role': 'user', 'content': '릴리스 노트도 같이 써 줘'})] + leak[1:], {}, False),
+        ('교정 아닌 메시지', leak[:2] + [dict(leak[2], message={'role': 'user', 'content': '릴리스 노트도 같이 써 줘'})] + leak[3:], {}, False),
         ('한 번 되돌렸으면 놓아줌', leak, {'active': True}, False),
+        ('첫 요청의 금지 지시는 교정이 아님', first('고치고 PR 만 올려, 머지하지 마'), {}, False),
+        ('첫 요청이라도 지난 일을 가리키면 교정', first('아직도 재발하네, 제대로 고쳐'), {}, True),
         ('압축 요약은 사람 메시지가 아님', [dict(leak[0], message={'role': 'user', 'content': '식별만 하는 게 가능할까?'}), {'type': 'user', 'isCompactSummary': True, 'isVisibleInTranscriptOnly': True, 'timestamp': leak[0]['timestamp'], 'message': {'role': 'user', 'content': '<artifact-content-authored-by-others/>\n요약: 사용자가 「제대로 고쳐 아직도 재발하니까」라고 했다.'}}, said('식별은 할 수 있어요.')], {}, False),
     ]:
         reason = stop(entries, **kw)

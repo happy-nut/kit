@@ -3,8 +3,9 @@ import json, os, re, subprocess, sys
 
 CORRECT_COMMAND = re.compile(r"<command-name>/[\w-]*:?correct</command-name>")
 CORRECTION_WORDS = re.compile(
-    r"제대로|아직도|재발|자꾸|또 (안|않|그러|이러|틀)|왜 (안|않|자꾸|또|이렇게|그렇게)|하지 ?마|하지 ?말|말라고|라고 했"
-    r"|할 때만|말했잖|했잖|잖아|안 ?하고|빼먹|틀렸|아니잖|직접 ?해야|해야지")
+    r"제대로|아직도|재발|자꾸|또 (안|않|그러|이러|틀)|왜 (안|않|자꾸|또|이렇게|그렇게)|말라고|라고 했"
+    r"|말했잖|했잖|잖아|안 ?하고|빼먹|틀렸|아니잖|직접 ?해야|해야지")
+ORDER_WORDS = re.compile(r"하지 ?마|하지 ?말|할 때만")
 NOT_HUMAN = ("<task-notification", "<system-reminder", "This session is being continued", "<local-command", "<side-sessions", "<ci-monitor")
 DEVICE_PATH = re.compile(r"test|spec|check|lint|guard|gate|verify|hook|\.github/workflows|pre-commit|ruff|eslint|clippy", re.I)
 PROSE = (".md", ".txt")
@@ -25,7 +26,7 @@ def human_text(d):
 
 
 def last_turn(lines):
-    turn = None
+    turn, agent_spoke = None, False
     for line in lines:
         try:
             d = json.loads(line)
@@ -33,8 +34,11 @@ def last_turn(lines):
             continue
         text = human_text(d)
         if text is not None:
-            turn = {"text": text, "at": d.get("timestamp"), "edited": [], "said": []}
-        elif turn and d.get("type") == "assistant" and not d.get("isSidechain"):
+            turn = {"text": text, "at": d.get("timestamp"), "edited": [], "said": [], "after_agent": agent_spoke}
+        elif d.get("type") == "assistant" and not d.get("isSidechain"):
+            agent_spoke = True
+            if not turn:
+                continue
             for b in (d.get("message") or {}).get("content") or []:
                 if not isinstance(b, dict):
                     continue
@@ -45,10 +49,11 @@ def last_turn(lines):
     return turn
 
 
-def is_correction(text):
+def is_correction(text, after_agent=True):
     if CORRECT_COMMAND.search(text):
         return True
-    return bool(CORRECTION_WORDS.search(re.sub(r"<command-message>.*?</command-name>", "", text, flags=re.S)))
+    said = re.sub(r"<command-message>.*?</command-name>", "", text, flags=re.S)
+    return bool(CORRECTION_WORDS.search(said) or (after_agent and ORDER_WORDS.search(said)))
 
 
 def changed_in_repo(cwd, since):
@@ -81,7 +86,7 @@ def is_device(path, cwd=None):
 
 
 def verdict(turn, repo_files, cwd=None):
-    if not turn or not is_correction(turn["text"]):
+    if not turn or not is_correction(turn["text"], turn["after_agent"]):
         return None
     if any(w in t for t in turn["said"] for w in WAIVED):
         return None
@@ -102,7 +107,7 @@ if __name__ == "__main__":
         sys.exit(0)
     try:
         turn = last_turn(open(d["transcript_path"], encoding="utf-8", errors="replace"))
-        reason = verdict(turn, changed_in_repo(d.get("cwd"), turn and turn["at"]) if turn and is_correction(turn["text"]) else [], d.get("cwd"))
+        reason = verdict(turn, changed_in_repo(d.get("cwd"), turn and turn["at"]) if turn and is_correction(turn["text"], turn["after_agent"]) else [], d.get("cwd"))
     except Exception:
         sys.exit(0)
     if reason:

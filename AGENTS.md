@@ -11,6 +11,7 @@
 | 코드에 새 주석을 넣지 않는다 | `hooks/no-new-comments.py` |
 | 바뀐 파일이 없는 PR 은 머지하지 않는다 | `hooks/guard-bash.py` |
 | 개인 저장소에서 연 PR 은 머지까지 하고 턴을 닫는다 | `hooks/open-pr-stop.py` |
+| 스킬 글을 줄여도 `evals/` 상황의 근거 문장은 남긴다 | `scripts/check.py` 의 `check_evals` |
 | 키트에 개인 이름·도구 이름을 넣지 않는다 | `scripts/check.py` 의 개인 낱말 검사 |
 
 둘째 줄의 「통과 뒤 장면을 더한다」는 판단이다. 어떤 장면이 다음 턴인지는 훅마다 다르다.
