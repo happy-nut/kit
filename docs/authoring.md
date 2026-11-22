@@ -35,7 +35,7 @@ scripts/check.py                저장소 검사. 고치면 반드시 돌린다
 | ketchup | `catchup` | |
 | show-me-your-work | `log` | |
 | create/maintain-verification-skill | `verify-setup` | 만들기·유지 두 절 |
-| unslop + technical-writing | `write` | 한국어 글 기준. 손님 글은 korean-humanizer 로 넘김 |
+| unslop + technical-writing | `write` | 한국어 글 기준 |
 | typescript-best-practices | `ts` | |
 | figure-it-out | `mode` 의 「맞춤 플레이북」 절 | |
 | in-your-own-words | `mode` 의 「꼭 지킬 것」 첫 줄 | |
