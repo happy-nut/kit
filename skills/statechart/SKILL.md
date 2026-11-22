@@ -16,7 +16,7 @@ disable-model-invocation: true
 <스킬 폴더>/scripts/statechart SPEC.tla [--config FILE] [--view FILE] [--out DIR]
 ```
 
-`scripts/statechart.ts` 는 TypeScript 다. TypeScript 를 바로 실행할 수 있는 런타임으로 돌린다. 런처 `scripts/statechart` 가 Node 22.18~22.x, Node 23.6 이상, Bun 1.1.5 이상, Deno 2.0 이상 가운데 있는 것을 고른다.
+`scripts/statechart.ts` 는 TypeScript 다. TypeScript 를 바로 실행할 수 있는 런타임으로 돌린다. 런처 `scripts/statechart` 가 Node 22.18~22.x, Node 23.6 이상, Bun 1.1.5 이상, Deno 2.0 이상 가운데 있는 것을 고른다. 런처는 POSIX 셸 스크립트라 Windows 에서는 `node --disable-warning=ExperimentalWarning <스킬 폴더>/scripts/statechart.ts` 로 돌린다(Node 22.18~22.x, 또는 23.6 이상).
 
 첫 실행은 mise 로 TLC 와 Java 를 설치하므로 네트워크가 필요하다.
 
