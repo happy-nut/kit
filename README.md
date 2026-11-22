@@ -56,7 +56,7 @@ skills/mode/principles.md        원칙 24개. 한 파일에 절마다 "## 영�
 skills/mode/playbooks/           플레이북 22개
 skills/mode/references/          플레이북이 읽는 참고 문서
 skills/mode/scripts/             플레이북이 돌리는 스크립트
-skills/<이름>/SKILL.md           /dev:<이름> 으로 부르는 스킬. mode 를 넣어 31개
+skills/<이름>/SKILL.md           /dev:<이름> 으로 부르는 스킬. mode 를 넣어 32개
 agents/                          서브에이전트 dev:worker, dev:comment-reviewer
 scripts/check.py                 저장소 검사
 docs/philosophy.md               최종 이상(high trust 루프)과 거기로 가는 길
@@ -96,6 +96,7 @@ docs/authoring.md                이 저장소를 고치는 규칙
 | `/dev:deslop` | 커밋 전에 diff 에서 에이전트가 남긴 군더더기(서술 주석, 근거 없는 방어 코드, 관계없는 수정)를 지운다 |
 | `/dev:control-ui` | 웹·데스크톱 화면을 직접 띄워 조작하고 전과 후 증거를 남긴다 |
 | `/dev:control-cli` | CLI·대화형 터미널 프로그램을 직접 돌려 조작하고 확인한다 |
+| `/dev:bro` | 방금 한 말을 전문용어 없이 쉬운 말로 다시 한다 |
 | `/dev:sharpen` | 일을 더 크게가 아니라 더 깊게 만들도록 프롬프트를 다시 쓴다 |
 
 코드와 작업 맥락을 이해하는 스킬이다.

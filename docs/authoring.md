@@ -47,10 +47,9 @@ scripts/check.py                저장소 검사. 고치면 반드시 돌린다
 | make-bot-ui | `bot-ui` | 봇 웹훅 대신 Claude Code 루틴 |
 | setup-pstack | `setup` | `~/.claude/rules/dev-models.md`(역할별 모델). 역할 줄 arena → design, interrogate → review |
 | poteto-help | `help` | |
-| orchestrate(따로 있는 플러그인) | (옮기지 않음) | 원본 mode 의 플레이북 목록에 없다 |
 | benny(자동화 팩) | `triage` + `repro-fix` | Cursor Automations 대신 Claude Code 루틴 |
 | cursor-team-kit 의 deslop, control-ui, control-cli | `deslop`, `control-ui`, `control-cli` | 다른 플러그인 대신 kit 안에 둠 |
-| bro | (옮기지 않음) | 방금 한 말을 쉬운 말로 다시 하기. `write` 가 같은 일을 더 넓게 한다 |
+| bro | `bro` | |
 
 원본을 따라잡을 때는 프로젝트 스킬 `.claude/skills/upstream` 을 쓴다. 기준 커밋은 README 맨 아래 원본 링크 옆 한 곳에만 적는다.
 
