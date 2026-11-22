@@ -120,6 +120,24 @@ def check_single_source(principles):
                     errors.append(f'{path}:{i}: 이 규칙은 {home} 에만 쓰고 여기서는 그 절을 가리킨다')
 
 
+def check_evals():
+    for name in ('mode', 'correct', 'idea'):
+        if not os.path.exists(f'evals/{name}.md'):
+            errors.append(f'evals/{name}.md 없음. 스킬 글을 줄이기 전에 지킬 결정을 상황으로 적어 둔다')
+    for path in glob.glob('evals/*.md'):
+        cases = re.split(r'^## ', open(path).read(), flags=re.M)[1:]
+        if len(cases) < 2:
+            errors.append(f'{path}: 상황이 2개보다 적다')
+        for case in cases:
+            title = case.splitlines()[0]
+            for field in ('- 상황: ', '- 기대 결정: ', '- 근거: '):
+                if field not in case:
+                    errors.append(f'{path} 「{title}」: {field.strip()} 줄이 없다')
+            for src, quote in re.findall(r'^- 근거: `([^`]+)` 「(.+)」$', case, re.M):
+                if quote not in (open(src).read() if os.path.exists(src) else ''):
+                    errors.append(f'{path} 「{title}」: 근거 문장이 {src} 에서 사라졌다. 일부러 뺐으면 이 상황의 기대 결정도 고친다: {quote}')
+
+
 def private_words_from_user_config():
     cfg_path = os.path.expanduser('~/.claude/devkit.json')
     cfg = json.load(open(cfg_path)) if os.path.exists(cfg_path) else {}
@@ -178,6 +196,7 @@ principles = load_principles()
 check_old_names_and_references(skills, agents, principles)
 check_required_sentences()
 check_single_source(principles)
+check_evals()
 check_no_private_words()
 check_author_email_is_noreply()
 check_version_bumps_last_digit_by_one()
