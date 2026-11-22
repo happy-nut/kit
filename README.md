@@ -46,7 +46,7 @@ claude plugin update dev@kit
 
 방향만 바꾸려면 원칙 이름을 댄다. 「Prove It Works 로 다시 봐」는 실제로 돌려 증명하게 하고, 「Fix Root Causes」는 땜질 대신 원인을 고치게 하고, 「Laziness Protocol」은 변경을 더 작게 줄이게 한다.
 
-어떤 스킬을 쓸지 모르겠으면 `/dev:help` 에 묻는다.
+어떤 스킬을 쓸지 모르겠으면 `/dev:help` 에 묻는다. 실제 프롬프트로 쓰는 법을 처음부터 배우려면 [사용 안내서](docs/guide/README.md)를 순서대로 읽는다.
 
 ## 저장소 구성
 
@@ -59,6 +59,7 @@ skills/mode/scripts/             플레이북이 돌리는 스크립트
 skills/<이름>/SKILL.md           /dev:<이름> 으로 부르는 스킬. mode 를 넣어 32개
 agents/                          서브에이전트 dev:worker, dev:comment-reviewer
 scripts/check.py                 저장소 검사
+docs/guide/                      사람이 읽는 사용 안내서 10장
 docs/philosophy.md               최종 이상(high trust 루프)과 거기로 가는 길
 docs/authoring.md                이 저장소를 고치는 규칙
 ```
