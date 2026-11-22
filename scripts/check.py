@@ -134,6 +134,14 @@ def check_author_email_is_noreply():
         errors.append('git user.email 이 개인 메일이다. 이 저장소에선 GitHub noreply 메일을 쓴다: git config user.email <id>+<계정>@users.noreply.github.com')
 
 
+def check_session_hook_injects_mode():
+    hook = json.load(open('hooks/hooks.json'))['hooks']['SessionStart'][0]['hooks'][0]
+    r = subprocess.run(['sh', '-c', hook['command']], capture_output=True, text=True, env={**os.environ, 'CLAUDE_PLUGIN_ROOT': root})
+    out = r.stdout
+    if r.returncode or '/dev:mode 가 켜져 있다' not in out or '## 꼭 지킬 것' not in out or out.lstrip().startswith('---') or '\n---\nname:' in out:
+        errors.append(f'hooks/hooks.json: SessionStart 훅이 mode 본문을 넣지 않는다 (종료 {r.returncode}, 출력 {len(out)}자)')
+
+
 def run_self_tests():
     for cmd in (['skills/no-comments/scripts/count.py', '--self-test'], ['skills/featuremap/scripts/featuremap.py', '--self-test'], ['.claude/skills/upstream/upstream.py', '--self-test'], ['scripts/shrink.py', '--self-test']):
         r = subprocess.run([sys.executable, '-I', *cmd], capture_output=True, text=True)
@@ -149,6 +157,7 @@ principles = load_principles()
 check_references(skills, agents, principles)
 check_readme(skills, principles)
 check_guide_links()
+check_session_hook_injects_mode()
 check_no_private_words()
 check_author_email_is_noreply()
 if errors:
