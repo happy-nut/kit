@@ -36,7 +36,7 @@ disable-model-invocation: true
 
 1. 각 후보가 만들 산출물을 적는다.
 2. 채점 기준을 정한다. 이 과제에서 성공이 무엇인지 채점할 수 있는 구체 기준 3~6개. 4단계에서 고르는 쪽이 쓰는 도구다. 후보에게는 과제만 보여 주고 기준은 보여 주지 않는다.
-3. 러너를 고른다. `~/.claude/devkit.json` 의 `models.panel` 목록이 있으면 그 항목마다 하나씩이고(`/dev:mode` 의 「서브에이전트」 절), 없으면 `fable`, `opus`, `sonnet` 하나씩이다. 설계 방향이 여럿이면 러너를 늘린다. 판단보다 생성량이 관건인 일이면 같은 모델을 N번 쓴다. `Agent` 가 어떤 모델을 거부하면 그 자리를 남은 모델 중 하나로 돌리고 그렇게 말한다. 러너가 둘보다 적어지면 남은 모델로 채워 둘 이상을 만든다.
+3. 러너를 고른다. `~/.claude/rules/dev-models.md` 의 `design runners` 줄이 있으면 그 항목마다 하나씩이고(`/dev:mode` 의 「서브에이전트」 절), 없으면 `fable high`, `opus high`, 부모 모델(`model` 을 뺀다) 하나씩이다. 설계 방향이 여럿이면 러너를 늘린다. 판단보다 생성량이 관건인 일이면 같은 모델을 N번 쓴다. `Agent` 가 어떤 모델을 거부하면 그 자리를 남은 모델 중 하나로 돌리고 그렇게 말한다. 러너가 둘보다 적어지면 남은 모델로 채워 둘 이상을 만든다.
 4. 후보마다 출력 위치를 따로 준다(`../mode/principles.md` 의 Separate Before Serializing Shared State). 기본은 `Agent` 의 `isolation: "worktree"` 로 각자 git worktree 를 받는 것이다. worktree 를 쓸 수 없으면 `/tmp/design-<slug>/candidate-<n>/` 을 쓴다.
 
 ## 2. Fan out
@@ -51,7 +51,7 @@ N개를 한 메시지에서 모두 띄운다. 각 호출은 `subagent_type: "dev
 
 모든 후보가 끝난 뒤에 심사자 하나를 띄운다. 후보가 아직 쓰는 중에는 띄우지 않는다.
 
-- 모델: 러너에 쓰지 않은 모델이 있으면 그 모델로 한다(`fable`, `opus`, `sonnet` 가운데. `haiku` 는 심사에 쓰지 않는다). 세 모델을 다 러너로 썼으면 부모 세션과 다른 모델로 하고, 후보를 경로 이름표로만 보여 주어 어느 모델이 썼는지 모르게 한다.
+- 모델: `~/.claude/rules/dev-models.md` 의 `design cross-judge pool` 줄(기본 `opus high`, 부모 모델)에서 목록 순서대로, 부모와 다른 계열의 첫 항목을 쓴다. `fable` 은 `opus` 와 같은 계열로 친다. 부모 모델 항목은 심사하지 않는다. 맞는 항목이 없으면 심사를 건너뛰고 그렇게 말한다.
 - 형식: `subagent_type: "Explore"`, `run_in_background: true`, 브리프에 「파일을 고치지 마라」. 끝난 뒤 `git status` 로 아무것도 바뀌지 않았는지 확인한다.
 - 심사자는 채점 기준과 후보들(경로 이름표)을 받아 기준마다 점수를 매기고, 근거와 함께 기반 하나를 추천한다.
 - 심사는 4단계의 내 읽기와 병렬로 돈다.

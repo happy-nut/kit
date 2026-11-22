@@ -33,7 +33,7 @@ disable-model-invocation: true
 - 캡처, 녹화, 로그, 토큰은 소스 관리에 넣지 않는다.
 - 위임 분석에는 principles.md 의 Guard the Context Window 를 쓴다.
 - 재현, 수정, 검증 내내 principles.md 의 Sequence Work into Verifiable Units, principles.md 의 Fix Root Causes, principles.md 의 Prove It Works 를 적용한다.
-- 초안 PR 까지만. 개인 저장소여도 이 흐름에서는 머지하거나 배포하지 않는다.
+- 초안 PR 까지만. 이 흐름에서는 머지하거나 배포하지 않는다.
 
 ## 1. 출처 좌표 고정
 

@@ -1,119 +1,74 @@
 ---
 name: setup
-description: "devkit 개인 설정 파일 ~/.claude/devkit.json 을 만들거나 고친다. 개인 저장소 구분(personal.owners·paths), 스킬에 들어오면 안 되는 낱말(private_words), 역할별 서브에이전트 모델(models). Use for /dev:setup, \"configure devkit\", \"devkit models\", \"devkit budget\", \"set up devkit\", or changing which models devkit uses per role."
+description: "devkit 이 역할마다 쓸 모델과 추론 예산을 정한다. 쓸 수 있는 모델을 찾아 스킬 기본값을 덮는 규칙 파일 ~/.claude/rules/dev-models.md 를 쓴다. Use for /dev:setup, \"configure devkit models\", \"devkit budget\", or changing devkit's model choices."
 disable-model-invocation: true
 ---
 
 # devkit 설정
 
-저장소 밖 `~/.claude/devkit.json` 하나를 만들거나 고친다. 플러그인 안에는 아무것도 쓰지 않는다. 이 파일이 없으면 모든 저장소를 회사 저장소로 보고, 모든 역할이 기본 모델을 쓰고, `scripts/check.py` 는 막을 낱말이 없다.
-
-## 키
-
-| 키 | 뜻 | 읽는 곳 |
-|---|---|---|
-| `personal.owners` | 개인 저장소의 `origin` 소유자(GitHub 계정·조직) 목록 | `/dev:mode` 의 「저장소 구분」 |
-| `personal.paths` | 이 경로 아래 저장소는 개인. `~` 로 시작해도 된다 | `/dev:mode` 의 「저장소 구분」 |
-| `private_words` | devkit 스킬·에이전트·훅에 들어오면 안 되는 낱말(정규식) 목록. `personal.owners` 도 같이 막는다 | devkit 저장소의 `scripts/check.py` |
-| `models` | 역할별 서브에이전트 모델. 아래 표 | `/dev:mode` 와 모델을 고르는 스킬 |
-| `models_defaults` | 이 파일이 따른 기본값 표의 판(숫자) | 이 스킬 2단계 |
-
-다른 키는 모르는 키라도 지우지 않는다.
-
-## 역할과 기본값
-
-`Agent` 의 `model` 은 `opus`, `sonnet`, `haiku`, `fable` 넷만 받는다. 이 밖의 값은 쓰지 않는다.
-
-기본값 표 판 1 (지금):
-
-| 역할 키 | 쓰는 곳 | 기본값 |
-|---|---|---|
-| `code` | 코드·판단·글. 플레이북 구현 워커, 결정 기록 검토 | `opus` |
-| `hardest` | `code` 모델 대신 올리는 모델. 언제 올리는지는 `/dev:mode` 「서브에이전트」 절의 예외만 따른다 | `fable` |
-| `mechanical` | 검증·기계적 편집·스웜 워커·넓게 읽기 | `sonnet` |
-| `panel` | 설계·리뷰 패널(`/dev:design` 러너, `/dev:review` 검토자). 목록 | `["fable", "opus", "sonnet"]` |
-
-- `panel` 은 목록이다. 항목 하나에 서브에이전트 하나가 뜬다. 목록 길이가 인원수다. 같은 모델을 두 번 넣으면 그 모델로 두 명이 뜬다.
-- 패널 심사는 러너에 쓰지 않은 모델로 한다(`/dev:design` 심사 단계). 목록에 넷을 다 넣으면 심사는 부모와 다른 모델로 이름을 가린 채 한다. `haiku` 는 심사에 쓰지 않는다.
-- 모두 같은 회사 모델이라 패널 다양성이 약하다. 결과에 그렇게 적는 규칙은 그대로다.
-- 기본값과 같은 역할은 `models` 에 쓰지 않는다. 그래야 다음 판에서 기본값이 바뀔 때 따라간다. `models` 에는 사용자가 기본값과 다르게 고른 역할만 남는다.
-- 기본값 표를 바꾸는 사람은 판을 1 올리고 옛 판 표를 이 절에 남긴다. 2단계가 그 표로 옛 기본값을 가려낸다.
+`~/.claude/rules/dev-models.md` 를 쓴다. Claude Code 는 `~/.claude/rules/` 의 모든 `.md` 파일을 새 세션마다 읽으므로, 이 파일이 역할별 모델을 정하는 늘 적용되는 규칙이 된다.
 
 ## 단계
 
-### 1. 지금 상태 읽기
+### 1. 쓸 수 있는 모델 찾기
 
-`~/.claude/devkit.json` 을 읽는다. 없으면 빈 객체에서 시작한다. JSON 이 깨져 있으면 고치지 말고 깨진 곳(줄·열)을 보여 주고 멈춘다. 사용자의 다른 설정을 덮어쓸 수 있기 때문이다.
+이 세션에서 `Agent` 에 넘길 수 있는 모델을 센다. `Agent` 도구 스키마의 `model` 값 하나하나에 `effort` 값 하나씩을 붙인 것이 찾은 모델이다. 믿을 수 있는 출처는 이것뿐이다. 하나도 못 찾으면 쓸 수 있는 모델을 사용자에게 붙여 넣어 달라고 한다. 쓸 수 있다고 확인하지 않은 실제 모델은 쓰지 않는다. 실제 모델은 `<model> <effort>` 로 쓴다(예: `opus xhigh`). 노력 값이 마지막 낱말이다. `inherit-parent` 와 `auto` 는 찾은 모델이 아니어도 언제나 쓸 수 있다.
 
-지금 값을 그대로 보여 준다. 저장소 구분, 막는 낱말, 역할별 모델(쓰여 있지 않은 역할은 「기본값 `<모델>`」로) 세 덩이로.
+### 2. 지금 상태 읽기
 
-`models` 안에 위 표에 없는 역할 키가 있으면 은퇴한 역할이다. 지운다고 보고 목록에 적는다.
+역할과 모델의 기본 대응은 아래 5단계의 규칙 모양이다. `~/.claude/rules/dev-models.md` 가 있으면 읽고 그 `# budget` 줄과 역할 값을 지금 선택으로 본다. 없으면 기본값에서 시작한다. 역할이 5단계에 없는 줄(`hardest tasks`, `reflect tooling`, `why investigators` 같은)은 은퇴한 역할이다. 지운다.
 
-### 2. 옛 기본값만 교체
+`# defaults: 3` 줄이 없는 규칙은 옛 설정에서 왔다. 옛 설정은 모든 역할을 한 줄씩 썼으므로 그 값 일부는 선택이 아니라 옛 기본값이다. 3단계 전에 이 값들을 바꾼다.
 
-`models_defaults` 가 없거나 지금 판보다 낮으면, 옛 설정이 모든 역할을 다 적었을 수 있다. 그러면 기본값과 사용자의 선택이 구별되지 않는다.
+- `design cross-judge pool` 목록이 정확히 `fable *` 하나, `opus *` 하나, `inherit-parent` 하나로(순서 무관) 되어 있으면 5단계의 그 역할 목록으로 바꾼다. `fable` 과 `opus` 는 같은 회사라, `fable` 항목은 `opus` 항목도 심사할 수 있는 곳에서만 심사할 수 있었다.
+- `# budget: unlimited` 줄은 `large` 가 된다. 어떤 역할도 `xhigh` 위로 돌지 않기 때문이다.
 
-- 값이 그 파일이 따른 판(없으면 판 1)의 그 역할 기본값과 같으면 선택이 아니라 기본값이다. 지금 기본값으로 바꾼다. 지금 기본값과 같아지면 그 역할을 `models` 에서 지운다.
-- `panel` 은 목록 전체가 옛 기본 목록과 같을 때만(순서 무관) 지금 기본 목록으로 바꾼다. 일부만 같으면 사용자의 선택이다.
-- 그 밖의 값은 사용자의 선택이라 그대로 둔다.
+그 밖의 값은 모두 사용자의 선택이라 그대로 둔다. `inherit-parent`·`auto` 값도 모두 그렇다. 바꾼 값을 사용자에게 알린다.
 
-바꾼 값을 「역할: 옛 값 → 새 값」 한 줄씩 사용자에게 알린다. 바꾼 게 없으면 말하지 않는다.
+### 3. 예산 정하기, 대응, 확인
 
-### 3. 바꿀 것만 묻기
+**(a) 예산을 묻는다.** 자유 입력보다 `AskUserQuestion` 을 쓴다. 이 세 선택지를 이 이름 그대로 내고, 규칙에 예산이 적혀 있으면 지금 예산을 말한다. 규칙이 없으면 `large` 가 스킬 기본값과 같다고 말한다.
 
-질문은 `AskUserQuestion` 한 번에 묶는다. 이미 값이 있는 항목은 그 값을 첫 선택지(「그대로」)로 둔다. 값이 정해져 있고 사용자가 이번에 그 항목을 바꾸려는 말이 없으면 묻지 않는다.
+- `large: xhigh 추론`
+- `medium: high 추론`
+- `small: medium 추론`
 
-- **개인 저장소.** 값이 없을 때만 묻는다. `git remote get-url origin` 의 소유자와 지금 작업 폴더의 부모 경로를 후보로 낸다. 「없음(모두 회사)」도 선택지에 넣는다.
-- **막는 낱말.** 값이 없을 때만 묻는다. 개인 앱·회사·도구 이름처럼 devkit 을 공개해도 새면 안 되는 낱말이다. 자유 입력으로 받는다. 비워도 된다.
-- **모델.** 역할마다 묻지 않는다. 먼저 하나를 고르게 한다.
-  - `그대로` (지금 값)
-  - `기본값` (위 표 판 1)
-  - `아끼기` : `code` `sonnet`, `hardest` `opus`, `mechanical` `haiku`, `panel` `["opus", "sonnet"]`
-  - `역할별로 고르기`
-  `역할별로 고르기` 를 고르면 그때 역할마다 `opus`/`sonnet`/`haiku`/`fable` 중에서 고르게 한다. `panel` 은 여러 개 고르기로 받는다.
+**(b) 적용한다.** 작업 표를 스킬 기본값으로 만든다. 다시 돌리는 경우에는 사용자가 모델 이름, 목록, 별칭(`inherit-parent`, `auto`)으로 바꾼 역할을 그대로 둔다. 모델 이름(`opus`, `sonnet`, `haiku`, `fable`) 하나하나가 따로 계열이다. 역할마다 목표 노력 값이 있다. 기본값의 노력 값을 예산만큼 옮긴 것이다. `large` 는 그대로, `medium` 은 한 칸 내리고, `small` 은 두 칸 내린다. 사다리는 `xhigh` > `high` > `medium` > `low` 다. 어떤 역할도 `xhigh` 위로 돌지 않고, 사다리 맨 아래에 닿은 목표는 거기 머문다. 기본값 대부분이 `xhigh` 이고, 예산 이름이 그 값들이 닿는 곳을 말한다. 역할의 모든 실제 모델(패널 항목 포함)의 노력 값을 그 역할의 목표로 바꾼다. 결과가 찾은 모델이 아니면 같은 계열에서 목표 이하 중 가장 높은 노력 값의 찾은 모델을 쓰고, 그것도 없으면 그 역할을 고를 것이 필요하다고 표시한다. `inherit-parent` 와 `auto` 는 바뀌지 않는다. 그래서 `medium` 은 `opus xhigh` 를 `opus high` 로, `opus high` 를 `opus medium` 으로 바꾸고, `small` 은 각각 `opus medium` 과 `opus low` 로 바꾼다.
 
-사용자가 처음부터 무엇을 바꿀지 말했으면(「패널을 둘로 줄여」) 그 항목만 바꾸고 묻지 않는다.
+**(c) 역할을 보이고 확인한다.** 모든 역할과 그 모델을 보이고, 찾은 모델에 없는 실제 모델은 고를 것이 필요하다고 표시한다. 2단계에서 지운 줄도 모두 적는다. 그대로 받을지, 특정 역할을 바꿀지 묻는다. 선택지는 `xhigh` 이하의 찾은 모델과 `inherit-parent`, `auto` 다(둘 다 이 역할이 부모 대화의 모델로 돈다는 뜻이다). 자유 입력보다 `AskUserQuestion` 을 쓴다. 패널 역할(`design runners`, `review reviewers`)의 값은 목록이고, 별칭 항목을 포함해 항목 하나에 서브에이전트 하나가 뜨므로 목록 길이가 인원수다. `design cross-judge pool` 도 목록이지만 `/dev:design` 은 심사자 하나만 돌린다. 부모와 다른 회사의 값만 목록 순서대로 시도하므로, 원하는 순서로 놓는다. `fable` 과 다른 Claude 모델은 같은 회사다. `inherit-parent` 나 `auto` 값은 심사하지 않는다. `swarm workers` 는 경주나 비교가 갈래마다 다른 모델을 정하지 않는 한 모든 워커의 기본 모델이다.
 
 ### 4. 검증
 
-- `models` 의 모든 값(패널 항목 포함)이 `opus`, `sonnet`, `haiku`, `fable` 중 하나다. 아니면 다시 묻는다.
-- `panel` 은 항목이 1개 이상인 목록이다.
-- `personal.owners`·`personal.paths`·`private_words` 는 문자열 목록이다.
-- `private_words` 의 항목은 하나씩 정규식으로 컴파일해 본다(`python3 -c 'import re,sys; [re.compile(w) for w in sys.argv[1:]]' ...`). 실패한 항목은 보여 주고 다시 받는다.
-- 새 파일 내용을 임시 파일에 쓰고 `python3 -m json.tool <임시 파일>` 로 유효한지 본다. 통과한 뒤에만 `~/.claude/devkit.json` 을 바꾼다(임시 파일을 옮겨 덮는다). 읽은 뒤 다른 키는 그대로 실어 쓴다.
+쓰는 모든 실제 모델은 찾은 모델에 있고 `xhigh` 이하다. `inherit-parent` 와 `auto` 는 언제나 통과한다. 고른 실제 모델을 쓸 수 없으면 멈추고 다시 묻는다.
 
-### 5. 쓰기
+### 5. 규칙 쓰기
 
-`models_defaults` 를 지금 판으로 쓴다. `models` 에는 기본값과 다른 역할만 쓴다. 남는 게 없으면 `models` 키를 지운다. 다시 돌려도 같은 결과가 나오게 한다.
+`~/.claude/rules/dev-models.md` 를 frontmatter 없이 쓴다. 주석 줄, `# defaults: 3` 줄, 고른 이름과 그 이름이 말하는 노력 값을 적은 `# budget` 줄, 그리고 `/dev:mode` 가 쓰는 이름으로 역할마다 한 줄. 다시 돌려도 같은 결과가 나오게 파일 전체를 덮어쓴다. 역할 줄을 `CLAUDE.md` 나 `AGENTS.md` 에 쓰지 않는다. 모양:
 
-```json
-{
-  "personal": { "owners": ["<내 GitHub 계정>"], "paths": ["~/code/"] },
-  "private_words": ["<내 앱 이름>"],
-  "models": { "panel": ["opus", "sonnet"] },
-  "models_defaults": 1
-}
+```
+# devkit 역할별 모델. 역할마다 한 줄. 줄을 지우면 그 역할은 스킬 기본값으로 돌아간다.
+# 값이 `inherit-parent` 나 `auto` 면 그 역할은 부모 대화의 모델로 돈다(`Agent` 의 `model` 을 뺀다). 패널 목록의 별칭 항목도 인원수에 든다.
+# defaults: 3
+# budget: large (xhigh)
+feature, refactoring: opus xhigh
+bug-fix: opus xhigh
+perf-issue: opus xhigh
+hillclimb: opus xhigh
+judgment and prose: opus xhigh
+design runners: fable high, opus high, inherit-parent
+design cross-judge pool: opus high, inherit-parent
+swarm workers: opus high
+review reviewers: fable high, opus high, inherit-parent
 ```
 
 ### 6. 확인
 
-쓴 파일을 다시 읽어 보여 준다. 다음 `/dev:mode` 실행부터 적용된다고 말한다. 이미 돌고 있는 대화는 시작할 때 읽은 값을 쓴다. 다시 바꾸려면 이 스킬을 다시 부른다.
-
-저장소 구분을 바꿨으면 지금 작업 폴더가 개인인지 회사인지 한 줄로 확인해 보여 준다.
+규칙을 썼고 새 세션부터 적용된다고 말한다. 이 스킬을 다시 돌리면 고쳐진다.
 
 ### 7. 검증 스킬 제안 (한 번)
 
-지금 프로젝트에 앱을 직접 몰아 증명하는 방법(`.claude/skills/verify-*` 스킬이나 기존 하네스)이 있는지 본다. 없으면 한 번만 제안한다. 「에이전트가 사용자처럼 앱을 몰아 변경이 동작하는지 증명하게 하는 프로젝트 전용 검증 스킬을 만들까요? `/dev:verify-setup` 으로 만들 수 있어요.」 그러자고 하면 `/dev:verify-setup` 을 따른다. 아니면 다시 권하지 않는다.
+프로젝트에 진짜 앱을 몰아 증명하는 방법(`verify-*` 스킬이나 기존 하네스)이 있는지 본다. 없으면 한 번만 제안한다. 「에이전트가 사용자처럼 앱을 몰아 변경이 동작하는지 증명하게 하는 프로젝트 전용 검증 스킬을 만들까요? `/dev:verify-setup` 으로 만들 수 있어요.」 그러자고 하면 `/dev:verify-setup` 을 따른다. 아니면 더 권하지 않고 넘어간다.
 
-### 8. 형식 검증 제안 (한 번)
+### 8. 형식 검증 스킬 제안 (한 번)
 
-지금 프로젝트에 형식 검증 스킬(모델 검사기, 증명, 다른 검증기를 코드에 돌리는 프로젝트 스킬)이 있는지 본다. 없으면 한 번만 제안한다. 「테스트가 닿는 경우만이 아니라 범위 안의 모든 경우에 핵심 속성이 성립함을 증명하는 형식 검증 스킬을 만들까요? `/dev:formal-setup` 으로 만들 수 있어요.」 그러자고 하면 `/dev:formal-setup` 을 따른다. 아니면 다시 권하지 않는다.
-
-## 비용 줄이기
-
-사용자가 비용을 걱정하면 토큰이 어디로 가는지와 줄이는 법을 말한다.
-
-- devkit 은 서브에이전트와 리뷰·설계 패널에 토큰을 더 쓴다. 검증에 쓰는 토큰은 줄이지 않는 게 원칙이다(`/dev:mode` 의 「신뢰 피라미드」).
-- 모델을 낮춘다. 3단계의 `아끼기` 나 역할별로 `sonnet`·`haiku`.
-- `panel` 목록을 줄인다. 항목 하나가 서브에이전트 하나다. 하나로 줄이면 다른 모델의 교차 검토가 사라진다는 것을 같이 말한다.
-- `/dev:mode` 는 엄격함이 필요한 일에만 쓴다. 한 줄 수정이나 질문에는 붙이지 않는다.
+프로젝트에 형식 검증 스킬(모델 검사기, 증명, 다른 검증기를 코드에 돌리는 프로젝트 스킬)이 이미 있는지 본다. 없으면 한 번만 제안한다. 「테스트가 닿는 경우만이 아니라 범위 안의 모든 경우에 코드의 핵심 속성이 성립함을 증명하는 형식 검증 스킬을 만들까요? `/dev:formal-setup` 으로 만들 수 있어요.」 그러자고 하면 `/dev:formal-setup` 을 따른다. 아니면 더 권하지 않고 넘어간다.

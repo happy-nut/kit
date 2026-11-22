@@ -74,9 +74,9 @@ devkit 반영은 이렇게 한다.
 1. `<devkit 원본>` 에서 main 을 받아 새 워크트리와 브랜치를 만든다(`git -C <devkit 원본> worktree add ../devkit-reflect-<주제> -b reflect/<주제> origin/main`). main 에 직접 push 하지 않는다.
 2. 고친 뒤 `python3 scripts/check.py` 를 돌려 통과시킨다. 고친 문장이 `docs/authoring.md` 의 글 규칙을 지키는지 /dev:write 기준으로 다시 읽는다.
 3. 커밋하고 PR 을 연다. PR 본문에는 행마다 문제, 고친 곳, 근거(세션 UUID 또는 날짜)를 한 줄씩 쓴다.
-4. devkit 은 개인 저장소다. 승인한 행의 반영은 「고쳐」와 같아서 CI 통과와 머지까지 간다. 머지 뒤 `claude plugin update dev@kit` 를 돌린다. 서드파티 마켓플레이스는 자동 업데이트가 꺼져 있다.
+4. 승인한 행의 반영은 CI 통과와 머지까지 간다. 머지 뒤 `claude plugin update dev@kit` 를 돌린다. 서드파티 마켓플레이스는 자동 업데이트가 꺼져 있다.
 
-저장소 `AGENTS.md` 반영은 그 저장소의 규칙(개인이면 PR·머지, 회사면 PR 까지)을 따른다.
+저장소 `AGENTS.md` 반영은 그 저장소의 규칙을 따른다.
 
 ## 5. 사용자에게 요약
 
