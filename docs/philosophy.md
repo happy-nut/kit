@@ -67,7 +67,7 @@ kit 이 끝내 도달하려는 이상이다. 판단이 갈리면 이 이상에 �
 
 | 이 문서의 생각 | kit 의 장치 |
 |---|---|
-| 신뢰 피라미드, 공장보다 기초 | `skills/mode/playbooks/autonomous-run.md` 0단계 |
+| 신뢰 피라미드, 공장보다 기초 | `/dev:verify-setup`, `/dev:correct`, principles.md 의 Build the Lever |
 | 교정은 장치로 | `/dev:correct`, principles.md 의 Encode Lessons in Structure |
 | 주석은 탈출구 | `/dev:no-comments`, `/dev:deslop` |
 | 런타임 검증과 기능 지도 | `/dev:verify-setup` |

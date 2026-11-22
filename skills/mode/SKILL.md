@@ -105,7 +105,7 @@ disable-model-invocation: true
 
 일에 맞는 플레이북을 골라 `playbooks/<이름>.md` 를 연다. 그 단계를 먼저 작업 목록에 옮긴다. 크거나 여러 곳을 가로지르는 일, 사람 없이 도는 일, 맞는 플레이북이 없는 일은 아래 「맞춤 플레이북」으로 간다.
 
-조사 `investigation`, 버그 수정 `bug-fix`, 성능 `perf-issue`, 힐클라임 `hillclimb`, 런타임 포렌식 `runtime-forensics`, 트레이스 포렌식 `trace-forensics`, 기능 `feature`, 리팩터링 `refactoring`, 프로토타입 `prototype`, 화면 일치 `visual-parity`, 스킬 작성 `authoring-a-skill`, 평가 `eval`, PR 돌보기 `babysit`, 내보내기 `shipping`, 자율 실행 `autonomous-run`, 오토파일럿 `autopilot-full`, 오토파일럿 스택 `autopilot-stack`, 이어받기 `session-pickup`, 안전하게 멈추기 `pause-safely`, 여러 단계 계획 `multi-phase-plan`, 프로그램 지휘 `orchestrate`, 워크트리 정리 `worktree-cleanup`, PR 열기 `opening-a-pr`.
+조사 `investigation`, 버그 수정 `bug-fix`, 성능 `perf-issue`, 힐클라임 `hillclimb`, 런타임 포렌식 `runtime-forensics`, 트레이스 포렌식 `trace-forensics`, 기능 `feature`, 리팩터링 `refactoring`, 프로토타입 `prototype`, 화면 일치 `visual-parity`, 스킬 작성 `authoring-a-skill`, 평가 `eval`, PR 돌보기 `babysit`, 내보내기 `shipping`, 자율 실행 `autonomous-run`, 오토파일럿 `autopilot-full`, 오토파일럿 스택 `autopilot-stack`, 이어받기 `session-pickup`, 안전하게 멈추기 `pause-safely`, 여러 단계 계획 `multi-phase-plan`, 워크트리 정리 `worktree-cleanup`, PR 열기 `opening-a-pr`.
 
 ## 맞춤 플레이북
 
