@@ -1,39 +1,9 @@
 # PR 열기
 
-**언제.** 다른 모든 플레이북의 끝에서 부른다.
+다른 모든 플레이북의 끝에서 부른다.
 
-**소유.** PR 의 모양을 소유한다. 커밋 순서, 제목, 본문, 크기, 스택 구조.
+trunk 에서 딴 git 워크트리에서 일하고, 관계없는 작업을 섞지 않는다. 홀로 착지할 수 있는 작은 커밋으로 rebase 한다. 커밋 전에 diff 에 `/dev:deslop` 을 돌린다.
 
-## 단계
+제목은 `type(scope): subject` 다. 변경을 실어 나르는 실제 심볼이 있으면 그 이름을 쓴다. 본문은 40줄 안의 1분 브리핑이다. 아래 `##` 제목을 이 순서로 쓰고 빈 것은 뺀다. `## Why`, `## What changed`, `## Scope`, `## Tradeoffs`(리뷰어가 안 적으면 물어볼 버린 대안만), `## Blast Radius`, `## Verification`.
 
-1. trunk 에서 딴 git 워크트리에서 일하고 관계없는 작업을 섞지 않는다.
-   같은 브랜치에 `Agent` 를 여러 번 띄우면 각자 `isolation: "worktree"` 로 따로 받는다. 관계없는 작업이 섞였으면 패치로 빼서 새 워크트리에 적용한다.
-2. PR 을 열기 전에 홀로 착지할 수 있는 작은 커밋으로 rebase 한다.
-3. 커밋 전에 diff 를 정리하고, 리뷰 전에 `/dev:no-comments` 를 돌린다.
-   정리는 `/simplify` 나 diff 다시 읽기로 서술 주석, 근거 없는 방어 코드, 죽은 호환 경로, 관계없는 수정을 지우는 것이다. PR 제목, 본문, 커밋 본문은 `/dev:write` 로 쓴다. 손님이 읽는 글이 diff 에 있으면 korean-humanizer 를 거치고 본문에 「휴머나이즈 거침」을 한 줄 적는다.
-4. 제목은 `type(scope): subject` 다.
-   변경을 실어 나르는 실제 심볼이 있으면 그 이름을 쓴다. 제목·본문 언어는 저장소 이력을 따른다.
-5. 본문은 diff 를 가진 리뷰어를 위한 1분 브리핑이고 40줄을 넘지 않는다.
-   아래 `##` 제목을 이 순서로 쓰고 할 말이 없는 절은 뺀다. 저장소 `AGENTS.md`·PR 템플릿이 형식을 정하면 그것이 먼저다.
-   - `## 왜`: 사용자의 목표로 시작해 문제와 접근을 짧게.
-   - `## 바뀐 것`
-   - `## 범위`: 무엇을 다루고 무엇을 일부러 빼는지.
-   - `## 트레이드오프`: 리뷰어가 물어볼 만한 버린 대안만.
-   - `## 파급 범위`
-   - `## 검증`: 실제로 돌린 경로와 결과. 성능은 대표 숫자 하나를 `전 → 후` 로.
-   증거 로그, 실행 이력, 긴 표는 파일이나 PR 코멘트에 두고 본문에서 링크한다. 화면 변경이면 기능마다 스크린샷을 붙인다. 본문 끝에는 세션이 주는 attribution 줄을 붙인다.
-6. PR 도구를 한 번 정하고 만들기·고치기·조회·감시·머지 내내 그것을 쓴다.
-   기본은 GitHub CLI `gh`. `command -v gt` 가 성공하고 이 저장소에서 `gt log short` 가 돌면 스택 만들기·restack·submit 은 Graphite `gt` 로 하고, 조회·코멘트·머지는 `gh` 로 한다. `gt` 가 없으면 전부 `gh` 로 하고 그 사실을 기록한다. `gt` 를 요구하지 않는다. 세션이 PR 을 추적하는 도구를 주면(데스크톱 앱의 PR 연결 등) 만든 PR 을 거기에 연결한다.
-7. 큰 PR 하나보다 좁은 PR 여럿을 고르고, 후속은 base 브랜치로 쌓는다.
-   뿌리 PR 은 trunk 를 겨눈다. 자식은 부모 브랜치를 겨눈다(`gh pr create --base <parent-branch>`, 또는 `gt create` 뒤 `gt submit`). 부모가 머지되면 `shipping.md` 4단계대로 자식을 trunk 로 옮긴다. trunk 에서 따는 것은 독립 작업뿐이다.
-8. PR 은 늘 ready 로 연다.
-   `gh pr create` 에 `--draft` 를 붙이지 않는다. 그래도 draft 로 열리면 `gh pr ready <number>`.
-9. PR 을 열었다고 babysit 을 시작하지 않는다.
-   URL 을 올리고 phase 나 스택을 마저 만든다.
-
-PR 을 여는 서브에이전트는 URL 을 올리고 babysit 없이 부모에게 돌아온다. 예외는 `autopilot-full.md`·`autopilot-stack.md` 의 담당이다. 그 브리프가 babysit 루프를 맡긴다.
-
-## 답변에 넣을 것
-
-- PR 링크(`https://github.com/<owner>/<repo>/pull/<number>`)와 스택 순서.
-- 쓴 PR 도구(`gh` 또는 `gt`)와 대체했으면 그 사실.
+후속은 base 브랜치로 쌓는다. PR 은 ready 로 연다. `gh pr create` 를 `--draft` 없이 쓰거나, Origin CLI 가 저장소를 풀면 `origin pr create --status open` 을 쓴다. PR 을 열었다고 babysit 을 시작하지 않는다.

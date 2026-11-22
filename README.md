@@ -34,7 +34,7 @@ claude plugin update dev@kit
 에이전트는 이 순서로 일한다.
 
 1. 목표와 가장 작은 변경을 자기 말로 한 번 적는다.
-2. 플레이북 23개 가운데 하나를 고르고, 그 단계를 작업 목록에 옮긴다.
+2. 플레이북 22개 가운데 하나를 고르고, 그 단계를 작업 목록에 옮긴다.
 3. 단계마다 필요한 원칙 절을 읽고, 필요하면 서브에이전트에 일을 나눈다.
 4. 스크린샷, 실행 출력처럼 확인한 증거를 붙여 보고한다.
 
@@ -53,7 +53,7 @@ claude plugin update dev@kit
 ```
 skills/mode/SKILL.md             /dev:mode. 플레이북을 고르는 라우터
 skills/mode/principles.md        원칙 24개. 한 파일에 절마다 "## 영어 이름"
-skills/mode/playbooks/           플레이북 23개
+skills/mode/playbooks/           플레이북 22개
 skills/mode/references/          플레이북이 읽는 참고 문서
 skills/mode/scripts/             플레이북이 돌리는 스크립트
 skills/<이름>/SKILL.md           /dev:<이름> 으로 부르는 스킬. mode 를 넣어 31개
