@@ -1,6 +1,6 @@
 ---
 name: catchup-video
-description: "/dev:catchup 처럼 따라잡게 하되, 일어난 일은 자막 달린 짧은 슬라이드 영상으로 보여 주고 사용자를 기다리는 결정은 그 아래 글로 둔다. Use for /dev:catchup-video, \"catch me up with a video\", \"show me what happened as a video\"."
+description: "/dev:catchup 처럼 따라잡게 하되, 일어난 일은 자막 달린 짧은 슬라이드 영상으로 보여 주고 사용자를 기다리는 결정은 그 아래 글로 둔다. 「영상으로 따라잡게 해 줘」, 「무슨 일이 있었는지 영상으로 보여 줘」에 쓴다. /dev:catchup-video"
 disable-model-invocation: true
 ---
 

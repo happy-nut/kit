@@ -1,6 +1,6 @@
 ---
 name: verify-setup
-description: "앱을 사용자처럼 몰아 동작을 증명하는 프로젝트 전용 검증 스킬(<저장소>/.claude/skills/verify-<앱>/)을 만들고, 앱이 바뀌면 기능 지도를 다시 맞춘다. 언어·프레임워크·플랫폼 무관. Use for /dev:verify-setup, \"make a verify skill for this repo\", \"audit the verify skill\", or when a project has no scripted way to prove UI/CLI/service behavior."
+description: "앱을 사용자처럼 몰아 동작을 증명하는 프로젝트 전용 검증 스킬(<저장소>/.claude/skills/verify-<앱>/)을 만들고, 앱이 바뀌면 기능 지도를 다시 맞춘다. 언어·프레임워크·플랫폼 무관. 「이 저장소에 검증 스킬 만들어」, 「검증 스킬 점검해」, 화면·CLI·서비스 동작을 스크립트로 증명할 길이 없는 프로젝트에 쓴다. /dev:verify-setup"
 disable-model-invocation: true
 ---
 

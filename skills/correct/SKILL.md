@@ -1,6 +1,6 @@
 ---
 name: correct
-description: "이 저장소에서 에이전트가 되풀이하는 실수를 찾아 하나씩 불가능하게 만든다. 아키텍처, 타입, 고칠 길을 이름으로 알려 주는 lint, 테스트 순으로 시도하고 문서는 마지막. 새 검사가 실제 과거 실수에서 실패함을 증명한다. 운영자가 교정할 때마다 되풀이한다. Use for 'correct', 'stop making this mistake', 'make this impossible', repeated corrections. /dev:correct"
+description: "이 저장소에서 에이전트가 되풀이하는 실수를 찾아 하나씩 불가능하게 만든다. 아키텍처, 타입, 고칠 길을 이름으로 알려 주는 lint, 테스트 순으로 시도하고 문서는 마지막. 새 검사가 실제 과거 실수에서 실패함을 증명한다. 운영자가 교정할 때마다 되풀이한다. 「교정해」, 「이 실수 그만해」, 「이거 못 하게 막아」, 되풀이되는 교정에 쓴다. /dev:correct"
 disable-model-invocation: true
 ---
 

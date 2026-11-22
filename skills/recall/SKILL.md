@@ -1,6 +1,6 @@
 ---
 name: recall
-description: "일을 시작하거나 다시 잡기 전에 최근 대화 기록·현재 상태·공유 기록(사용자 보고, 지난 수정, 사고)에서 작업 맥락을 다시 세워 짧은 현황 브리프를 준다. Use for 'recall my work on X', 'catch me up', 'what have I been working on', 'where did I leave off', before starting or resuming work. /dev:recall"
+description: "일을 시작하거나 다시 잡기 전에 최근 대화 기록·현재 상태·공유 기록(사용자 보고, 지난 수정, 사고)에서 작업 맥락을 다시 세워 짧은 현황 브리프를 준다. 「X 하던 거 떠올려 줘」, 「따라잡게 해 줘」, 「요즘 뭐 하고 있었지」, 「어디까지 했더라」, 일을 시작하거나 다시 잡기 전에 쓴다. /dev:recall"
 disable-model-invocation: true
 ---
 

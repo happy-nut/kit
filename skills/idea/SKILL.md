@@ -1,6 +1,6 @@
 ---
 name: idea
-description: "원하는 이상을 대화로 듣고, 현재 상태를 증거로 조사해 그 갭을 문제로 정의한 뒤, MECE 로직 트리(What·Why)를 한 단씩 설명하며 쌓아 임팩트가 가장 큰 현실적 문제 하나를 고르고, /dev:mode 로 바로 실행할 프롬프트까지 쓴다. 해결은 하지 않는다. Use for /dev:idea, 'what should I work on', 'what is the real problem', 'I want X, where is the gap', problem definition, issue tree, MECE breakdown."
+description: "원하는 이상을 대화로 듣고, 현재 상태를 증거로 조사해 그 갭을 문제로 정의한 뒤, MECE 로직 트리(What·Why)를 한 단씩 설명하며 쌓아 임팩트가 가장 큰 현실적 문제 하나를 고르고, /dev:mode 로 바로 실행할 프롬프트까지 쓴다. 해결은 하지 않는다. 「뭘 해야 할까」, 「진짜 문제가 뭐야」, 「X 를 원하는데 갭이 어디야」, 문제 정의, 이슈 트리, MECE 쪼개기에 쓴다. /dev:idea"
 disable-model-invocation: true
 ---
 

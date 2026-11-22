@@ -1,6 +1,6 @@
 ---
 name: swarm
-description: "워커 N개를 병렬로 풀어 끝까지 거둔 뒤 보고서 하나로 돌려준다. 조각 나눠 덮기, 같은 브리프로 경주, 혼합. Use for 'swarm this', parallel coverage, races, gauntlets, and exploration. /dev:swarm"
+description: "워커 N개를 병렬로 풀어 끝까지 거둔 뒤 보고서 하나로 돌려준다. 조각 나눠 덮기, 같은 브리프로 경주, 혼합. 「여럿 풀어서 해」, 병렬로 덮기, 경주, 관문, 탐색에 쓴다. /dev:swarm"
 disable-model-invocation: true
 ---
 

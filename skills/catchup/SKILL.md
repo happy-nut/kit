@@ -1,6 +1,6 @@
 ---
 name: catchup
-description: "사용자의 마지막 메시지 뒤로 이 대화에서 바뀐 것을 휴대폰에서 읽을 만큼 짧게 따라잡게 하고, 사용자만 내릴 수 있는 결정을 답장만 보고 내릴 수 있게 정리한다. Use for /dev:catchup, \"catch me up on this chat\", \"what happened while I was away\", \"what do you need from me\"."
+description: "사용자의 마지막 메시지 뒤로 이 대화에서 바뀐 것을 휴대폰에서 읽을 만큼 짧게 따라잡게 하고, 사용자만 내릴 수 있는 결정을 답장만 보고 내릴 수 있게 정리한다. 「이 대화 따라잡게 해 줘」, 「자리 비운 사이 무슨 일 있었어」, 「나한테 필요한 게 뭐야」에 쓴다. /dev:catchup"
 disable-model-invocation: true
 ---
 

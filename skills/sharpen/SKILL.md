@@ -1,6 +1,6 @@
 ---
 name: sharpen
-description: "일을 더 크게가 아니라 더 깊게 만든 뒤 프롬프트를 다시 쓴다. Use for /dev:sharpen, 'sharpen this prompt', 'make this deeper'."
+description: "일을 더 크게가 아니라 더 깊게 만든 뒤 프롬프트를 다시 쓴다. 「이 프롬프트 날카롭게」, 「더 깊게 만들어」에 쓴다. /dev:sharpen"
 disable-model-invocation: true
 ---
 

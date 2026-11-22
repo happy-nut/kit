@@ -1,6 +1,6 @@
 ---
 name: mode
-description: "간결하고 자세한 답, 신중한 서브에이전트, 다듬은 글, 단순한 코드, 확인한 결과로 일하는 작업 방식. Use for /dev:mode, or requests to work in this style."
+description: "간결하고 자세한 답, 신중한 서브에이전트, 다듬은 글, 단순한 코드, 확인한 결과로 일하는 작업 방식. 이 방식으로 일해 달라는 요청에 쓴다. /dev:mode"
 disable-model-invocation: true
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: review
-description: "변경이나 설계를 여러 모델이 적대적으로 깨 보고, 실행으로 증명된 것만 act on/consider/noted/dismissed 로 나눠 보고한다. diff 너머 파급 범위와 안전 근거 한 가지를 스크립트로 증명한다. 고치지 않는다. Use for 'review', 'interrogate', 'adversarial review', 'multi-model review', 'challenge this', 'stress test this code', 'find blind spots', 'tear this apart', 'blast radius of X', 'what could this break'. /dev:review"
+description: "변경이나 설계를 여러 모델이 적대적으로 깨 보고, 실행으로 증명된 것만 act on/consider/noted/dismissed 로 나눠 보고한다. diff 너머 파급 범위와 안전 근거 한 가지를 스크립트로 증명한다. 고치지 않는다. 「리뷰해」, 「캐물어 봐」, 「적대적 리뷰」, 「여러 모델로 리뷰」, 「이거 반박해 봐」, 「이 코드 버티나 봐」, 「사각지대 찾아」, 「X 의 파급 범위」, 「이거 뭐가 깨질 수 있어」에 쓴다. /dev:review"
 disable-model-invocation: true
 ---
 

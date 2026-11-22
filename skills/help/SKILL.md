@@ -1,6 +1,6 @@
 ---
 name: help
-description: "devkit 안내. 설치와 설정, /dev:mode 로 일 시작하기, 상황에 맞는 스킬·플레이북·원칙 고르기, 잘못 돈 실행 바로잡기를 질문에 맞춰 답하고 보낼 프롬프트 하나를 준다. Use for /dev:help, \"how do I use devkit\", \"which devkit skill\", \"what should I use for\", \"devkit help\"."
+description: "devkit 안내. 설치와 설정, /dev:mode 로 일 시작하기, 상황에 맞는 스킬·플레이북·원칙 고르기, 잘못 돈 실행 바로잡기를 질문에 맞춰 답하고 보낼 프롬프트 하나를 준다. 「devkit 어떻게 써」, 「어떤 스킬 써야 해」, 「이럴 땐 뭘 써」, 「devkit 도움말」에 쓴다. /dev:help"
 disable-model-invocation: true
 ---
 

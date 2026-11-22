@@ -1,6 +1,6 @@
 ---
 name: repro-fix
-description: "분류가 끝난 확인된 버그를 프로젝트 검증 스킬(verify-<앱>)과 기능 지도로 실제 UI 에서 두 번 재현하고, 이미 있는 수정은 검증만 하고, 재현이 확인된 뒤에만 범위를 정한 근본 원인 수정을 전후 증거와 함께 초안 PR 로 낸다. Use for /dev:repro-fix, \"reproduce this reported bug\", \"repro and draft a fix\", or from a configured repro routine."
+description: "분류가 끝난 확인된 버그를 프로젝트 검증 스킬(verify-<앱>)과 기능 지도로 실제 UI 에서 두 번 재현하고, 이미 있는 수정은 검증만 하고, 재현이 확인된 뒤에만 범위를 정한 근본 원인 수정을 전후 증거와 함께 초안 PR 로 낸다. 「보고된 버그 재현해」, 「재현하고 수정 초안 내」, 설정된 재현 루틴에서 쓴다. /dev:repro-fix"
 disable-model-invocation: true
 ---
 

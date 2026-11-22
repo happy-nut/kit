@@ -1,6 +1,6 @@
 ---
 name: design
-description: "코드 전에 타입·시그니처·모듈 구조를 여러 모델로 병렬 스케치하고, 기반 하나를 골라 다른 안의 좋은 점을 접붙인 뒤 그 스케치를 계약 삼아 구현한다. 설계가 아닌 산출물도 같은 경쟁 절차로 돌린다. Use for 'design this', 'architect this', 'arena this', 'throw it in the arena', or non-trivial work where one attempt would lock in the wrong shape. /dev:design"
+description: "코드 전에 타입·시그니처·모듈 구조를 여러 모델로 병렬 스케치하고, 기반 하나를 골라 다른 안의 좋은 점을 접붙인 뒤 그 스케치를 계약 삼아 구현한다. 설계가 아닌 산출물도 같은 경쟁 절차로 돌린다. 「이거 설계해」, 「구조 잡아」, 「여러 안으로 겨뤄 봐」, 한 번 시도로는 틀린 모양이 굳을 만한 일에 쓴다. /dev:design"
 disable-model-invocation: true
 ---
 

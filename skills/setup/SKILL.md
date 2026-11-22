@@ -1,6 +1,6 @@
 ---
 name: setup
-description: "devkit 이 역할마다 쓸 모델과 추론 예산을 정한다. 쓸 수 있는 모델을 찾아 스킬 기본값을 덮는 규칙 파일 ~/.claude/rules/dev-models.md 를 쓴다. Use for /dev:setup, \"configure devkit models\", \"devkit budget\", or changing devkit's model choices."
+description: "devkit 이 역할마다 쓸 모델과 추론 예산을 정한다. 쓸 수 있는 모델을 찾아 스킬 기본값을 덮는 규칙 파일 ~/.claude/rules/dev-models.md 를 쓴다. 「devkit 모델 설정해」, 「devkit 예산」, devkit 의 모델 선택을 바꿀 때 쓴다. /dev:setup"
 disable-model-invocation: true
 ---
 

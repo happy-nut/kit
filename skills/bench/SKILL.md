@@ -1,6 +1,6 @@
 ---
 name: bench
-description: "성능 측정을 보고하거나 그에 따라 움직이기 전에 검증한다. 병목, 튜닝, 한계, 오류, 재현성, 의미, 일이 정말 일어났는지. Use when you run a benchmark, report a speedup or regression you measured, or choose a library or config by measurement. /dev:bench"
+description: "성능 측정을 보고하거나 그에 따라 움직이기 전에 검증한다. 병목, 튜닝, 한계, 오류, 재현성, 의미, 일이 정말 일어났는지. 벤치마크를 돌릴 때, 잰 개선이나 회귀를 보고할 때, 측정으로 라이브러리나 설정을 고를 때 쓴다. /dev:bench"
 disable-model-invocation: true
 ---
 

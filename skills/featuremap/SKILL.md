@@ -1,6 +1,6 @@
 ---
 name: featuremap
-description: "프로젝트의 사용자 진입점을 코드에서 뽑아, 뿌리(앱) → 원천 → 화면·범위 → 끝점으로 흐르는 나무 그래프 HTML 한 장으로 그린다. 그릴 때마다 모든 가지에서 MECE(자식 합 = 부모, 잎 중복 0, 코드의 원천 개수 = 잎 개수)를 다시 검사하고, 아니면 그리지 않는다. 끝점마다 기능 지도(.claude/skills/verify-<앱>/features)의 하위 기능으로 자동 검증·방법만·검증 없음을 덧칠하고, 자동 검증이 없는 곳은 흐리게 보인다. 화면 앱, 백엔드, 라이브러리 모두. Use for /dev:featuremap, \"feature map html\", \"show the feature map\", \"feature map coverage\"."
+description: "프로젝트의 사용자 진입점을 코드에서 뽑아, 뿌리(앱) → 원천 → 화면·범위 → 끝점으로 흐르는 나무 그래프 HTML 한 장으로 그린다. 그릴 때마다 모든 가지에서 MECE(자식 합 = 부모, 잎 중복 0, 코드의 원천 개수 = 잎 개수)를 다시 검사하고, 아니면 그리지 않는다. 끝점마다 기능 지도(.claude/skills/verify-<앱>/features)의 하위 기능으로 자동 검증·방법만·검증 없음을 덧칠하고, 자동 검증이 없는 곳은 흐리게 보인다. 화면 앱, 백엔드, 라이브러리 모두. 「기능 지도 HTML 로」, 「기능 지도 보여 줘」, 「기능 지도 커버리지」에 쓴다. /dev:featuremap"
 disable-model-invocation: true
 ---
 

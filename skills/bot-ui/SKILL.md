@@ -1,6 +1,6 @@
 ---
 name: bot-ui
-description: "사용자가 누르는 페이지(버튼, 대시보드)와 이 컴퓨터의 로컬 서버를 만들어 Claude Code 원격 루틴을 API 트리거로 깨운다. 루틴 토큰은 서버 설정에만 두고, 페이지는 Tailscale 로 연다. Use for /dev:bot-ui, \"make a UI that wakes a routine\", \"button page that triggers a Claude Code routine\", \"routine API trigger token\", \"expose the page on Tailscale\"."
+description: "사용자가 누르는 페이지(버튼, 대시보드)와 이 컴퓨터의 로컬 서버를 만들어 Claude Code 원격 루틴을 API 트리거로 깨운다. 루틴 토큰은 서버 설정에만 두고, 페이지는 Tailscale 로 연다. 「루틴을 깨우는 화면 만들어」, 「누르면 루틴이 도는 버튼 페이지」, 「루틴 API 트리거 토큰」, 「페이지를 Tailscale 로 열어」에 쓴다. /dev:bot-ui"
 disable-model-invocation: true
 ---
 
