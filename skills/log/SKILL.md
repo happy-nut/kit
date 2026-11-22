@@ -1,6 +1,6 @@
 ---
 name: log
-description: "오래 걸리거나 사람 없이 도는 일의 결정 기록을 남긴다. 결정마다 한 줄(무엇을, 왜, 근거, 결과)인 TSV 하나. 기본은 로컬, 리뷰어가 결과를 믿는 데 기록이 필요할 때만 커밋한다. Use for /dev:log, \"show me your work\", \"keep a decision log\", autonomous or multi-phase runs, or work a human reviews after stepping away."
+description: "오래 걸리거나 사람 없이 도는 일의 결정 기록을 남긴다. 결정마다 한 줄(무엇을, 왜, 근거, 결과)인 TSV 하나. 기본은 로컬, 리뷰어가 결과를 믿는 데 기록이 필요할 때만 커밋한다. 「한 일 보여 줘」, 「결정 기록 남겨」, 자율 실행이나 여러 단계 실행, 사람이 자리를 비운 뒤 검토하는 일에 쓴다. /dev:log"
 disable-model-invocation: true
 ---
 

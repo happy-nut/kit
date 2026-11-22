@@ -1,6 +1,6 @@
 ---
 name: why
-description: "왜 이렇게 됐는지 기록(커밋·PR·이슈)에서 근거를 찾아 답하고, 원하면 how 와 엮어 한 줄기로 가르친다. Use for 'why does X work this way', 'why we picked Y', design rationale, regressions, postmortems, data-backed thresholds, 'teach me this', 'help me really understand X', 'explain this change or subsystem to me'. 실행 흐름은 /dev:how. /dev:why"
+description: "왜 이렇게 됐는지 기록(커밋·PR·이슈)에서 근거를 찾아 답하고, 원하면 how 와 엮어 한 줄기로 가르친다. 「X 는 왜 이렇게 돌아가」, 「Y 는 왜 골랐어」, 설계 근거, 회귀, 사후 분석, 데이터로 정한 기준값, 「이거 가르쳐 줘」, 「X 를 제대로 이해하고 싶어」, 「이 변경이나 하위 시스템을 설명해 줘」에 쓴다. 실행 흐름은 /dev:how. /dev:why"
 disable-model-invocation: true
 ---
 

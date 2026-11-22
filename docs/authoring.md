@@ -86,5 +86,5 @@ scripts/check.py                저장소 검사. 고치면 반드시 돌린다
 - 같은 규칙은 한 파일에만 쓰고 다른 곳은 그 절을 가리킨다.
 - 원칙, mode, correct, setup 은 원본과 뜻이 같게 둔다. 원본에 없는 규칙을 더하지 않는다.
 - 사람·앱·개인 도구 이름을 쓰지 않는다(`check.py` 가 `private_words` 로 막는다).
-- frontmatter: `name`, `description`(한 줄, 따옴표. 한국어 뜻 + 영어 트리거 문구 + `/dev:<이름>`), `disable-model-invocation: true`.
+- frontmatter: `name`, `description`(한 줄, 따옴표. 한국어 뜻 + 「…」, 「…」에 쓴다 꼴의 한국어 트리거 문구 + `/dev:<이름>`. 영어 Use for 와 영어 인용 문구는 `check.py` 가 막는다), `disable-model-invocation: true`.
 - Cursor 전용이라 Claude Code 에서 못 하는 단계는 지우거나 위 표대로 바꾼다. 「Skipped」 같은 줄을 남기지 않는다.

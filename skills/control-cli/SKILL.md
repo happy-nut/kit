@@ -1,6 +1,6 @@
 ---
 name: control-cli
-description: "외부 서비스 없이 로컬 하네스를 만들거나 고쳐 대화형 CLI·TUI 를 몰고 들여다보고 프로파일한다. CLI 사용성 확인, 시작 시간 회귀, 메모리 누수, 멈춤, 프롬프트 흐름, 터미널 데모에 쓴다. Use for 'control the CLI', 'drive the TUI', 'reproduce this CLI bug', 'profile startup'. /dev:control-cli"
+description: "외부 서비스 없이 로컬 하네스를 만들거나 고쳐 대화형 CLI·TUI 를 몰고 들여다보고 프로파일한다. CLI 사용성 확인, 시작 시간 회귀, 메모리 누수, 멈춤, 프롬프트 흐름, 터미널 데모에 쓴다. 「CLI 직접 돌려 봐」, 「TUI 몰아 봐」, 「이 CLI 버그 재현해」, 「시작 시간 프로파일해」에 쓴다. /dev:control-cli"
 disable-model-invocation: true
 ---
 

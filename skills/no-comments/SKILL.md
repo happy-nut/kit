@@ -1,6 +1,6 @@
 ---
 name: no-comments
-description: "읽기 전용 주석 리뷰어(dev:comment-reviewer)를 띄워 범위 파일의 주석을 하나도 빠짐없이 심사받고, 받아들인 지적대로 주석을 지우고 우회 코드를 근본에서 고치고, 주장된 제약은 타입·테스트·린트로 굳히자고 제안한다. Use for /dev:no-comments, \"remove comments\", \"comment cleanup\", \"kill workaround comments\", before opening a PR."
+description: "읽기 전용 주석 리뷰어(dev:comment-reviewer)를 띄워 범위 파일의 주석을 하나도 빠짐없이 심사받고, 받아들인 지적대로 주석을 지우고 우회 코드를 근본에서 고치고, 주장된 제약은 타입·테스트·린트로 굳히자고 제안한다. 「주석 지워」, 「주석 정리해」, 「우회 주석 없애」, PR 열기 전에 쓴다. /dev:no-comments"
 disable-model-invocation: true
 ---
 

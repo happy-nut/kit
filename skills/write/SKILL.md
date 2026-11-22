@@ -1,6 +1,6 @@
 ---
 name: write
-description: "한국어 글(문서, README, RFC, PR 설명, 커밋 메시지, 보고, 에이전트용 글)을 쓰거나 고칠 때의 기준. AI 티(번역체, 상투어, 명사화, 과장, 억지 대구, 마무리 상투구, 긴 대시)를 걷어내고 피곤한 엔지니어가 한 번에 읽게 쓴다. 손님이 읽는 글은 korean-humanizer 로 넘겨 승인받는다. Use for /dev:write, \"unslop\", \"technical writing\", \"cut AI tells\", writing or reviewing docs, readmes, PR descriptions, commit messages."
+description: "한국어 글(문서, README, RFC, PR 설명, 커밋 메시지, 보고, 에이전트용 글)을 쓰거나 고칠 때의 기준. AI 티(번역체, 상투어, 명사화, 과장, 억지 대구, 마무리 상투구, 긴 대시)를 걷어내고 피곤한 엔지니어가 한 번에 읽게 쓴다. 손님이 읽는 글은 korean-humanizer 로 넘겨 승인받는다. 「AI 티 걷어내」, 「기술 문서 써」, 문서·README·PR 설명·커밋 메시지를 쓰거나 리뷰할 때 쓴다. /dev:write"
 disable-model-invocation: true
 ---
 

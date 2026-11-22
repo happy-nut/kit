@@ -1,6 +1,6 @@
 ---
 name: triage
-description: "Slack 같은 채널에 올라온 이슈 보고 하나를 분류하고, 원래 스레드 안에 판정 답글 하나만 남긴다. 원인 추적 뒤 라우팅, 트래커 중복 찾기, 확실한 새 버그만 티켓 만들기, 불확실하면 쓰지 않기. 처음 한 번 설정 절이 원격 루틴 준비까지 다룬다. Use for /dev:triage, \"triage this issue report\", \"set up issue triage\", or from a configured triage routine."
+description: "Slack 같은 채널에 올라온 이슈 보고 하나를 분류하고, 원래 스레드 안에 판정 답글 하나만 남긴다. 원인 추적 뒤 라우팅, 트래커 중복 찾기, 확실한 새 버그만 티켓 만들기, 불확실하면 쓰지 않기. 처음 한 번 설정 절이 원격 루틴 준비까지 다룬다. 「이 이슈 보고 분류해」, 「이슈 분류 설정해」, 설정된 분류 루틴에서 쓴다. /dev:triage"
 disable-model-invocation: true
 ---
 

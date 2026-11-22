@@ -35,6 +35,8 @@ def check_frontmatter(skills, agents):
         d = fm.get('description', '')
         if not d or len(d) >= 1024:
             errors.append(f'skills/{name}: description 없음 또는 너무 김')
+        if re.search(r"Use (for|when)|'[A-Za-z][^']*'|\\\"[A-Za-z]", d):
+            errors.append(f'skills/{name}: description 의 쓰는 때와 트리거 문구는 한국어로 쓴다(「…」에 쓴다). 영어 Use for 나 영어 인용 문구가 남았다')
     for name in agents:
         fm, _ = frontmatter(f'agents/{name}.md')
         if fm.get('name') != name or not fm.get('description'):

@@ -1,6 +1,6 @@
 ---
 name: control-ui
-description: "로컬 브라우저·CDP 하네스를 만들거나 고쳐 웹·IDE·Electron·데스크톱 앱 화면을 몰고 들여다본다. 로컬 화면 검증, 스크린샷, 접근성 스냅숏, 성능 프로파일, 화면 비교, 화면 버그 재현에 쓴다. Use for 'control the UI', 'drive the browser', 'screenshot the app', 'reproduce this UI bug'. /dev:control-ui"
+description: "로컬 브라우저·CDP 하네스를 만들거나 고쳐 웹·IDE·Electron·데스크톱 앱 화면을 몰고 들여다본다. 로컬 화면 검증, 스크린샷, 접근성 스냅숏, 성능 프로파일, 화면 비교, 화면 버그 재현에 쓴다. 「화면 직접 조작해 봐」, 「브라우저 몰아 봐」, 「앱 스크린샷 찍어」, 「이 화면 버그 재현해」에 쓴다. /dev:control-ui"
 disable-model-invocation: true
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: reflect
-description: "지금 대화나 최근 대화 기록에서 오래갈 교훈과 되풀이되는 교정·선호를 캐서, 사용자 승인 뒤 devkit 저장소(또는 그 프로젝트의 AGENTS.md)에 PR 로 반영한다. Use when the user says reflect, \"automate me\", \"turn my preferences or working style into the skill\", \"update my mode\", or wants agents to follow how they work. /dev:reflect"
+description: "지금 대화나 최근 대화 기록에서 오래갈 교훈과 되풀이되는 교정·선호를 캐서, 사용자 승인 뒤 devkit 저장소(또는 그 프로젝트의 AGENTS.md)에 PR 로 반영한다. 「회고해」, 「나를 자동화해」, 「내 방식을 스킬로」, 「모드 갱신해」, 에이전트가 내 방식대로 일하게 하고 싶을 때 쓴다. /dev:reflect"
 disable-model-invocation: true
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: formal-setup
-description: "버그 값이 가장 크고 테스트가 가장 덜 닿는 코드를 형식 검증하는 프로젝트 전용 스킬(<저장소>/.claude/skills/formal-<영역>/)을 만들고, 코드가 바뀌면 모델·하네스·속성을 지금 코드에 다시 맞춘다. 언어 무관, 맞는 검증 도구를 고른다. Use for /dev:formal-setup, \"model-check this race\", \"prove this invariant\", \"is the model still true to the code\", or when concurrency, retries, state machines, parsers, or unsafe code need more than tests."
+description: "버그 값이 가장 크고 테스트가 가장 덜 닿는 코드를 형식 검증하는 프로젝트 전용 스킬(<저장소>/.claude/skills/formal-<영역>/)을 만들고, 코드가 바뀌면 모델·하네스·속성을 지금 코드에 다시 맞춘다. 언어 무관, 맞는 검증 도구를 고른다. 「이 경쟁 상태 모델 검사해」, 「이 불변식 증명해」, 「모델이 아직 코드와 맞나」, 동시성·재시도·상태 기계·파서·unsafe 코드에 테스트보다 더한 것이 필요할 때 쓴다. /dev:formal-setup"
 disable-model-invocation: true
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: deslop
-description: "브랜치가 들여온 AI 가 만든 군더더기 코드(쓸데없는 주석, 믿는 경로의 방어 코드, any 캐스트, 깊은 중첩)를 걷어 내고 코드 모양을 주변에 맞춘다. Use for 'deslop', 'remove AI slop', 'clean up this diff'. /dev:deslop"
+description: "브랜치가 들여온 AI 가 만든 군더더기 코드(쓸데없는 주석, 믿는 경로의 방어 코드, any 캐스트, 깊은 중첩)를 걷어 내고 코드 모양을 주변에 맞춘다. 「군더더기 걷어내」, 「AI 티 나는 코드 지워」, 「이 diff 정리해」에 쓴다. /dev:deslop"
 disable-model-invocation: true
 ---
 
