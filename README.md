@@ -2,11 +2,11 @@
 
 `dev` 는 Claude Code 에이전트가 한 일을 믿을 수 있게 만드는 플러그인이고, 이 저장소 `happy-nut/kit` 이 그 마켓플레이스다. 에이전트는 일의 종류마다 정해 둔 단계(플레이북)를 따르고, 판단이 갈리면 원칙 문서를 읽는다. 「됐다」는 보고는 직접 돌려 본 증거가 있을 때만 받는다. 에이전트가 틀려서 교정하면, 같은 실수를 글 대신 구조, 검사, 훅으로 막는다.
 
-출발점은 Lauren Tan 의 강연 「All Code Is Slop (Except Mine)」(2026-11)과 그가 공개한 pstack(MIT)이다. 강연은 남의 설정을 그대로 쓰지 말고 포크해서 자기 교정 기록으로 키우라고 한다. 이 저장소가 그렇게 키운 포크다. 강연이 말하는 최종 이상(high trust 루프)과 거기로 가는 길은 [`docs/philosophy.md`](docs/philosophy.md) 에 정리했고, 판단이 갈리면 그 이상에 가까워지는 쪽을 고른다. 스킬과 문서는 한국어로 쓰고, 에이전트가 사용자에게 한국어로 말하게 하는 훅이 들어 있다.
+출발점은 Lauren Tan 의 강연 「All Code Is Slop (Except Mine)」(2026-11)과 그가 공개한 pstack(MIT)이다. 강연은 남의 설정을 그대로 쓰지 말고 포크해서 자기 교정 기록으로 키우라고 한다. 이 저장소가 그렇게 키운 포크다. 강연이 말하는 최종 이상(high trust 루프)과 거기로 가는 길은 [`docs/philosophy.md`](docs/philosophy.md) 에 정리했고, 판단이 갈리면 그 이상에 가까워지는 쪽을 고른다. 스킬과 문서는 한국어로 쓴다.
 
 ## 설치한다
 
-Claude Code 가 있어야 한다. 훅은 `python3` 으로 돌고, PR 머지 검사는 `gh`(GitHub CLI)를 쓴다.
+Claude Code 가 있어야 한다. 훅은 `sh` 와 `awk` 로 돌고, PR 머지 검사는 `gh`(GitHub CLI)를 쓴다.
 
 ```bash
 claude plugin marketplace add happy-nut/kit
@@ -24,11 +24,11 @@ claude plugin update dev@kit
 
 ## 처음 써 본다
 
-할 일 앞에 `/dev:mode` 를 붙인다.
+설치하면 대화마다 `/dev:mode` 가 켜진다. `hooks/hooks.json` 의 SessionStart 훅이 대화를 열거나, 다시 열거나, 지우거나, 압축할 때마다 `skills/mode/SKILL.md` 본문을 대화에 넣는다. 할 일을 그냥 말하면 된다. 끄려면 플러그인을 끈다(`claude plugin disable dev@kit`).
 
 ```
-/dev:mode 버튼 색이 화면마다 달라
-/dev:mode 이 PR 머지까지 해
+버튼 색이 화면마다 달라
+이 PR 머지까지 해
 ```
 
 에이전트는 이 순서로 일한다.
@@ -57,6 +57,7 @@ skills/mode/playbooks/           플레이북 22개
 skills/mode/references/          플레이북이 읽는 참고 문서
 skills/mode/scripts/             플레이북이 돌리는 스크립트
 skills/<이름>/SKILL.md           /dev:<이름> 으로 부르는 스킬. mode 를 넣어 32개
+hooks/hooks.json                 대화마다 mode 를 켜는 SessionStart 훅
 agents/                          서브에이전트 dev:worker, dev:comment-reviewer
 scripts/check.py                 저장소 검사
 docs/guide/                      사람이 읽는 사용 안내서 10장
