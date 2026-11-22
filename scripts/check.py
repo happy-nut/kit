@@ -52,7 +52,7 @@ def load_principles():
 
 
 def check_references(skills, agents, principles):
-    for path in glob.glob('skills/**/*.md', recursive=True) + glob.glob('agents/*.md') + ['README.md', 'docs/authoring.md']:
+    for path in glob.glob('skills/**/*.md', recursive=True) + glob.glob('agents/*.md') + glob.glob('docs/guide/*.md') + ['README.md', 'docs/authoring.md']:
         text = open(path).read()
         skill_dir = path.split('/')[1] if path.startswith('skills/') else None
         for s in re.findall(r'/dev:([a-z][\w-]*)', text):
@@ -72,6 +72,25 @@ def check_references(skills, agents, principles):
                 near = os.path.normpath(os.path.join(os.path.dirname(path), ref))
                 if not any(os.path.exists(x) for x in (target, ref, near)):
                     errors.append(f'{path}: 없는 파일 {ref}')
+
+
+def anchors(path):
+    slugs = set()
+    for title in re.findall(r'^#{1,6} (.+?)\s*$', open(path).read(), re.M):
+        slugs.add(re.sub(r'[^\w\- ]', '', title.lower()).replace(' ', '-'))
+    return slugs
+
+
+def check_guide_links():
+    for path in glob.glob('docs/guide/*.md') + ['README.md']:
+        for target, anchor in re.findall(r'\]\(<?([^)\s>#]*)(?:#([^)\s>]+))?>?(?:\s+"[^"]*")?\)', open(path).read()):
+            if re.match(r'[a-z]+:', target):
+                continue
+            full = os.path.normpath(os.path.join(os.path.dirname(path), target)) if target else path
+            if not os.path.exists(full):
+                errors.append(f'{path}: 없는 링크 {target}')
+            elif anchor and full.endswith('.md') and anchor not in anchors(full):
+                errors.append(f'{path}: {target or path} 에 없는 제목 #{anchor}')
 
 
 def check_readme(skills, principles):
@@ -100,7 +119,7 @@ def check_no_private_words():
     publisher = slug.split('/')[0] if slug else ''
     tracked = subprocess.run(['git', 'ls-files', '-co', '--exclude-standard'], capture_output=True, text=True).stdout.splitlines()
     for path in tracked:
-        if os.path.isfile(path):
+        if os.path.isfile(path) and b'\0' not in open(path, 'rb').read(8192):
             allowed = [slug, publisher] if path.startswith('.claude-plugin/') else [slug]
             for i, line in enumerate(open(path, errors='ignore').read().splitlines(), 1):
                 for word in filter(None, allowed):
@@ -129,6 +148,7 @@ check_frontmatter(skills, agents)
 principles = load_principles()
 check_references(skills, agents, principles)
 check_readme(skills, principles)
+check_guide_links()
 check_no_private_words()
 check_author_email_is_noreply()
 if errors:
