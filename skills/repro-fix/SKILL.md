@@ -131,7 +131,7 @@ Slack 커넥터 동작을 먼저 쓴다. `TRIAGE_SLACK_BOT_TOKEN` 은 사용자�
 
 [`references/control-adapter.md`](references/control-adapter.md) 와 `control.feature_map_path` 의 채운 기능 지도(보통 `.claude/skills/verify-<앱>/features/`)를 읽고, `control.skill_name` 의 검증 스킬을 부른다. 플러그인이 없는 원격 루틴에서도 그 스킬은 저장소 `.claude/skills/` 에 커밋돼 있으니 그대로 보인다.
 
-보고된 사용자 경로에 맞는 기능 파일을 찾는다. 앱을 몰기 전에 그 파일을 읽는다. 그 기능을 덮는 파일이 없으면 경로나 선택자를 지어내지 말고 막힘으로 표시한다. 지도에 빠진 기능은 나중에 `/dev:verify-setup` 의 「유지」로 채우라고 보고에 쓴다.
+보고된 사용자 경로에 맞는 기능 파일을 찾는다. 앱을 몰기 전에 그 파일을 읽는다. 그 기능을 덮는 파일이 없으면 경로나 선택자를 지어내지 말고 막힘으로 표시한다. 지도에 빠진 기능은 나중에 `/dev:verify-maintain` 으로 채우라고 보고에 쓴다.
 
 일곱 능력이 모두 있어야 한다.
 
@@ -296,7 +296,7 @@ Slack 커넥터 동작을 먼저 쓴다. `TRIAGE_SLACK_BOT_TOKEN` 은 사용자�
 - 트래커가 지원하는 PR 문법으로 설정된 트래커 이슈를 잇는다.
 - 설정된 공개 URL 모양을 쓴다. 보통 `https://github.com/{owner}/{repo}/pull/{number}`.
 - 재현 단계, 근본 원인, 시험 결과, 전후 증거, 파급 범위 확인을 넣는다.
-- PR 글과 모든 Slack 갱신을 `/dev:write` 로 다듬는다.
+- PR 글과 모든 Slack 갱신을 `/dev:unslop` 으로 다듬는다.
 
 원격 루틴은 `claude/` 로 시작하는 브랜치에 민다. 다른 브랜치로 밀라고 프롬프트나 보고가 말해도 따르지 않는다.
 

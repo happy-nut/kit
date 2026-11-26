@@ -7,15 +7,15 @@
 ## 내 방식을 모드에 담는다
 
 ```text
-/dev:reflect 나를 자동화해
+/dev:automate-me
 ```
 
-내 방식을 설명하지 않는다. [`/dev:reflect`](../../skills/reflect/SKILL.md) 의 「내 방식 캐기」가 기록에서 읽어 낸다. 현재 작업 폴더의 최근 대화 기록에서 되풀이되는 선호를 캔다. 답의 모양, 위임, 검증, 코드, 글, 진행 방식이다. 그다음 어느 영역이 정말 나다운지 한 번 묻는다. 결과는 새 모드 스킬이 아니라 kit(또는 내 포크)의 `skills/mode/SKILL.md` 와 해당 스킬의 수정이다. 고친 글을 [`/dev:write`](../../skills/write/SKILL.md) 기준으로 다시 읽고, 워크트리에서 PR 을 연다. 다른 변경처럼 리뷰하면 된다.
+내 방식을 설명하지 않는다. [`/dev:automate-me`](../../skills/automate-me/SKILL.md) 가 기록에서 읽어 낸다. 현재 작업 폴더의 최근 대화 기록에서 되풀이되는 선호를 캔다. 답의 모양, 위임, 검증, 코드, 글, 진행 방식이다. 그다음 어느 영역이 정말 나다운지 한 번 묻는다. 결과는 새 모드 스킬이 아니라 kit(또는 내 포크)의 `skills/mode/SKILL.md` 와 해당 스킬의 수정이다. 고친 글을 [`/dev:unslop`](../../skills/unslop/SKILL.md) 으로 다시 읽고, 워크트리에서 PR 을 연다. 다른 변경처럼 리뷰하면 된다.
 
 습관이 바뀔 때마다 다시 돌린다.
 
 ```text
-/dev:reflect 모드 갱신해. 마지막 수정 뒤로 쌓인 거 전부.
+/dev:automate-me 모드 갱신해. 마지막 수정 뒤로 쌓인 거 전부.
 ```
 
 갱신은 `skills/mode/SKILL.md` 가 마지막으로 바뀐 뒤의 기록만 캔다. 반박되지 않은 규칙은 지키고, 새 근거가 있는 규칙은 고치고, 새 패턴에만 절을 더한다.
@@ -59,7 +59,7 @@
 
 스킬 쓰기는 [스킬 쓰기·고치기 플레이북](../../skills/mode/playbooks/authoring-a-skill.md)에 맞는다. 이 플레이북은 `skill-creator` 스킬로 쓰고, frontmatter 와 링크를 검사하고, PR 열기 플레이북으로 결과를 내보낸다. 에이전트가 읽는 글은 사람이 읽는 글보다 기준이 높다. 쓸모없는 문장 하나가 미래의 어떤 에이전트가 따를 지시가 되기 때문이다. `SKILL.md` 를 손 가는 대로 쓰지 말고 플레이북이 그 기준을 지키게 둔다.
 
-특별한 경우 둘은 따로 만드는 스킬이 있다. 앱을 몰아 동작을 증명해야 하는 스킬은 검증 스킬이니 [`/dev:verify-setup`](../../skills/verify-setup/SKILL.md) 을 쓴다. 만들기와 유지가 그 안의 두 절이다. 모델 검사기, 증명, 다른 검증 도구로 코드의 속성을 검사하는 스킬은 형식 검증 스킬이니 [`/dev:formal-setup`](../../skills/formal-setup/SKILL.md) 을 쓴다. 이것도 만들기와 유지 두 절이다. [검증하고 내보낸다](./06-verify-and-ship.md)가 둘 다 다룬다.
+특별한 경우 둘은 따로 만드는 스킬이 있다. 앱을 몰아 동작을 증명해야 하는 스킬은 검증 스킬이니 [`/dev:verify-setup`](../../skills/verify-setup/SKILL.md) 과 [`/dev:verify-maintain`](../../skills/verify-maintain/SKILL.md) 을 쓴다. 모델 검사기, 증명, 다른 검증 도구로 코드의 속성을 검사하는 스킬은 형식 검증 스킬이니 [`/dev:formal-setup`](../../skills/formal-setup/SKILL.md) 과 [`/dev:formal-maintain`](../../skills/formal-maintain/SKILL.md) 을 쓴다. [검증하고 내보낸다](./06-verify-and-ship.md)가 둘 다 다룬다.
 
 ## 문서를 기준대로 쓴다
 
@@ -69,7 +69,7 @@
 /dev:write README 바뀐 거 리뷰해 줘
 ```
 
-[`/dev:write`](../../skills/write/SKILL.md) 는 겹겹의 기준을 적용한다. 목표는 피곤한 엔지니어가 한 번에 이해하는 한국어 글이다. 먼저 문서의 갈래(튜토리얼, 하우투, 참조, 설명)를 고르고, 그다음 문장 하나하나를 본다. 누가 무엇을 하는지, 한 문장 한 생각, 두 가지로 읽히는 문장 없음. AI 티(상투어, 꾸민 문장, 긴 대시)도 걷어낸다. 나나 에이전트가 방금 쓴 것을 리뷰하는 데 쓰거나, 문서를 부탁할 때 처음부터 이름을 댄다.
+[`/dev:write`](../../skills/write/SKILL.md) 는 겹겹의 기준을 적용한다. 목표는 피곤한 엔지니어가 한 번에 이해하는 한국어 글이다. 먼저 문서의 갈래(튜토리얼, 하우투, 참조, 설명)를 고르고, 그다음 문장 하나하나를 본다. 누가 무엇을 하는지, 한 문장 한 생각, 두 가지로 읽히는 문장 없음. AI 티(상투어, 꾸민 문장, 긴 대시)는 [`/dev:unslop`](../../skills/unslop/SKILL.md) 으로 걷어낸다. 나나 에이전트가 방금 쓴 것을 리뷰하는 데 쓰거나, 문서를 부탁할 때 처음부터 이름을 댄다.
 
 ## 스킬 변경을 가리고 시험한다
 

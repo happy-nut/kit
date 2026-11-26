@@ -17,8 +17,8 @@ disable-model-invocation: true
 - 첫 메시지에는 사용자의 목표와 그것을 채우는 가장 작은 변경을 자기 말로 다시 적고 진행한다. 모든 서브에이전트 브리프, PR 의 `## Why`, 최종 보고를 그 목표로 시작한다.
 - 에이전트를 띄울 때는 그 첫 줄을 `Read <경로>/worker.md before anything else.` 로 쓴다. `<경로>` 는 이 스킬 폴더의 절대 경로다. 작업자 규칙은 슬래시 명령으로만 불리는 스킬에 있어서 다른 길로는 다른 에이전트에게 닿지 않는다. 나머지는 목표와 할 일, 그리고 `dev:worker` 에게는 이 파일의 절대 경로만 쓴다.
 - 무언가를 돌려서 정할 수 있는 갈림길은 묻지 말고 `playbooks/prototype.md` 대로 시제품으로 정한다.
-- 코드는 데이터 모양부터 이름 짓는다. 함수 경계를 넘으면 `/dev:design`, 여러 갈래로 펼치면 `/dev:swarm`, 겨루기도 `/dev:design`, 논쟁적 설계는 `/dev:review`.
-- 글은 답까지 포함해 `/dev:write`. 문서, PR 설명, 커밋 메시지도 `/dev:write`.
+- 코드는 데이터 모양부터 이름 짓는다. 함수 경계를 넘으면 `/dev:design`, 여러 갈래로 펼치면 `/dev:swarm`, 겨루기는 `/dev:arena`, 논쟁적 설계는 `/dev:review`.
+- 글은 답까지 포함해 `/dev:unslop`. 문서, PR 설명, 커밋 메시지는 `/dev:write`.
 - 커밋 전에는 `/dev:deslop`, 리뷰 전에는 `/dev:no-comments`.
 - 화면·CLI 를 내보낼 때는 `/dev:control-ui` 나 `/dev:control-cli`.
 - 잰 숫자는 `/dev:bench`.
@@ -83,7 +83,7 @@ disable-model-invocation: true
 
 **플레이북 단계 안에서 직접 띄우는 서브에이전트는 `subagent_type: "dev:worker"` 다.** `/dev:mode` 를 받은 대화가 플레이북을 직접 돌린다. 자기 `subagent_type` 을 정하는 워크플로 스킬(`/dev:review`, `/dev:swarm`)은 그것을 따른다.
 
-**모든 `Agent` 호출의 기본값.** `run_in_background: true`, 내용을 붙여 넣지 말고 파일 경로, 역할마다 모델을 정한다. `/dev:setup` 이 쓰는 `~/.claude/rules/dev-models.md` 의 역할 줄이 아래 기본값과 워크플로 스킬(`/dev:design`, `/dev:swarm`, `/dev:review`)의 역할 모델보다 앞선다. 줄이 없는 역할은 기본값을 쓴다. 값 `<model> <effort>`(예: `opus high`)는 `model` 과 `effort` 로 넘긴다. 값이 `inherit-parent` 나 `auto` 면 그 역할은 부모 모델로 돈다. `model` 을 빼고 `general-purpose` 로 띄운다. 코드 플레이북은 자기 줄(`feature, refactoring`, `bug-fix`, `perf-issue`, `hillclimb`)을, 글과 판단은 `judgment and prose` 를, 사소한 기계적 편집은 `swarm workers` 를 읽는다.
+**모든 `Agent` 호출의 기본값.** `run_in_background: true`, 내용을 붙여 넣지 말고 파일 경로, 역할마다 모델을 정한다. `/dev:setup` 이 쓰는 `~/.claude/rules/dev-models.md` 의 역할 줄이 아래 기본값과 워크플로 스킬(`/dev:arena`, `/dev:swarm`, `/dev:review`)의 역할 모델보다 앞선다. 줄이 없는 역할은 기본값을 쓴다. 옛 이름 `design runners`, `design cross-judge pool` 줄은 `arena runners`, `arena cross-judge pool` 줄로 읽는다. 값 `<model> <effort>`(예: `opus high`)는 `model` 과 `effort` 로 넘긴다. 값이 `inherit-parent` 나 `auto` 면 그 역할은 부모 모델로 돈다. `model` 을 빼고 `general-purpose` 로 띄운다. 코드 플레이북은 자기 줄(`feature, refactoring`, `bug-fix`, `perf-issue`, `hillclimb`)을, 글과 판단은 `judgment and prose` 를, 사소한 기계적 편집은 `swarm workers` 를 읽는다.
 
 - 코드, 글, 판단: `opus xhigh`.
 - 사소한 기계적 편집: `opus high`.
@@ -118,7 +118,7 @@ disable-model-invocation: true
    - 틀과 트레이드오프를 보이고 시작한다. 되돌릴 수 있는 일은 진행하되, 여러 시간짜리 실행은 한 번 점검을 받는다.
 2. **흐름 설계.** 독립적으로 내보낼 수 있는 단위로 쪼갠다. 가장 위험한 미지부터. 뼈대와 검증이 기능보다 먼저(principles.md 의 Foundational Thinking).
    - 일 전에 검증 장치를 만들고 바꾸기 전 상태로 기준선을 잡아 「옛 값 대 새 값」으로 읽히게 한다.
-   - 되돌릴 수 없는 설계 결정은 `/dev:design`. 모양이 이미 분명한 기계적 일은 건너뛴다. 정해진 설계에 두 번째 비교는 과하다(principles.md 의 Laziness Protocol).
+   - 되돌릴 수 없는 설계 결정은 `/dev:design`(그 안에서 `/dev:arena` 를 돌린다). 모양이 이미 분명한 기계적 일은 건너뛴다. 정해진 설계에 두 번째 겨루기는 과하다(principles.md 의 Laziness Protocol).
    - 갈라 붙일 이음매에서만 병렬로. 워커마다 자기 워크트리나 브랜치(principles.md 의 Separate Before Serializing Shared State). 과하게 펼치지 않는다.
    - 설계한 단계 목록을 적는다. 사람이 검토하는 건 이 목록이다. 그 단계를 3과 4 사이에 작업 목록으로 넣는다.
 3. **실험 루프.** 단위마다 가설을 말하고, 가장 작은 변경을 하고, 실제 산출물에서 완료 조건으로 재고, 나아졌으면 남기고 아니면 되돌린다. 다음 단위 전에 지금 단위를 검증한다(principles.md 의 Sequence Work into Verifiable Units).

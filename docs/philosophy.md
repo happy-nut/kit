@@ -70,8 +70,8 @@ kit 이 끝내 도달하려는 이상이다. 판단이 갈리면 이 이상에 �
 | 신뢰 피라미드, 공장보다 기초 | `/dev:verify-setup`, `/dev:correct`, principles.md 의 Build the Lever |
 | 교정은 장치로 | `/dev:correct`, principles.md 의 Encode Lessons in Structure |
 | 주석은 탈출구 | `/dev:no-comments`, `/dev:deslop` |
-| 런타임 검증과 기능 지도 | `/dev:verify-setup` |
-| 형식 검증과 상태 차트 | `/dev:formal-setup`, `/dev:statechart` |
+| 런타임 검증과 기능 지도 | `/dev:verify-setup`, `/dev:verify-maintain` |
+| 형식 검증과 상태 차트 | `/dev:formal-setup`, `/dev:formal-maintain`, `/dev:statechart` |
 | 검증 산출물로 리뷰 | `/dev:control-ui`, `/dev:control-cli`, principles.md 의 Prove It Works |
 | 이상과 현재의 갭 찾기 | `/dev:idea` |
 

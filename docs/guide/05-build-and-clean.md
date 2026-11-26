@@ -56,15 +56,15 @@
 
 ## 커밋 전에 정리한다
 
-[PR 열기 플레이북](../../skills/mode/playbooks/opening-a-pr.md)은 커밋마다 그 전에 diff 에 [`/dev:deslop`](../../skills/deslop/SKILL.md) 을 돌리고, `/dev:mode` 는 PR 설명과 커밋 본문에 [`/dev:write`](../../skills/write/SKILL.md) 를 적용한다. `/dev:deslop` 은 서술하는 주석, 근거 없는 방어 코드, `any` 캐스트, 깊은 중첩처럼 그 브랜치가 들여온 군더더기를 걷어 낸다.
+[PR 열기 플레이북](../../skills/mode/playbooks/opening-a-pr.md)은 커밋마다 그 전에 diff 에 [`/dev:deslop`](../../skills/deslop/SKILL.md) 을 돌리고, `/dev:mode` 는 PR 설명과 커밋 본문에 [`/dev:unslop`](../../skills/unslop/SKILL.md) 을 적용한다. `/dev:deslop` 은 서술하는 주석, 근거 없는 방어 코드, `any` 캐스트, 깊은 중첩처럼 그 브랜치가 들여온 군더더기를 걷어 낸다.
 
-글에는 `/dev:write` 에 대상과 덧붙일 규칙을 준다.
+글에는 `/dev:unslop` 에 대상과 덧붙일 규칙을 준다.
 
 ```text
-/dev:write README 바뀐 부분, 긴 대시 없이
+/dev:unslop README 바뀐 부분, 긴 대시 없이
 ```
 
-나만의 줄임말이 생길 것이다. 스킬은 `/dev:write 그거, 더 조여` 처럼 짧은 프롬프트에서도 의도를 잘 읽는다.
+나만의 줄임말이 생길 것이다. 스킬은 `/dev:unslop 그거, 더 조여` 처럼 짧은 프롬프트에서도 의도를 잘 읽는다.
 
 ## `/dev:no-comments` 로 주석을 걷어 낸다
 
@@ -76,7 +76,7 @@
 
 [`/dev:no-comments`](../../skills/no-comments/SKILL.md) 는 [`dev:comment-reviewer`](../../agents/comment-reviewer.md) 를 띄운다. 짧은 남길 목록을 가진 읽기 전용 리뷰어다. 남길 목록은 라이선스 헤더, 공개 API 의 doc 주석, 코드로 표현할 수 없는 것을 설명하는 링크, 우리가 바꿀 수 없는 외부 의존성이 강제하는 동작이다. 나머지는 모두 나간다. 우리 코드에서 놀라운 동작은 이 목록에 들지 않는다. 그 주석은 리팩터링 표시(`MUST KILL`)로 돌아오고, `/dev:no-comments` 는 받아들인 표시를 근본 원인에서 고친다. 주석이 「지우지 마」 같은 제약을 주장하면, 스킬은 그 주장을 타입, 테스트, 린트로 굳히자고 제안한다. 어느 쪽이든 주석은 지운다.
 
-일의 나눔을 분명히 해 두면 좋다. `/dev:deslop` 은 코드에서 군더더기를 걷고, `/dev:write` 는 글에서 걷고, `/dev:no-comments` 는 주석을 그것을 쓰지 않은 리뷰어에게 넘긴다.
+일의 나눔을 분명히 해 두면 좋다. `/dev:deslop` 은 코드에서 군더더기를 걷고, `/dev:unslop` 은 글에서 걷고, `/dev:no-comments` 는 주석을 그것을 쓰지 않은 리뷰어에게 넘긴다.
 
 **함정:** 정리는 선택인 마무리가 아니다. 서술 주석과 방어용 죽은 짐이 든 diff 는 리뷰어에게 덜 끝난 것으로 읽히고, 그 여분의 코드가 다음 버그가 숨는 자리다. diff 가 부풀어 보이면 리뷰가 지적한 뒤가 아니라 커밋하기 전에 `/dev:deslop` 을 친다.
 

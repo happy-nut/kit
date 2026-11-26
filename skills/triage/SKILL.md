@@ -40,7 +40,7 @@ Slack 보고 하나를 분류하고 그 보고의 원래 스레드에 쓸모 있
 - 출처 스레드로 되돌아가는 링크를 달 수 없는 이슈는 만들지 않는다.
 - 짐작한 티켓이나 중복 티켓보다 티켓이 없는 쪽이 낫다.
 - 출처 좌표에는 principles.md 의 Separate Before Serializing Shared State 를 적용한다. 좌표는 한 번 정해 두고 아무 단계도 다시 쓰지 않는다.
-- 최종 판정 글에는 principles.md 의 Minimize Reader Load 와 `/dev:write` 를 적용한다. 출처 채널이 손님(외부 사람)이 읽는 곳이면 korean-humanizer 를 거친 글만 올리고, 저장소 규칙이 손님 글에 사람 승인을 요구하면 판정을 실행 출력에 초안으로만 남긴다.
+- 최종 판정 글에는 principles.md 의 Minimize Reader Load 와 `/dev:unslop` 을 적용한다. 출처 채널이 손님(외부 사람)이 읽는 곳이면 korean-humanizer 를 거친 글만 올리고, 저장소 규칙이 손님 글에 사람 승인을 요구하면 판정을 실행 출력에 초안으로만 남긴다.
 
 ## 1. 출처 좌표 고정
 
