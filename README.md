@@ -56,7 +56,7 @@ skills/mode/principles.md        원칙 24개. 한 파일에 절마다 "## 영�
 skills/mode/playbooks/           플레이북 22개
 skills/mode/references/          플레이북이 읽는 참고 문서
 skills/mode/scripts/             플레이북이 돌리는 스크립트
-skills/<이름>/SKILL.md           /dev:<이름> 으로 부르는 스킬. mode 를 넣어 32개
+skills/<이름>/SKILL.md           /dev:<이름> 으로 부르는 스킬. mode 를 넣어 39개
 hooks/session-start.sh           대화마다 mode 를 켜고, 격리 검증이 없는 저장소면 verify-setup 을 안내하는 SessionStart 훅
 agents/                          서브에이전트 dev:worker, dev:comment-reviewer
 scripts/check.py                 저장소 검사
@@ -81,9 +81,11 @@ docs/authoring.md                이 저장소를 고치는 규칙
 |---|---|
 | `/dev:idea` | 원하는 이상을 듣고 현재를 조사해 갭을 문제로 정하고, MECE 로직 트리로 임팩트가 가장 큰 현실적 문제 하나를 고른다 |
 | `/dev:mode` | 플레이북을 고르고 단계대로 일한다 |
-| `/dev:design` | 설계안 여러 개를 병렬로 그리고, 하나를 골라 다른 안의 좋은 점을 붙인다 |
+| `/dev:design` | 함수 경계를 넘는 코드를 쓰기 전에 호출하는 쪽 사용법, 타입, 모듈 모양을 먼저 정한다 |
+| `/dev:arena` | 설계안 여러 개를 병렬로 그리고, 하나를 골라 다른 안의 좋은 점을 붙인다 |
 | `/dev:swarm` | 일을 독립된 조각으로 나눠 병렬로 풀고, 결과를 PASS, ISSUES, BLOCKED 로 모은다 |
-| `/dev:review` | 여러 모델이 변경을 깨 보려 하고, 실행으로 증명한 문제만 보고한다. 파급 범위도 본다 |
+| `/dev:review` | 여러 모델이 변경을 깨 보려 하고, 실행으로 증명한 문제만 보고한다 |
+| `/dev:blast-radius` | 작아 보이는 변경이 무엇을 더 깨뜨릴 수 있는지 찾고, 안전하다는 근거를 실행으로 증명한다 |
 
 실수를 막고 품질을 지키는 스킬이다.
 
@@ -95,6 +97,7 @@ docs/authoring.md                이 저장소를 고치는 규칙
 | `/dev:no-comments` | 주석을 심사해 지우고, 주석이 변명하던 우회 코드를 고친다 |
 | `/dev:ts` | `.ts`, `.tsx` 를 고칠 때 따르는 TypeScript 규칙 |
 | `/dev:write` | 문서, README, PR 설명, 커밋 메시지를 쓰는 규칙 |
+| `/dev:unslop` | 글에서 AI 티를 걷어낸다 |
 | `/dev:deslop` | 커밋 전에 diff 에서 에이전트가 남긴 군더더기(서술 주석, 근거 없는 방어 코드, 관계없는 수정)를 지운다 |
 | `/dev:control-ui` | 웹·데스크톱 화면을 직접 띄워 조작하고 전과 후 증거를 남긴다 |
 | `/dev:control-cli` | CLI·대화형 터미널 프로그램을 직접 돌려 조작하고 확인한다 |
@@ -107,6 +110,7 @@ docs/authoring.md                이 저장소를 고치는 규칙
 |---|---|
 | `/dev:how` | 코드가 어떻게 도는지, 새 코드를 어디에 둘지 설명한다 |
 | `/dev:why` | 커밋, PR, 이슈에서 근거를 찾아 코드가 왜 이렇게 됐는지 답한다 |
+| `/dev:teach` | 변경이나 하위 시스템을 how 와 why 로 풀어 그림 하나씩 쌓으며 가르친다 |
 | `/dev:recall` | 며칠 전 작업의 맥락을 대화 기록에서 되살린다 |
 | `/dev:catchup` | 자리를 비운 사이 바뀐 것과 사용자가 정할 것만 짧게 보고한다 |
 | `/dev:catchup-video` | catchup 을 자막 달린 짧은 영상으로 만든다 |
@@ -116,16 +120,19 @@ docs/authoring.md                이 저장소를 고치는 규칙
 
 | 스킬 | 하는 일 |
 |---|---|
-| `/dev:verify-setup` | 앱을 사용자처럼 조작해 변경을 증명하는 프로젝트 전용 검증 스킬을 만들고 유지한다 |
+| `/dev:verify-setup` | 앱을 사용자처럼 조작해 변경을 증명하는 프로젝트 전용 검증 스킬을 만든다 |
+| `/dev:verify-maintain` | 검증 스킬의 기능 지도가 앱과 어긋났을 때 소스와 실제 실행으로 다시 맞춘다 |
 | `/dev:featuremap` | 기능 지도를 커버리지(자동 검증·방법만·없음, 지도에 든 진입점)가 붙은 인터랙티브 HTML 한 장으로 만든다 |
-| `/dev:formal-setup` | 버그가 가장 비싼 코드를 TLA+ 같은 형식 검증으로 검사하는 프로젝트 전용 스킬을 만들고 유지한다 |
+| `/dev:formal-setup` | 버그가 가장 비싼 코드를 TLA+ 같은 형식 검증으로 검사하는 프로젝트 전용 스킬을 만든다 |
+| `/dev:formal-maintain` | 형식 검증이 덮는 코드가 바뀌면 모델과 속성을 코드에 맞추고, 실패가 검증의 어긋남인지 코드 버그인지 가른다 |
 | `/dev:statechart` | TLA+ 모델을 TLC 로 검사하고, 규칙이 깨지는 가장 짧은 경로를 Mermaid 상태 차트로 그린다 |
 
 운영과 설정을 돕는 스킬이다.
 
 | 스킬 | 하는 일 |
 |---|---|
-| `/dev:reflect` | 되풀이되는 교정과 선호를 찾아 이 저장소를 고치는 PR 을 올린다 |
+| `/dev:reflect` | 지금 대화에서 오래갈 교훈을 찾아 이 저장소를 고치는 PR 을 올린다 |
+| `/dev:automate-me` | 여러 대화에서 되풀이되는 교정과 선호를 찾아 mode 스킬을 고치는 PR 을 올린다 |
 | `/dev:triage` | 채널에 올라온 이슈 보고를 분류하고, 스레드에 판정 답글 하나를 단다 |
 | `/dev:repro-fix` | 분류된 버그를 실제 UI 에서 재현하고, 재현한 뒤에만 수정 PR 초안을 낸다 |
 | `/dev:bot-ui` | 누르면 Claude Code 루틴을 깨우는 로컬 페이지를 만든다 |

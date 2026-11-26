@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # 스웜
 
-`/dev:design` 의 경쟁 절차와 달리 결과를 하나로 합성하지 않는다. 덮기(coverage)나 경주(race)의 결과를 모아 보고한다.
+`/dev:arena` 와 달리 결과를 하나로 합성하지 않는다. 덮기(coverage)나 경주(race)의 결과를 모아 보고한다.
 
 ## 시작
 

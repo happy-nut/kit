@@ -21,31 +21,38 @@ scripts/check.py                저장소 검사. 고치면 반드시 돌린다
 |---|---|---|
 | poteto-mode | `mode` | 라우터 |
 | principle-* 24개 | `skills/mode/principles.md` | 한 파일, 절마다 `## <영어 이름>` |
-| architect + arena | `design` | 병렬 설계 탐색, 기반 고르기, 좋은 점 접붙이기 |
+| architect | `design` | |
+| arena | `arena` | 병렬 설계 탐색, 기반 고르기, 좋은 점 접붙이기 |
 | swarm | `swarm` | |
-| interrogate + blast-radius | `review` | 다중 모델 적대 리뷰 + 파급 범위 |
+| interrogate | `review` | 다중 모델 적대 리뷰 |
+| blast-radius | `blast-radius` | 파급 범위 |
 | no-comments + comment-sicko | `no-comments` + `agents/comment-reviewer.md` | |
 | correct | `correct` | |
 | tdd | `tdd` | |
 | benchmark-checklist | `bench` | |
 | how | `how` | |
-| why + teach | `why` | teach 는 why 안의 「how+why 엮어 설명」 절 |
+| why | `why` | |
+| teach | `teach` | how 와 why 를 엮어 설명 |
 | recall | `recall` | |
-| reflect + automate-me | `reflect` | devkit 자체를 고치는 PR 까지 |
+| reflect | `reflect` | |
+| automate-me | `automate-me` | |
 | ketchup | `catchup` | |
 | show-me-your-work | `log` | |
-| create/maintain-verification-skill | `verify-setup` | 만들기·유지 두 절 |
-| unslop + technical-writing | `write` | 한국어 글 기준 |
+| create-verification-skill | `verify-setup` | |
+| maintain-verification-skill | `verify-maintain` | |
+| technical-writing | `write` | 한국어 글 기준 |
+| unslop | `unslop` | 한국어 글 기준 |
 | typescript-best-practices | `ts` | |
 | figure-it-out | `mode` 의 「맞춤 플레이북」 절 | |
 | in-your-own-words | `mode` 의 「꼭 지킬 것」 첫 줄 | |
 | sharpen | `sharpen` | |
 | poteto-agent | `agents/worker.md` | 일 시작 전에 mode/SKILL.md 와 principles.md 를 읽음 |
-| create/maintain-formal-verification-skill | `formal-setup` | 만들기·유지 두 절 |
+| create-formal-verification-skill | `formal-setup` | |
+| maintain-formal-verification-skill | `formal-maintain` | |
 | statechart | `statechart` | 코드 그대로. mise 가 없으면 `TLA2TOOLS` 로 |
 | ketchup-video | `catchup-video` | 렌더는 HTML 슬라이드 + 헤드리스 브라우저 + ffmpeg |
 | make-bot-ui | `bot-ui` | 봇 웹훅 대신 Claude Code 루틴 |
-| setup-pstack | `setup` | `~/.claude/rules/dev-models.md`(역할별 모델). 역할 줄 arena → design, interrogate → review |
+| setup-pstack | `setup` | `~/.claude/rules/dev-models.md`(역할별 모델). 역할 줄 interrogate reviewers → review reviewers. 옛 kit 이름 design runners, design cross-judge pool 도 읽는다 |
 | poteto-help | `help` | |
 | benny(자동화 팩) | `triage` + `repro-fix` | Cursor Automations 대신 Claude Code 루틴 |
 | cursor-team-kit 의 deslop, control-ui, control-cli | `deslop`, `control-ui`, `control-cli` | 다른 플러그인 대신 kit 안에 둠 |

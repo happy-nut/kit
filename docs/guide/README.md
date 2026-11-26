@@ -6,9 +6,9 @@ kit 은 에이전트를 하나하나 지시하지 않을 때 가장 잘 돈다. 
 
 1. [kit 설정하기](./01-setup.md). 플러그인을 설치하고 모델을 고른다.
 2. [`/dev:mode` 로 일 보내기](./02-mode.md). 목표를 주고 플레이북을 고르는 것을 지켜본다.
-3. [코드 이해하기](./03-understand.md). 무엇이든 고치기 전에 읽기 전용 조사, 그리고 `/dev:how`, `/dev:why`, `/dev:why` 의 가르치기, `/dev:recall`.
-4. [변경 설계하기](./04-design.md). 코드가 모양을 굳히기 전에 `/dev:design`, `/dev:swarm`, `/dev:review`, 시제품, 계획.
-5. [변경을 짓고 다듬기](./05-build-and-clean.md). 짓는 플레이북, `/dev:tdd`, `/dev:write`, `/dev:no-comments`.
+3. [코드 이해하기](./03-understand.md). 무엇이든 고치기 전에 읽기 전용 조사, 그리고 `/dev:how`, `/dev:why`, `/dev:teach`, `/dev:recall`.
+4. [변경 설계하기](./04-design.md). 코드가 모양을 굳히기 전에 `/dev:design`, `/dev:arena`, `/dev:swarm`, `/dev:review`, 시제품, 계획.
+5. [변경을 짓고 다듬기](./05-build-and-clean.md). 짓는 플레이북, `/dev:tdd`, `/dev:unslop`, `/dev:no-comments`.
 6. [검증하고 내보내기](./06-verify-and-ship.md). 실제 앱에서 동작을 증명하고, 테스트가 잘 닿지 않는 곳은 형식 검증하고, 숫자는 `/dev:bench` 로 점검한 뒤, 초점이 분명한 PR 을 열어 머지까지 몬다.
 7. [자는 동안 일 돌리기](./07-overnight.md). 루프보다 신뢰가 먼저다. 밤샘 계약, 감사할 수 있는 결정 기록, 에이전트 하나를 넘어서는 여러 세션과 루틴.
 8. [원칙 이름으로 방향 잡기](./08-principles.md). 일하는 도중의 에이전트 방향을 바꾸는 이름 24개.
