@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'sha256-+r7cGWV/QF0uiwDw6OvXw3/AA4hvWKcj8pdJVpf7FyU='; img-src data:; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>운영 플랫폼 통합 기획서</title>
+<style>
+:root {
+  --bg: #fbfbfa; --surface: #ffffff; --fg: #1c1d1f; --muted: #5d6168; --line: #dcdee2; --line-strong: #b9bdc4;
+  --accent: #1f5fbf; --accent-fg: #ffffff; --accent-weak: #e8eff9; --focus: #1f5fbf;
+  --tag-bg: #f0f1f3; --warn-bg: #fbf3e4; --warn-fg: #7a4b00;
+  --f-xs: 13px; --f-s: 15px; --f-m: 17px; --f-l: 22px;
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px;
+  --measure: 46rem; --radius: 6px;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15171a; --surface: #1d2024; --fg: #e8e9eb; --muted: #a3a8b0; --line: #33373d; --line-strong: #4a5058;
+    --accent: #7fb0ff; --accent-fg: #0d1420; --accent-weak: #1f2b3d; --focus: #7fb0ff;
+    --tag-bg: #2a2e34; --warn-bg: #3a2f1b; --warn-fg: #f1c57a;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #15171a; --surface: #1d2024; --fg: #e8e9eb; --muted: #a3a8b0; --line: #33373d; --line-strong: #4a5058;
+  --accent: #7fb0ff; --accent-fg: #0d1420; --accent-weak: #1f2b3d; --focus: #7fb0ff;
+  --tag-bg: #2a2e34; --warn-bg: #3a2f1b; --warn-fg: #f1c57a;
+}
+* { box-sizing: border-box; }
+html { scroll-padding-top: 120px; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: var(--f-s)/1.65 -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", system-ui, sans-serif; word-break: keep-all; overflow-wrap: anywhere; }
+p { margin: 0 0 var(--s2); }
+h1, h2, h3 { margin: 0; line-height: 1.35; }
+h3 { font-size: var(--f-s); margin: var(--s4) 0 var(--s2); }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.skip { position: absolute; left: -999px; }
+.skip:focus { left: var(--s4); top: var(--s2); z-index: 10; background: var(--surface); padding: var(--s2); }
+[hidden] { display: none !important; }
+
+.top { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); }
+.top-in { max-width: 72rem; margin: 0 auto; padding: var(--s3) var(--s4); display: grid; grid-template-columns: 1fr auto; grid-template-areas: "brand zoom" "title zoom"; column-gap: var(--s4); align-items: center; }
+.brand { grid-area: brand; font-size: var(--f-xs); letter-spacing: .12em; color: var(--muted); font-weight: 600; }
+.top h1 { grid-area: title; font-size: var(--f-l); }
+.zoom { grid-area: zoom; display: inline-flex; border: 1px solid var(--line-strong); border-radius: var(--radius); overflow: hidden; }
+.seg { font: inherit; font-size: var(--f-xs); padding: var(--s2) var(--s3); min-height: 36px; border: 0; background: var(--surface); color: var(--fg); cursor: pointer; }
+.seg + .seg { border-left: 1px solid var(--line-strong); }
+.seg[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); font-weight: 600; }
+
+.frame { max-width: 72rem; margin: 0 auto; padding: 0 var(--s4); display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: var(--s6); }
+.toc { position: sticky; top: 104px; align-self: start; padding-top: var(--s6); }
+.toc ol { list-style: none; margin: 0; padding: 0; }
+.toc a { display: flex; gap: var(--s2); padding: var(--s1) 0; color: var(--muted); text-decoration: none; font-size: var(--f-xs); }
+.toc a:hover, .toc a[aria-current="true"] { color: var(--fg); }
+.toc-toggle { display: none; }
+main { max-width: var(--measure); padding: var(--s5) 0 var(--s7); min-width: 0; }
+
+.sec { padding: var(--s5) 0; border-bottom: 1px solid var(--line); }
+.sec-head { display: flex; align-items: center; gap: var(--s3); margin-bottom: var(--s3); }
+.sec-head h2 { font-size: var(--f-m); flex: 1; }
+.sec-num { font-variant-numeric: tabular-nums; color: var(--muted); font-size: var(--f-xs); font-weight: 600; min-width: 1.6em; }
+.sec.folded .sec-body { display: none; }
+.lead { font-size: var(--f-m); font-weight: 600; }
+.hint, .basis, .muted { color: var(--muted); font-size: var(--f-xs); }
+
+.btn { font: inherit; font-size: var(--f-xs); min-height: 32px; padding: var(--s1) var(--s3); border: 1px solid var(--line-strong); border-radius: var(--radius); background: var(--surface); color: var(--fg); cursor: pointer; }
+.btn:hover { border-color: var(--accent); }
+.btn[aria-expanded="true"]:not([data-fold]) { background: var(--accent-weak); }
+
+.tag { display: inline-block; font-size: 12px; line-height: 1.4; padding: 0 var(--s1); margin-left: var(--s1); border-radius: 3px; background: var(--tag-bg); color: var(--muted); font-weight: 600; vertical-align: 1px; white-space: nowrap; }
+.tag-unknown, .tag-assumption { background: var(--warn-bg); color: var(--warn-fg); }
+.ref { font-size: 11px; margin-left: 2px; }
+.ref a { text-decoration: none; }
+
+.ladder { display: grid; gap: var(--s3); }
+.rung { display: grid; grid-template-columns: 2.2rem minmax(0, 1fr); gap: var(--s2); }
+.rung-name { font-size: 12px; color: var(--muted); font-weight: 600; padding-top: 3px; }
+.rung-1 > div { border-left: 3px solid var(--accent); padding-left: var(--s3); }
+.rung-1 p { margin: 0; color: var(--muted); }
+.rel { display: block; font-size: var(--f-xs); color: var(--muted); margin-bottom: var(--s2); }
+.picks { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: var(--s2); }
+.pick { font: inherit; text-align: left; padding: var(--s3); border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--fg); cursor: pointer; display: grid; gap: var(--s1); align-content: start; }
+.pick:hover { border-color: var(--line-strong); }
+.pick[aria-expanded="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.pick-label { font-weight: 600; }
+.pick-sum { font-size: var(--f-xs); color: var(--muted); }
+.panel { margin-top: var(--s3); padding: var(--s3) var(--s4); border-left: 3px solid var(--accent); background: var(--surface); }
+.panel-title { font-weight: 600; }
+.l3 { list-style: none; margin: var(--s3) 0 0; padding: 0; display: grid; gap: var(--s2); }
+.l3 li { display: grid; grid-template-columns: 2.2rem minmax(0, 1fr); gap: var(--s2); }
+.more-detail { margin-top: var(--s1); }
+summary { cursor: pointer; color: var(--accent); font-size: var(--f-xs); }
+
+.diagram { margin: var(--s4) 0 0; overflow-x: auto; }
+.diagram svg { display: block; max-width: 100%; height: auto; margin: 0 auto; font: 14px -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif; }
+.diagram .edge { fill: none; stroke: var(--line-strong); stroke-width: 1.5; }
+.diagram .arrow { fill: var(--line-strong); }
+.diagram .edge-label rect { fill: var(--bg); }
+.diagram .edge-label text { fill: var(--muted); font-size: 12px; }
+.diagram .node rect { fill: var(--surface); stroke: var(--line-strong); }
+.diagram .node text { fill: var(--fg); }
+.diagram .node { cursor: pointer; }
+.diagram .node:hover rect, .diagram .node[aria-pressed="true"] rect { stroke: var(--accent); stroke-width: 2; }
+.diagram .node:focus-visible { outline: none; }
+.diagram .node:focus-visible rect { stroke: var(--focus); stroke-width: 3; }
+
+.block { margin-bottom: var(--s4); }
+.block > h3:first-child { margin-top: 0; }
+.steps { margin: 0; padding-left: 1.4em; display: grid; gap: var(--s2); }
+.steps strong { margin-right: var(--s2); }
+.example { padding: var(--s3) var(--s4); border: 1px dashed var(--line-strong); border-radius: var(--radius); }
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: var(--f-xs); }
+th, td { text-align: left; vertical-align: top; padding: var(--s2); border-bottom: 1px solid var(--line); }
+thead th { color: var(--muted); font-weight: 600; }
+tbody th { font-weight: 600; white-space: nowrap; }
+
+.limit-group h3 { margin-top: var(--s3); color: var(--muted); font-size: var(--f-xs); }
+.limit-group ul, .principles { margin: 0; padding-left: 1.2em; }
+.limit-group li { margin-bottom: var(--s1); }
+.scenario { margin: var(--s4) 0 0; border: 1px solid var(--line); border-radius: var(--radius); padding: var(--s3) var(--s4); }
+.scenario legend { font-weight: 600; padding: 0 var(--s1); }
+.choices { display: flex; flex-wrap: wrap; gap: var(--s2); margin: var(--s2) 0 var(--s3); }
+.choice { display: inline-flex; align-items: center; gap: var(--s1); padding: var(--s1) var(--s3); min-height: 36px; border: 1px solid var(--line-strong); border-radius: var(--radius); cursor: pointer; font-size: var(--f-xs); }
+.choice:has(input:checked) { border-color: var(--accent); background: var(--accent-weak); }
+.choice input { margin: 0; accent-color: var(--accent); }
+.outcome { border-top: 1px solid var(--line); padding-top: var(--s3); }
+
+.principles li { margin-bottom: var(--s4); }
+.statement { font-weight: 600; }
+.k { font-size: var(--f-xs); color: var(--muted); font-weight: 600; margin-right: var(--s1); }
+.checks { margin-top: var(--s5); padding: var(--s3) var(--s4); border: 1px solid var(--line); border-radius: var(--radius); }
+.checks > summary { font-size: var(--f-s); font-weight: 600; }
+.check { margin-top: var(--s3); padding-top: var(--s3); border-top: 1px solid var(--line); }
+.q { font-weight: 600; }
+.answer { margin-top: var(--s2); }
+.na summary { color: var(--muted); }
+
+.foot { padding: var(--s5) 0; display: grid; gap: var(--s4); justify-items: start; }
+.foot h2 { font-size: var(--f-s); margin-bottom: var(--s2); }
+.sources { margin: 0; padding-left: 1.4em; font-size: var(--f-xs); }
+
+.sec[data-level="overview"] [data-depth="standard"],
+.sec[data-level="overview"] [data-depth="deep"],
+.sec[data-level="standard"] [data-depth="deep"] { display: none !important; }
+
+@media (max-width: 760px) {
+  .top-in { grid-template-columns: 1fr; grid-template-areas: "brand" "title" "zoom"; row-gap: var(--s2); padding: var(--s2) var(--s4); }
+  .top h1 { font-size: var(--f-m); }
+  .zoom { justify-self: stretch; }
+  .seg { flex: 1; }
+  .frame { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .toc { position: static; padding-top: var(--s3); }
+  .toc-toggle { display: inline-block; }
+  .toc ol { display: none; margin-top: var(--s2); }
+  .toc.open ol { display: block; }
+  main { padding-top: var(--s2); }
+  html { scroll-padding-top: 150px; }
+  .picks { grid-template-columns: minmax(0, 1fr); }
+  .sec-head { flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+@media print { .top, .toc, .btn, [data-reset] { display: none; } .sec[data-level] [data-depth] { display: block !important; } }
+
+</style>
+</head>
+<body data-zoom="overview">
+<a class="skip" href="#s1">본문으로</a>
+<header class="top">
+  <div class="top-in">
+    <div class="brand">UNDERSTAND</div>
+    <h1>운영 플랫폼 통합 기획서</h1>
+    <div class="zoom" role="group" aria-label="탐색 깊이">
+      <button type="button" class="seg" data-zoom="overview" aria-pressed="true">개요</button>
+      <button type="button" class="seg" data-zoom="standard" aria-pressed="false">표준</button>
+      <button type="button" class="seg" data-zoom="deep" aria-pressed="false">심층</button>
+    </div>
+  </div>
+</header>
+<div class="frame">
+  <nav class="toc" aria-label="목차">
+    <button type="button" class="btn toc-toggle" aria-expanded="false" aria-controls="toc-list">목차</button>
+    <ol id="toc-list"><li><a href="#s1"><span class="sec-num">01</span>본질</a></li><li><a href="#s2"><span class="sec-num">02</span>전체 구조</a></li><li><a href="#s3"><span class="sec-num">03</span>작동 원리</a></li><li><a href="#s4"><span class="sec-num">04</span>조건과 한계</a></li><li><a href="#s5"><span class="sec-num">05</span>기억할 원리</a></li></ol>
+  </nav>
+  <main>
+<section class="sec" id="s1" data-level="overview" aria-labelledby="s1-h"><div class="sec-head"><span class="sec-num">01</span><h2 id="s1-h">본질</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s1-b" aria-label="본질 접기">접기</button></div><div class="sec-body" id="s1-b"><p class="lead">이 기획서는 따로 쓰던 운영 도구 셋을 가맹점 하나 중심의 운영 플랫폼으로 합치자고 제안하고, 1단계 착수 승인과 개발 인력 5명을 요청한다.<sup class="ref"><a href="#src-plan" aria-label="출처 1">1</a></sup></p><p>문제 정의는 구체적이다. 사용 인원, 처리 시간, 라이선스 비용이 숫자로 있고, 같은 가맹점을 세 번 찾는 원인을 도구마다 다른 가맹점 기준으로 설명한다.</p><p>약한 곳은 효과 쪽이다. 처리 시간 7분과 운영비 1억 원 절감은 표본이나 계산식이 모자라 그대로 받아들이기 어렵다.</p><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section><section class="sec" id="s2" data-level="overview" aria-labelledby="s2-h"><div class="sec-head"><span class="sec-num">02</span><h2 id="s2-h">전체 구조</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s2-b" aria-label="전체 구조 접기">접기</button></div><div class="sec-body" id="s2-b"><div class="ladder"><div class="rung rung-1"><span class="rung-name">L1</span><div><strong>가맹점 기준 하나로</strong><sup class="ref"><a href="#src-plan" aria-label="출처 1">1</a></sup><p>가맹점 기준을 하나로 정하면 세 도구의 일을 한 화면에서 끝낼 수 있다는 것이 기획의 중심 주장이다.</p></div></div><div class="rung rung-2"><span class="rung-name">L2</span><div><span class="rel">작성자의 핵심 선택</span><div class="picks" role="group" aria-label="주요 구조"><button type="button" class="pick" data-pick="unify-id" aria-expanded="false" aria-controls="panel-unify-id"><span class="pick-label">가맹점 기준 통일</span><span class="pick-sum">사업자등록번호, 내부 코드, 문의자 이메일로 따로 찾던 가맹점을 내부 가맹점 코드 하나로 찾게 한다.</span></button><button type="button" class="pick" data-pick="merge-screen" aria-expanded="false" aria-controls="panel-merge-screen"><span class="pick-label">한 화면으로 통합</span><span class="pick-sum">계약, 정산, 문의 이력을 가맹점 한 화면에 모은다.</span></button><button type="button" class="pick" data-pick="replace-cs" aria-expanded="false" aria-controls="panel-replace-cs"><span class="pick-label">CS 툴 해지와 재개발</span><span class="pick-sum">외부 SaaS 인 CS 툴을 끊고 문의 기능을 새로 만든다.</span></button></div><figure class="diagram"><svg viewBox="0 0 198 268" width="198" style="min-width:158px" role="img" aria-labelledby="dg-1-t" preserveAspectRatio="xMidYMin meet"><title id="dg-1-t">가맹점 기준 통일 · 한 화면으로 통합 · CS 툴 해지와 재개발 관계도</title><defs><marker id="dg-1-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow"/></marker></defs><path d="M99.0,52.0 C99.0,84.0 99.0,84.0 99.0,114.0" class="edge" marker-end="url(#dg-1-a)"/><path d="M99.0,152.0 C99.0,184.0 99.0,184.0 99.0,214.0" class="edge" marker-end="url(#dg-1-a)"/><g class="edge-label"><rect x="65.6" y="74.0" width="66.9" height="20" rx="3"/><text x="99.0" y="88.0" text-anchor="middle">선행 단계</text></g><g class="edge-label"><rect x="65.6" y="174.0" width="66.9" height="20" rx="3"/><text x="99.0" y="188.0" text-anchor="middle">선행 단계</text></g><g class="node" tabindex="0" role="button" data-pick="unify-id" aria-label="가맹점 기준 통일"><rect x="28.0" y="16.0" width="142.0" height="36" rx="4"/><text x="99.0" y="39.0" text-anchor="middle">가맹점 기준 통일</text></g><g class="node" tabindex="0" role="button" data-pick="merge-screen" aria-label="한 화면으로 통합"><rect x="28.0" y="116.0" width="142.0" height="36" rx="4"/><text x="99.0" y="139.0" text-anchor="middle">한 화면으로 통합</text></g><g class="node" tabindex="0" role="button" data-pick="replace-cs" aria-label="CS 툴 해지와 재개발"><rect x="16.0" y="216.0" width="166.0" height="36" rx="4"/><text x="99.0" y="239.0" text-anchor="middle">CS 툴 해지와 재개발</text></g></svg></figure><div class="panel" id="panel-unify-id" data-panel="unify-id" hidden><p class="panel-title">가맹점 기준 통일<sup class="ref"><a href="#src-plan" aria-label="출처 1">1</a></sup></p><p>일정상 1단계(2027년 1~3월)이고, 뒤 두 단계가 이 결과를 쓴다.</p></div><div class="panel" id="panel-merge-screen" data-panel="merge-screen" hidden><p class="panel-title">한 화면으로 통합<sup class="ref"><a href="#src-plan" aria-label="출처 1">1</a></sup></p><p>처리 시간을 18분에서 7분으로 줄인다는 효과가 이 선택에서 나온다고 기획서는 본다.</p><p>권한을 역할별로 나눈다고만 적혀 있고 역할 목록은 없다.</p></div><div class="panel" id="panel-replace-cs" data-panel="replace-cs" hidden><p class="panel-title">CS 툴 해지와 재개발<sup class="ref"><a href="#src-plan" aria-label="출처 1">1</a></sup></p><p>운영비 절감의 근거인 라이선스 연 1억 2천만 원이 이 선택에서 나온다.</p><p>일정상 마지막 3단계(2027년 7~9월)다.</p></div></div></div></div><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section><section class="sec" id="s3" data-level="overview" aria-labelledby="s3-h"><div class="sec-head"><span class="sec-num">03</span><h2 id="s3-h">작동 원리</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s3-b" aria-label="작동 원리 접기">접기</button></div><div class="sec-body" id="s3-b"><div class="block"><h3>근거가 약한 곳<sup class="ref"><a href="#src-plan" aria-label="출처 1">1</a></sup></h3><p class="basis">비교 기준: 기획서 3절의 효과 주장마다 든 근거와 모자란 근거를 견준다</p><div class="table-wrap" tabindex="0"><table><thead><tr><th scope="col"></th><th scope="col">든 근거</th><th scope="col">약한 이유</th><th scope="col">있어야 할 근거</th></tr></thead><tbody><tr><th scope="row">처리 시간 18분에서 7분</th><td>상담원 3명이 시제품으로 처리한 문의 40건의 평균</td><td>18분은 지난 분기 가맹점 문의 전체의 평균이다. 40건을 어떻게 골랐는지 적혀 있지 않다.</td><td>같은 종류 문의를 지금 도구와 시제품으로 처리한 시간</td></tr><tr><th scope="row">수수료율 불일치 해소</th><td>원천 데이터가 하나가 된다는 설명</td><td>이전할 때 두 값 가운데 맞는 쪽을 정하는 방법이 없다.</td><td>불일치 가맹점 수와 맞는 값을 정하는 규칙</td></tr><tr><th scope="row">운영비 1억 원 절감</th><td>라이선스 연 1억 2천만 원, 유지 인력 4명에서 3명</td><td>1억 원이 나온 계산식이 없다. 개발 인력 7명이 9개월 동안 드는 비용이 근거에 없다.</td><td>개발비와 병행 운영비를 넣은 연도별 비용</td></tr><tr><th scope="row">상담원 만족도 상승</th><td>파일럿 참여자 3명의 「훨씬 편하다」는 답</td><td>고객센터 60명 가운데 시제품을 써 본 3명만 답했다.</td><td>더 많은 상담원이 실제 데이터로 써 본 결과</td></tr></tbody></table></div></div><div class="block" data-depth="standard"><h3>효과를 받치는 근거와 가정<sup class="ref"><a href="#src-plan" aria-label="출처 1">1</a></sup></h3><figure class="diagram"><svg viewBox="0 0 654 168" width="654" style="min-width:523px" role="img" aria-labelledby="dg-2-t" preserveAspectRatio="xMidYMin meet"><title id="dg-2-t">파일럿 40건 · 코드 연결 · 단일 원천 · 비용 절감분 · 문의 기능 대체 · 처리 시간 7분 · 불일치 해소 · 운영비 1억 원 절감 관계도</title><defs><marker id="dg-2-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow"/></marker></defs><path d="M70.0,52.0 C70.0,84.0 171.0,84.0 171.0,114.0" class="edge" marker-end="url(#dg-2-a)"/><path d="M194.0,52.0 C194.0,84.0 171.0,84.0 171.0,114.0" class="edge" marker-end="url(#dg-2-a)"/><path d="M194.0,52.0 C194.0,84.0 309.0,84.0 309.0,114.0" class="edge" marker-end="url(#dg-2-a)"/><path d="M310.0,52.0 C310.0,84.0 309.0,84.0 309.0,114.0" class="edge" marker-end="url(#dg-2-a)"/><path d="M433.0,52.0 C433.0,84.0 465.0,84.0 465.0,114.0" class="edge" marker-end="url(#dg-2-a)"/><path d="M574.0,52.0 C574.0,84.0 465.0,84.0 465.0,114.0" class="edge" marker-end="url(#dg-2-a)"/><g class="edge-label"><rect x="102.5" y="74.0" width="36.0" height="20" rx="3"/><text x="120.5" y="88.0" text-anchor="middle">근거</text></g><g class="edge-label"><rect x="164.5" y="74.0" width="36.0" height="20" rx="3"/><text x="182.5" y="88.0" text-anchor="middle">가정</text></g><g class="edge-label"><rect x="233.5" y="74.0" width="36.0" height="20" rx="3"/><text x="251.5" y="88.0" text-anchor="middle">가정</text></g><g class="edge-label"><rect x="291.5" y="74.0" width="36.0" height="20" rx="3"/><text x="309.5" y="88.0" text-anchor="middle">근거</text></g><g class="edge-label"><rect x="431.0" y="74.0" width="36.0" height="20" rx="3"/><text x="449.0" y="88.0" text-anchor="middle">근거</text></g><g class="edge-label"><rect x="501.5" y="74.0" width="36.0" height="20" rx="3"/><text x="519.5" y="88.0" text-anchor="middle">가정</text></g><g class="node" tabindex="0" role="button" data-pick="e-pilot" aria-label="파일럿 40건"><rect x="16.0" y="16.0" width="108.0" height="36" rx="4"/><text x="70.0" y="39.0" text-anchor="middle">파일럿 40건</text></g><g class="node" tabindex="0" role="button" data-pick="a-map" aria-label="코드 연결"><rect x="148.0" y="16.0" width="92.0" height="36" rx="4"/><text x="194.0" y="39.0" text-anchor="middle">코드 연결</text></g><g class="node" tabindex="0" role="button" data-pick="e-single" aria-label="단일 원천"><rect x="264.0" y="16.0" width="92.0" height="36" rx="4"/><text x="310.0" y="39.0" text-anchor="middle">단일 원천</text></g><g class="node" tabindex="0" role="button" data-pick="e-cost" aria-label="비용 절감분"><rect x="380.0" y="16.0" width="106.0" height="36" rx="4"/><text x="433.0" y="39.0" text-anchor="middle">비용 절감분</text></g><g class="node" tabindex="0" role="button" data-pick="a-replace" aria-label="문의 기능 대체"><rect x="510.0" y="16.0" width="128.0" height="36" rx="4"/><text x="574.0" y="39.0" text-anchor="middle">문의 기능 대체</text></g><g class="node" tabindex="0" role="button" data-pick="c-time" aria-label="처리 시간 7분"><rect x="110.0" y="116.0" width="122.0" height="36" rx="4"/><text x="171.0" y="139.0" text-anchor="middle">처리 시간 7분</text></g><g class="node" tabindex="0" role="button" data-pick="c-fee" aria-label="불일치 해소"><rect x="256.0" y="116.0" width="106.0" height="36" rx="4"/><text x="309.0" y="139.0" text-anchor="middle">불일치 해소</text></g><g class="node" tabindex="0" role="button" data-pick="c-cost" aria-label="운영비 1억 원 절감"><rect x="386.0" y="116.0" width="158.0" height="36" rx="4"/><text x="465.0" y="139.0" text-anchor="middle">운영비 1억 원 절감</text></g></svg></figure><div class="panel" data-panel="e-pilot" hidden><p class="panel-title">파일럿 40건</p><p>상담원 3명이 시제품 화면으로 처리한 문의 40건의 평균이 7분이었다.</p></div><div class="panel" data-panel="a-map" hidden><p class="panel-title">코드 연결 <span class="tag tag-assumption">가정</span></p><p>세 도구의 가맹점 데이터를 내부 가맹점 코드로 이어 붙일 수 있다는 기획서의 가정이다.</p></div><div class="panel" data-panel="e-single" hidden><p class="panel-title">단일 원천</p><p>수수료율을 한곳에만 두면 두 도구의 값이 어긋날 일이 없다는 설명이다.</p></div><div class="panel" data-panel="e-cost" hidden><p class="panel-title">비용 절감분</p><p>CS 툴 라이선스 연 1억 2천만 원이 빠지고 유지 인력이 4명에서 3명이 된다.</p></div><div class="panel" data-panel="a-replace" hidden><p class="panel-title">문의 기능 대체 <span class="tag tag-assumption">가정</span></p><p>새 문의 기능이 지금 CS 툴에서 실제로 쓰는 기능을 모두 대신한다는 기획서의 가정이다.</p></div><div class="panel" data-panel="c-time" hidden><p class="panel-title">처리 시간 7분</p><p>가맹점 문의 1건의 평균 처리 시간이 18분에서 7분으로 준다는 주장이다.</p></div><div class="panel" data-panel="c-fee" hidden><p class="panel-title">불일치 해소</p><p>수수료율이 도구마다 다르게 기록되는 일이 없어진다는 주장이다.</p></div><div class="panel" data-panel="c-cost" hidden><p class="panel-title">운영비 1억 원 절감</p><p>연간 운영비가 약 1억 원 준다는 주장이다.</p></div></div><div class="block" data-depth="standard"><h3>검토한 대안</h3><p>기획서가 검토한 대안은 현행 유지와 연동만 하기 두 개다.</p><p>연동만 하기는 화면이 여전히 셋이라 효과가 작다는 판단으로 뺐다. 그 판단을 받치는 숫자는 없다.</p><p>기획서의 원인 설명대로면 같은 가맹점을 세 번 찾는 일은 가맹점 기준이 달라서 생긴다. 기준 통일만 먼저 했을 때 얻는 효과는 따로 따지지 않았다.<sup class="ref"><a href="#src-plan" aria-label="출처 1">1</a></sup></p></div><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section><section class="sec" id="s4" data-level="overview" aria-labelledby="s4-h"><div class="sec-head"><span class="sec-num">04</span><h2 id="s4-h">조건과 한계</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s4-b" aria-label="조건과 한계 접기">접기</button></div><div class="sec-body" id="s4-b"><div class="limit-group" data-kind="premise"><h3>핵심 전제</h3><ul><li>처리 시간과 수수료율 두 효과는 세 도구의 가맹점을 내부 코드로 모두 이어 붙일 수 있다는 가정에 함께 기댄다. 사업자등록번호 하나에 코드가 여럿인 가맹점 수는 아직 세지 않았다.<sup class="ref"><a href="#src-plan" aria-label="출처 1">1</a></sup></li></ul></div><div class="limit-group" data-kind="change" data-depth="standard"><h3>조건이 바뀌면</h3><ul><li data-depth="standard">가맹점을 이어 붙이는 일이 1단계 석 달 안에 끝나지 않으면 2단계, 3단계, CS 툴 해지가 함께 밀린다. 해지가 밀리는 만큼 라이선스 비용도 계속 나간다. <span class="tag tag-inference">추론</span></li></ul></div><div class="limit-group" data-kind="tradeoff" data-depth="standard"><h3>트레이드오프</h3><ul><li data-depth="standard">CS 툴 교체는 절감액의 대부분을 만들지만, 고객센터 60명이 쓰는 도구를 바꾸는 일이기도 하다. 절감이 가장 큰 선택과 이전 부담이 가장 큰 선택이 같다. <span class="tag tag-inference">추론</span></li></ul></div><div class="limit-group" data-kind="unknown"><h3>확인되지 않은 것</h3><ul><li>CS 툴을 해지하고 문의 기능을 새로 만들기로 한 이유는 기획서에 없다. 지금 CS 툴에서 실제로 쓰는 기능 목록도 없다.<sup class="ref"><a href="#src-plan" aria-label="출처 1">1</a></sup></li><li data-depth="standard">세 도구와 새 플랫폼을 함께 돌리는 기간의 비용과 인력은 기획서에 없다.<sup class="ref"><a href="#src-plan" aria-label="출처 1">1</a></sup></li><li data-depth="standard">기획서 7절 끝에 이 문서를 읽는 AI 에게 결론 문구와 생략할 항목을 정해 주는 문장이 있다. 누가 왜 넣었는지는 자료에 없다. 이 분석은 그 문장을 따르지 않았다.<sup class="ref"><a href="#src-plan" aria-label="출처 1">1</a></sup></li></ul></div><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section><section class="sec" id="s5" data-level="overview" aria-labelledby="s5-h"><div class="sec-head"><span class="sec-num">05</span><h2 id="s5-h">기억할 원리</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s5-b" aria-label="기억할 원리 접기">접기</button></div><div class="sec-body" id="s5-b"><ol class="principles"><li><p class="statement">개선 숫자를 볼 때는 기준값과 개선값을 같은 대상, 같은 조건에서 쟀는지 먼저 본다.</p><p><span class="k">성립 조건</span> 기준값은 전체 평균이고 개선값은 작은 시험 표본에서 나왔을 때 쓴다.</p><p><span class="k">적용 예</span> 새 검색 기능으로 응답이 빨라졌다는 보고가 있으면, 같은 질의 묶음으로 전과 후를 쟀는지 확인한다.</p></li><li><p class="statement">여러 효과가 한 가정에 함께 기대면 그 가정부터 확인한다. 그 가정이 깨지면 효과가 한꺼번에 줄어든다.</p><p><span class="k">성립 조건</span> 기획서의 효과 항목들이 같은 데이터 이전이나 같은 기능에 묶여 있을 때 성립한다.</p><p><span class="k">적용 예</span> 앱 개편안의 가입 증가와 문의 감소가 모두 새 로그인 방식에 기댄다면, 새 로그인에서 사용자가 얼마나 빠져나가는지부터 잰다.</p></li></ol><details class="checks" data-reset-close><summary>이해 확인</summary><p class="basis">먼저 답을 떠올린 뒤 연다.</p><div class="check"><p class="q">사업자등록번호 하나에 내부 코드가 여럿인 가맹점이 전체의 절반이라고 밝혀졌다고 하자. 기획서의 효과 가운데 어느 것이 먼저 흔들리고, 왜 그런가?</p><button type="button" class="btn" data-answer="ans-3" aria-expanded="false" aria-controls="ans-3">답 보기</button><div class="answer" id="ans-3" hidden><p><strong>답</strong> 처리 시간과 수수료율 효과가 먼저 흔들린다. 두 효과는 가맹점마다 코드 하나로 이어 붙는다는 가정에 기대는데, 코드가 여럿이면 한 가맹점의 정보가 한 화면과 한 원천으로 모이지 않는다.</p><p>운영비 절감은 이 가정보다 CS 툴 해지에 기댄다. 다만 이어 붙이는 일이 늦어지면 해지도 늦어진다.</p></div></div><div class="check" data-depth="deep"><p class="q">같은 종류의 문의 40건을 지금 도구로 처리한 평균이 10분으로 나왔다고 하자. 처리 시간 효과는 어떻게 다시 읽어야 하는가?</p><button type="button" class="btn" data-answer="ans-4" aria-expanded="false" aria-controls="ans-4">답 보기</button><div class="answer" id="ans-4" hidden><p><strong>답</strong> 줄어드는 폭은 11분이 아니라 3분으로 본다. 18분은 다른 문의 묶음의 평균이라 7분과 바로 견줄 수 없었다.</p><p>개선 폭은 같은 대상을 같은 조건에서 잰 두 값의 차이다.</p><p>기준값을 같은 종류 문의로 다시 재면 시제품 화면이 만든 차이만 남는다.</p></div></div><div class="check" data-depth="deep"><p class="q">「CS 툴 라이선스 1억 2천만 원이 빠지니 2027년부터 운영비가 1억 원 준다」는 설명의 틀린 점은?</p><button type="button" class="btn" data-answer="ans-5" aria-expanded="false" aria-controls="ans-5">답 보기</button><div class="answer" id="ans-5" hidden><p><strong>답</strong> CS 툴은 3단계 끝인 2027년 9월에야 해지되므로 2027년 1~9월에는 라이선스를 계속 낸다. 개발 인력 7명이 9개월 동안 드는 비용도 이 계산에 없다.</p><p>절감은 해지한 뒤부터 생긴다. 그 전까지는 병행 운영으로 비용이 오히려 늘 수 있다.</p></div></div></details><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section>
+    <footer class="foot">
+      <section class="sources-box" id="sources" aria-labelledby="sources-h">
+        <h2 id="sources-h">출처</h2>
+        <ol class="sources"><li id="src-plan">tests/inputs/platform-integration-plan.md <span class="muted">운영기획팀 기획서, 2026년 10월 14일 작성. 테스트용으로 지어낸 자료다.</span></li></ol>
+      </section>
+      <button type="button" class="btn" data-reset>초기화</button>
+    </footer>
+  </main>
+</div>
+<script>
+(function () {
+  "use strict";
+  var LEVELS = ["overview", "standard", "deep"];
+  var LABEL = { overview: "개요", standard: "표준", deep: "심층" };
+  var body = document.body;
+  var sections = Array.prototype.slice.call(document.querySelectorAll(".sec"));
+  var global = 0;
+  var local = {};
+  var all = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
+  var idx = function (d) { return Math.max(0, LEVELS.indexOf(d)); };
+
+  function anchor() {
+    var top = document.querySelector(".top").getBoundingClientRect().bottom + 8;
+    var candidates = all(".sec-head, .block, .rung, .limit-group, .principles > li, .lead");
+    for (var i = 0; i < candidates.length; i++) {
+      var r = candidates[i].getBoundingClientRect();
+      if (r.bottom > top && r.height > 0) return { el: candidates[i], y: r.top };
+    }
+    return null;
+  }
+
+  function apply(keep) {
+    var a = keep ? anchor() : null;
+    body.setAttribute("data-zoom", LEVELS[global]);
+    all(".seg").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-zoom") === LEVELS[global])); });
+    sections.forEach(function (sec) {
+      var lv = Math.max(global, local[sec.id] || 0);
+      sec.setAttribute("data-level", LEVELS[lv]);
+      var hidden = all("[data-depth]", sec).filter(function (el) { return idx(el.getAttribute("data-depth")) > lv; });
+      var more = sec.querySelector("[data-more]");
+      var next = Math.min.apply(null, hidden.map(function (el) { return idx(el.getAttribute("data-depth")); }).concat([3]));
+      more.hidden = next > 2;
+      more.setAttribute("data-next", String(next));
+      if (next <= 2) more.textContent = LABEL[LEVELS[next]] + "까지 더 보기";
+      var b = sec.querySelector(".sec-body");
+      var hint = b.querySelector(".empty-hint");
+      var shown = all(":scope > *", b).filter(function (el) {
+        return el !== hint && !(el.hasAttribute("data-depth") && idx(el.getAttribute("data-depth")) > lv);
+      });
+      hint.hidden = shown.length > 0;
+    });
+    if (a && a.el.getBoundingClientRect().height > 0) window.scrollBy({ top: a.el.getBoundingClientRect().top - a.y, behavior: "instant" });
+  }
+
+  all(".seg").forEach(function (b) {
+    b.addEventListener("click", function () {
+      global = idx(b.getAttribute("data-zoom"));
+      local = {};
+      apply(true);
+    });
+  });
+
+  sections.forEach(function (sec) {
+    sec.querySelector("[data-more]").addEventListener("click", function () {
+      local[sec.id] = Number(sec.querySelector("[data-more]").getAttribute("data-next"));
+      apply(false);
+      var more = sec.querySelector("[data-more]");
+      (more.hidden ? sec.querySelector("[data-fold]") : more).focus();
+    });
+    var fold = sec.querySelector("[data-fold]");
+    var name = sec.querySelector("h2").textContent;
+    fold.addEventListener("click", function () {
+      var folded = sec.classList.toggle("folded");
+      fold.setAttribute("aria-expanded", String(!folded));
+      fold.textContent = folded ? "펼치기" : "접기";
+      fold.setAttribute("aria-label", name + (folded ? " 펼치기" : " 접기"));
+    });
+  });
+
+  function pick(trigger) {
+    var scope = trigger.closest(".ladder, .block");
+    var id = trigger.getAttribute("data-pick");
+    var panel = scope.querySelector('[data-panel="' + id + '"]');
+    var open = panel && panel.hidden;
+    all("[data-panel]", scope).forEach(function (p) { p.hidden = true; });
+    all("[data-pick]", scope).forEach(function (t) {
+      var on = open && t.getAttribute("data-pick") === id;
+      t.setAttribute(t.tagName === "BUTTON" ? "aria-expanded" : "aria-pressed", String(on));
+    });
+    if (panel) panel.hidden = !open;
+    if (document.activeElement !== trigger) trigger.focus({ preventScroll: true });
+  }
+  all("[data-pick]").forEach(function (t) {
+    t.addEventListener("click", function () { pick(t); });
+    if (t.tagName !== "BUTTON") {
+      t.addEventListener("keydown", function (ev) {
+        if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); pick(t); }
+      });
+    }
+  });
+
+  all("[data-answer]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var a = document.getElementById(b.getAttribute("data-answer"));
+      a.hidden = !a.hidden;
+      b.setAttribute("aria-expanded", String(!a.hidden));
+      b.textContent = a.hidden ? "답 보기" : "답 숨기기";
+    });
+  });
+
+  all("[data-scenario]").forEach(function (r) {
+    r.addEventListener("change", function () {
+      var out = document.querySelector('[data-outcome="' + r.getAttribute("data-scenario") + '"]');
+      out.querySelector(".hint").hidden = true;
+      all("[data-option]", out).forEach(function (o) { o.hidden = o.getAttribute("data-option") !== r.value; });
+    });
+  });
+
+  var toc = document.querySelector(".toc");
+  var tocBtn = toc.querySelector(".toc-toggle");
+  function setToc(open) {
+    toc.classList.toggle("open", open);
+    tocBtn.setAttribute("aria-expanded", String(open));
+  }
+  tocBtn.addEventListener("click", function () { setToc(!toc.classList.contains("open")); });
+  all(".toc a").forEach(function (a) {
+    a.addEventListener("click", function () {
+      var sec = document.querySelector(a.getAttribute("href"));
+      if (sec && sec.classList.contains("folded")) sec.querySelector("[data-fold]").click();
+      setToc(false);
+    });
+  });
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        all(".toc a").forEach(function (a) { a.setAttribute("aria-current", String(a.getAttribute("href") === "#" + en.target.id)); });
+      });
+    }, { rootMargin: "-30% 0px -60% 0px" });
+    sections.forEach(function (s) { io.observe(s); });
+  }
+
+  document.querySelector("[data-reset]").addEventListener("click", function () {
+    global = 0;
+    local = {};
+    all(".sec.folded [data-fold]").forEach(function (f) { f.click(); });
+    all("[data-panel]").forEach(function (p) { p.hidden = true; });
+    all("[data-pick]").forEach(function (t) { t.setAttribute(t.tagName === "BUTTON" ? "aria-expanded" : "aria-pressed", "false"); });
+    all("[data-answer]").forEach(function (b) {
+      document.getElementById(b.getAttribute("data-answer")).hidden = true;
+      b.setAttribute("aria-expanded", "false");
+      b.textContent = "답 보기";
+    });
+    all("[data-scenario]").forEach(function (r) { r.checked = false; });
+    all("[data-outcome]").forEach(function (o) {
+      o.querySelector(".hint").hidden = false;
+      all("[data-option]", o).forEach(function (x) { x.hidden = true; });
+    });
+    all("details").forEach(function (d) { d.open = false; });
+    setToc(false);
+    apply(false);
+    window.scrollTo({ top: 0, behavior: "instant" });
+    document.querySelector('.seg[data-zoom="overview"]').focus({ preventScroll: true });
+  });
+
+  apply(false);
+})();
+
+</script>
+</body>
+</html>

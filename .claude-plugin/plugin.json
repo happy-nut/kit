@@ -1,6 +1,6 @@
 {
   "name": "dev",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "에이전트를 믿을 수 있게 만드는 작업 방식 플러그인. 교정은 장치로, 끝은 증거로.",
   "author": {
     "name": "happy-nut",

@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'sha256-+r7cGWV/QF0uiwDw6OvXw3/AA4hvWKcj8pdJVpf7FyU='; img-src data:; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>PG 가맹점 심사</title>
+<style>
+:root {
+  --bg: #fbfbfa; --surface: #ffffff; --fg: #1c1d1f; --muted: #5d6168; --line: #dcdee2; --line-strong: #b9bdc4;
+  --accent: #1f5fbf; --accent-fg: #ffffff; --accent-weak: #e8eff9; --focus: #1f5fbf;
+  --tag-bg: #f0f1f3; --warn-bg: #fbf3e4; --warn-fg: #7a4b00;
+  --f-xs: 13px; --f-s: 15px; --f-m: 17px; --f-l: 22px;
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px;
+  --measure: 46rem; --radius: 6px;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15171a; --surface: #1d2024; --fg: #e8e9eb; --muted: #a3a8b0; --line: #33373d; --line-strong: #4a5058;
+    --accent: #7fb0ff; --accent-fg: #0d1420; --accent-weak: #1f2b3d; --focus: #7fb0ff;
+    --tag-bg: #2a2e34; --warn-bg: #3a2f1b; --warn-fg: #f1c57a;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #15171a; --surface: #1d2024; --fg: #e8e9eb; --muted: #a3a8b0; --line: #33373d; --line-strong: #4a5058;
+  --accent: #7fb0ff; --accent-fg: #0d1420; --accent-weak: #1f2b3d; --focus: #7fb0ff;
+  --tag-bg: #2a2e34; --warn-bg: #3a2f1b; --warn-fg: #f1c57a;
+}
+* { box-sizing: border-box; }
+html { scroll-padding-top: 120px; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: var(--f-s)/1.65 -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", system-ui, sans-serif; word-break: keep-all; overflow-wrap: anywhere; }
+p { margin: 0 0 var(--s2); }
+h1, h2, h3 { margin: 0; line-height: 1.35; }
+h3 { font-size: var(--f-s); margin: var(--s4) 0 var(--s2); }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.skip { position: absolute; left: -999px; }
+.skip:focus { left: var(--s4); top: var(--s2); z-index: 10; background: var(--surface); padding: var(--s2); }
+[hidden] { display: none !important; }
+
+.top { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); }
+.top-in { max-width: 72rem; margin: 0 auto; padding: var(--s3) var(--s4); display: grid; grid-template-columns: 1fr auto; grid-template-areas: "brand zoom" "title zoom"; column-gap: var(--s4); align-items: center; }
+.brand { grid-area: brand; font-size: var(--f-xs); letter-spacing: .12em; color: var(--muted); font-weight: 600; }
+.top h1 { grid-area: title; font-size: var(--f-l); }
+.zoom { grid-area: zoom; display: inline-flex; border: 1px solid var(--line-strong); border-radius: var(--radius); overflow: hidden; }
+.seg { font: inherit; font-size: var(--f-xs); padding: var(--s2) var(--s3); min-height: 36px; border: 0; background: var(--surface); color: var(--fg); cursor: pointer; }
+.seg + .seg { border-left: 1px solid var(--line-strong); }
+.seg[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); font-weight: 600; }
+
+.frame { max-width: 72rem; margin: 0 auto; padding: 0 var(--s4); display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: var(--s6); }
+.toc { position: sticky; top: 104px; align-self: start; padding-top: var(--s6); }
+.toc ol { list-style: none; margin: 0; padding: 0; }
+.toc a { display: flex; gap: var(--s2); padding: var(--s1) 0; color: var(--muted); text-decoration: none; font-size: var(--f-xs); }
+.toc a:hover, .toc a[aria-current="true"] { color: var(--fg); }
+.toc-toggle { display: none; }
+main { max-width: var(--measure); padding: var(--s5) 0 var(--s7); min-width: 0; }
+
+.sec { padding: var(--s5) 0; border-bottom: 1px solid var(--line); }
+.sec-head { display: flex; align-items: center; gap: var(--s3); margin-bottom: var(--s3); }
+.sec-head h2 { font-size: var(--f-m); flex: 1; }
+.sec-num { font-variant-numeric: tabular-nums; color: var(--muted); font-size: var(--f-xs); font-weight: 600; min-width: 1.6em; }
+.sec.folded .sec-body { display: none; }
+.lead { font-size: var(--f-m); font-weight: 600; }
+.hint, .basis, .muted { color: var(--muted); font-size: var(--f-xs); }
+
+.btn { font: inherit; font-size: var(--f-xs); min-height: 32px; padding: var(--s1) var(--s3); border: 1px solid var(--line-strong); border-radius: var(--radius); background: var(--surface); color: var(--fg); cursor: pointer; }
+.btn:hover { border-color: var(--accent); }
+.btn[aria-expanded="true"]:not([data-fold]) { background: var(--accent-weak); }
+
+.tag { display: inline-block; font-size: 12px; line-height: 1.4; padding: 0 var(--s1); margin-left: var(--s1); border-radius: 3px; background: var(--tag-bg); color: var(--muted); font-weight: 600; vertical-align: 1px; white-space: nowrap; }
+.tag-unknown, .tag-assumption { background: var(--warn-bg); color: var(--warn-fg); }
+.ref { font-size: 11px; margin-left: 2px; }
+.ref a { text-decoration: none; }
+
+.ladder { display: grid; gap: var(--s3); }
+.rung { display: grid; grid-template-columns: 2.2rem minmax(0, 1fr); gap: var(--s2); }
+.rung-name { font-size: 12px; color: var(--muted); font-weight: 600; padding-top: 3px; }
+.rung-1 > div { border-left: 3px solid var(--accent); padding-left: var(--s3); }
+.rung-1 p { margin: 0; color: var(--muted); }
+.rel { display: block; font-size: var(--f-xs); color: var(--muted); margin-bottom: var(--s2); }
+.picks { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: var(--s2); }
+.pick { font: inherit; text-align: left; padding: var(--s3); border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--fg); cursor: pointer; display: grid; gap: var(--s1); align-content: start; }
+.pick:hover { border-color: var(--line-strong); }
+.pick[aria-expanded="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.pick-label { font-weight: 600; }
+.pick-sum { font-size: var(--f-xs); color: var(--muted); }
+.panel { margin-top: var(--s3); padding: var(--s3) var(--s4); border-left: 3px solid var(--accent); background: var(--surface); }
+.panel-title { font-weight: 600; }
+.l3 { list-style: none; margin: var(--s3) 0 0; padding: 0; display: grid; gap: var(--s2); }
+.l3 li { display: grid; grid-template-columns: 2.2rem minmax(0, 1fr); gap: var(--s2); }
+.more-detail { margin-top: var(--s1); }
+summary { cursor: pointer; color: var(--accent); font-size: var(--f-xs); }
+
+.diagram { margin: var(--s4) 0 0; overflow-x: auto; }
+.diagram svg { display: block; max-width: 100%; height: auto; margin: 0 auto; font: 14px -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif; }
+.diagram .edge { fill: none; stroke: var(--line-strong); stroke-width: 1.5; }
+.diagram .arrow { fill: var(--line-strong); }
+.diagram .edge-label rect { fill: var(--bg); }
+.diagram .edge-label text { fill: var(--muted); font-size: 12px; }
+.diagram .node rect { fill: var(--surface); stroke: var(--line-strong); }
+.diagram .node text { fill: var(--fg); }
+.diagram .node { cursor: pointer; }
+.diagram .node:hover rect, .diagram .node[aria-pressed="true"] rect { stroke: var(--accent); stroke-width: 2; }
+.diagram .node:focus-visible { outline: none; }
+.diagram .node:focus-visible rect { stroke: var(--focus); stroke-width: 3; }
+
+.block { margin-bottom: var(--s4); }
+.block > h3:first-child { margin-top: 0; }
+.steps { margin: 0; padding-left: 1.4em; display: grid; gap: var(--s2); }
+.steps strong { margin-right: var(--s2); }
+.example { padding: var(--s3) var(--s4); border: 1px dashed var(--line-strong); border-radius: var(--radius); }
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: var(--f-xs); }
+th, td { text-align: left; vertical-align: top; padding: var(--s2); border-bottom: 1px solid var(--line); }
+thead th { color: var(--muted); font-weight: 600; }
+tbody th { font-weight: 600; white-space: nowrap; }
+
+.limit-group h3 { margin-top: var(--s3); color: var(--muted); font-size: var(--f-xs); }
+.limit-group ul, .principles { margin: 0; padding-left: 1.2em; }
+.limit-group li { margin-bottom: var(--s1); }
+.scenario { margin: var(--s4) 0 0; border: 1px solid var(--line); border-radius: var(--radius); padding: var(--s3) var(--s4); }
+.scenario legend { font-weight: 600; padding: 0 var(--s1); }
+.choices { display: flex; flex-wrap: wrap; gap: var(--s2); margin: var(--s2) 0 var(--s3); }
+.choice { display: inline-flex; align-items: center; gap: var(--s1); padding: var(--s1) var(--s3); min-height: 36px; border: 1px solid var(--line-strong); border-radius: var(--radius); cursor: pointer; font-size: var(--f-xs); }
+.choice:has(input:checked) { border-color: var(--accent); background: var(--accent-weak); }
+.choice input { margin: 0; accent-color: var(--accent); }
+.outcome { border-top: 1px solid var(--line); padding-top: var(--s3); }
+
+.principles li { margin-bottom: var(--s4); }
+.statement { font-weight: 600; }
+.k { font-size: var(--f-xs); color: var(--muted); font-weight: 600; margin-right: var(--s1); }
+.checks { margin-top: var(--s5); padding: var(--s3) var(--s4); border: 1px solid var(--line); border-radius: var(--radius); }
+.checks > summary { font-size: var(--f-s); font-weight: 600; }
+.check { margin-top: var(--s3); padding-top: var(--s3); border-top: 1px solid var(--line); }
+.q { font-weight: 600; }
+.answer { margin-top: var(--s2); }
+.na summary { color: var(--muted); }
+
+.foot { padding: var(--s5) 0; display: grid; gap: var(--s4); justify-items: start; }
+.foot h2 { font-size: var(--f-s); margin-bottom: var(--s2); }
+.sources { margin: 0; padding-left: 1.4em; font-size: var(--f-xs); }
+
+.sec[data-level="overview"] [data-depth="standard"],
+.sec[data-level="overview"] [data-depth="deep"],
+.sec[data-level="standard"] [data-depth="deep"] { display: none !important; }
+
+@media (max-width: 760px) {
+  .top-in { grid-template-columns: 1fr; grid-template-areas: "brand" "title" "zoom"; row-gap: var(--s2); padding: var(--s2) var(--s4); }
+  .top h1 { font-size: var(--f-m); }
+  .zoom { justify-self: stretch; }
+  .seg { flex: 1; }
+  .frame { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .toc { position: static; padding-top: var(--s3); }
+  .toc-toggle { display: inline-block; }
+  .toc ol { display: none; margin-top: var(--s2); }
+  .toc.open ol { display: block; }
+  main { padding-top: var(--s2); }
+  html { scroll-padding-top: 150px; }
+  .picks { grid-template-columns: minmax(0, 1fr); }
+  .sec-head { flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+@media print { .top, .toc, .btn, [data-reset] { display: none; } .sec[data-level] [data-depth] { display: block !important; } }
+
+</style>
+</head>
+<body data-zoom="overview">
+<a class="skip" href="#s1">본문으로</a>
+<header class="top">
+  <div class="top-in">
+    <div class="brand">UNDERSTAND</div>
+    <h1>PG 가맹점 심사</h1>
+    <div class="zoom" role="group" aria-label="탐색 깊이">
+      <button type="button" class="seg" data-zoom="overview" aria-pressed="true">개요</button>
+      <button type="button" class="seg" data-zoom="standard" aria-pressed="false">표준</button>
+      <button type="button" class="seg" data-zoom="deep" aria-pressed="false">심층</button>
+    </div>
+  </div>
+</header>
+<div class="frame">
+  <nav class="toc" aria-label="목차">
+    <button type="button" class="btn toc-toggle" aria-expanded="false" aria-controls="toc-list">목차</button>
+    <ol id="toc-list"><li><a href="#s1"><span class="sec-num">01</span>본질</a></li><li><a href="#s2"><span class="sec-num">02</span>전체 구조</a></li><li><a href="#s3"><span class="sec-num">03</span>작동 원리</a></li><li><a href="#s4"><span class="sec-num">04</span>조건과 한계</a></li><li><a href="#s5"><span class="sec-num">05</span>기억할 원리</a></li></ol>
+  </nav>
+  <main>
+<section class="sec" id="s1" data-level="overview" aria-labelledby="s1-h"><div class="sec-head"><span class="sec-num">01</span><h2 id="s1-h">본질</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s1-b" aria-label="본질 접기">접기</button></div><div class="sec-body" id="s1-b"><p class="lead">PG 가맹점 심사는 PG(전자지급결제대행)사가 온라인 판매자를 카드 결제망에 들이기 전에, 그 판매자의 거래에서 생길 손실을 자기가 감당할 수 있는지 가리는 절차다.<sup class="ref"><a href="#src-law-yeosin" aria-label="출처 1">1</a></sup><sup class="ref"><a href="#src-tf" aria-label="출처 9">9</a></sup></p><p>카드사는 온라인 판매자 대부분과 직접 계약하지 않는다. PG사가 카드사의 가맹점이 되고, 판매자는 그 아래 하위 가맹점으로 들어간다.</p><p>그래서 판매자가 상품을 주지 않거나 정산을 받고 사라지면, 고객의 결제 취소 대금을 카드사에 먼저 돌려줘야 하는 쪽은 PG사다.</p><p>심사는 이 손실이 날 가능성을 미리 재고, 받아들인 판매자에게는 정산 조건으로 손실의 크기를 묶어 두는 일이다.</p><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section><section class="sec" id="s2" data-level="overview" aria-labelledby="s2-h"><div class="sec-head"><span class="sec-num">02</span><h2 id="s2-h">전체 구조</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s2-b" aria-label="전체 구조 접기">접기</button></div><div class="sec-body" id="s2-b"><div class="ladder"><div class="rung rung-1"><span class="rung-name">L1</span><div><strong>위험을 넘겨받는 사슬</strong><p>고객의 위험은 카드사, PG사, 판매자 순으로 넘겨진다. 사슬이 끊기면 끊긴 자리 바로 앞 고리가 손실을 진다.</p></div></div><div class="rung rung-2"><span class="rung-name">L2</span><div><span class="rel">손실 가능성을 재는 네 질문</span><div class="picks" role="group" aria-label="주요 구조"><button type="button" class="pick" data-pick="real" aria-expanded="false" aria-controls="panel-real"><span class="pick-label">실재하는 사업자인가</span><span class="pick-sum">서류, 계좌, 사이트에 적힌 사업자 정보가 서로 맞는지 본다.</span></button><button type="button" class="pick" data-pick="what" aria-expanded="false" aria-controls="panel-what"><span class="pick-label">무엇을 파는가</span><span class="pick-sum">상품이 현금으로 바꾸기 쉬운지, 한 건 금액이 큰지, 카드 결제를 받을 수 있는 업종인지 본다.</span></button><button type="button" class="pick" data-pick="when" aria-expanded="false" aria-controls="panel-when"><span class="pick-label">언제 넘겨주는가</span><span class="pick-sum">결제와 상품 제공 사이가 길수록, 판매자가 사라질 때 돌려줘야 할 돈이 커진다.</span></button><button type="button" class="pick" data-pick="refund" aria-expanded="false" aria-controls="panel-refund"><span class="pick-label">문제가 나면 돌려주는가</span><span class="pick-sum">배송과 환불 정책이 사이트에 적혀 있는지 본다.</span></button></div><div class="panel" id="panel-real" data-panel="real" hidden><p class="panel-title">실재하는 사업자인가<sup class="ref"><a href="#src-toss-card" aria-label="출처 2">2</a></sup></p><ul class="l3"><li data-depth="standard"><span class="rung-name">L3</span><div><strong>사이트 표시 정보</strong><sup class="ref"><a href="#src-toss-card" aria-label="출처 2">2</a></sup> <span>사이트 하단의 상호, 대표자, 주소, 사업자등록번호는 사업자등록증과 같아야 한다. 고객센터 전화와 메일도 적는다.</span></div></li><li data-depth="standard"><span class="rung-name">L3</span><div><strong>통신판매업 신고</strong><sup class="ref"><a href="#src-toss-card" aria-label="출처 2">2</a></sup> <span>온라인 판매자는 통신판매업 신고번호를 사이트에 적는다. 신고번호가 없으면 국민카드는 심사하지 않는다는 안내가 있다.</span></div></li><li data-depth="standard"><span class="rung-name">L3</span><div><strong>실제 판매 상태</strong><sup class="ref"><a href="#src-toss-card" aria-label="출처 2">2</a></sup> <span>지금 살 수 있는 상품이 하나 이상 있고, 표시 가격이 실제 결제 금액과 같아야 한다.</span></div></li></ul></div><div class="panel" id="panel-what" data-panel="what" hidden><p class="panel-title">무엇을 파는가</p><ul class="l3"><li data-depth="standard"><span class="rung-name">L3</span><div><strong>카드깡 위험</strong><sup class="ref"><a href="#src-toss-card" aria-label="출처 2">2</a></sup><sup class="ref"><a href="#src-portone-risk" aria-label="출처 5">5</a></sup><sup class="ref"><a href="#src-law-yeosin" aria-label="출처 1">1</a></sup> <span>물건 거래 없이 카드 결제로 현금을 마련하는 일을 카드깡이라고 한다. 법이 금지하는 거래라서 충전, 상품권, 게임처럼 현금화하기 쉬운 상품에는 결제 한도가 붙는다.</span></div></li><li data-depth="standard"><span class="rung-name">L3</span><div><strong>부정거래 위험</strong> <span class="tag tag-inference">추론</span> <span>남의 카드로 결제하는 부정거래는 되팔기 쉬운 상품에 몰린다. 카드 주인이 결제를 부인하면 그 대금도 취소 대금처럼 사슬을 거슬러 온다.</span></div></li><li data-depth="standard"><span class="rung-name">L3</span><div><strong>고가 상품</strong><sup class="ref"><a href="#src-portone-risk" aria-label="출처 5">5</a></sup> <span>명품, 시계, 보석처럼 한 건 금액이 큰 상품은 사기 한 건의 손실이 크고 할부 취소가 잦다는 업계 설명이 있다.</span></div></li><li data-depth="standard"><span class="rung-name">L3</span><div><strong>유의업종</strong><sup class="ref"><a href="#src-toss-card" aria-label="출처 2">2</a></sup> <span>카드사는 온라인 판매를 제한하거나 추가 서류를 요구하는 업종 목록을 따로 둔다. 판매자는 신청 전에 자기 업종이 여기에 드는지 확인한다.</span></div></li></ul></div><div class="panel" id="panel-when" data-panel="when" hidden><p class="panel-title">언제 넘겨주는가</p><ul class="l3"><li data-depth="standard"><span class="rung-name">L3</span><div><strong>선결제 서비스</strong><sup class="ref"><a href="#src-portone-risk" aria-label="출처 5">5</a></sup> <span>헬스장 회원권이나 수강권처럼 돈을 먼저 받고 서비스를 나중에 주는 업종이다. 폐업하면 남은 기간의 환불 요구가 한꺼번에 몰린다.</span></div></li><li data-depth="standard"><span class="rung-name">L3</span><div><strong>긴 배송</strong><sup class="ref"><a href="#src-portone-risk" aria-label="출처 5">5</a></sup> <span>주문 제작 가구나 해외 직구처럼 받기까지 30일 넘게 걸리는 상품이다. 그 사이 판매자가 사라지면 이미 정산한 돈을 되찾아야 한다.</span></div></li></ul></div><div class="panel" id="panel-refund" data-panel="refund" hidden><p class="panel-title">문제가 나면 돌려주는가<sup class="ref"><a href="#src-toss-card" aria-label="출처 2">2</a></sup></p><ul class="l3"><li data-depth="standard"><span class="rung-name">L3</span><div><strong>정책이 하는 일</strong> <span class="tag tag-inference">추론</span> <span>정책이 분명하면 다툼이 판매자와 고객 사이에서 풀릴 여지가 커진다. 정책이 없으면 고객은 카드사에 결제 취소를 요청하는 쪽으로 간다.</span></div></li></ul></div></div></div></div><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section><section class="sec" id="s3" data-level="overview" aria-labelledby="s3-h"><div class="sec-head"><span class="sec-num">03</span><h2 id="s3-h">작동 원리</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s3-b" aria-label="작동 원리 접기">접기</button></div><div class="sec-body" id="s3-b"><div class="block"><h3>평소의 돈 흐름<sup class="ref"><a href="#src-law-yeosin" aria-label="출처 1">1</a></sup></h3><figure class="diagram"><svg viewBox="0 0 264 368" width="264" style="min-width:211px" role="img" aria-labelledby="dg-1-t" preserveAspectRatio="xMidYMin meet"><title id="dg-1-t">고객 · 카드사 · PG사 · 판매자 관계도</title><defs><marker id="dg-1-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow"/></marker></defs><path d="M132.0,52.0 C132.0,84.0 132.0,84.0 132.0,114.0" class="edge" marker-end="url(#dg-1-a)"/><path d="M132.0,152.0 C132.0,184.0 132.0,184.0 132.0,214.0" class="edge" marker-end="url(#dg-1-a)"/><path d="M132.0,252.0 C132.0,284.0 132.0,284.0 132.0,314.0" class="edge" marker-end="url(#dg-1-a)"/><path d="M168.0,334.0 C240.0,334.0 240.0,34.0 171.0,34.0" class="edge" marker-end="url(#dg-1-a)"/><g class="edge-label"><rect x="83.1" y="74.0" width="97.7" height="20" rx="3"/><text x="132.0" y="88.0" text-anchor="middle">카드 대금 납부</text></g><g class="edge-label"><rect x="77.1" y="174.0" width="109.7" height="20" rx="3"/><text x="132.0" y="188.0" text-anchor="middle">가맹점 대금 지급</text></g><g class="edge-label"><rect x="77.1" y="274.0" width="109.7" height="20" rx="3"/><text x="132.0" y="288.0" text-anchor="middle">수수료 떼고 정산</text></g><g class="edge-label"><rect x="136.3" y="196.0" width="109.7" height="20" rx="3"/><text x="191.1" y="210.0" text-anchor="middle">상품·서비스 제공</text></g><g class="node" tabindex="0" role="button" data-pick="customer" aria-label="고객"><rect x="96.0" y="16.0" width="72.0" height="36" rx="4"/><text x="132.0" y="39.0" text-anchor="middle">고객</text></g><g class="node" tabindex="0" role="button" data-pick="card" aria-label="카드사"><rect x="96.0" y="116.0" width="72.0" height="36" rx="4"/><text x="132.0" y="139.0" text-anchor="middle">카드사</text></g><g class="node" tabindex="0" role="button" data-pick="pg" aria-label="PG사"><rect x="96.0" y="216.0" width="72.0" height="36" rx="4"/><text x="132.0" y="239.0" text-anchor="middle">PG사</text></g><g class="node" tabindex="0" role="button" data-pick="seller" aria-label="판매자"><rect x="96.0" y="316.0" width="72.0" height="36" rx="4"/><text x="132.0" y="339.0" text-anchor="middle">판매자</text></g></svg></figure><div class="panel" data-panel="customer" hidden><p class="panel-title">고객</p><p>카드로 결제하고, 카드 대금은 나중에 카드사에 낸다.</p></div><div class="panel" data-panel="card" hidden><p class="panel-title">카드사</p><p>고객에게 대금을 받기 전에 PG사에 먼저 지급한다. 고객이 카드 대금을 못 내는 위험은 카드사가 진다.</p></div><div class="panel" data-panel="pg" hidden><p class="panel-title">PG사</p><p>카드사와 가맹점 계약을 맺은 쪽이다. 여러 판매자의 거래를 모아 카드사에 넘기고, 받은 대금을 판매자에게 나눠 준다.</p></div><div class="panel" data-panel="seller" hidden><p class="panel-title">판매자</p><p>PG사와 계약한 하위 가맹점이다. 카드사와는 직접 계약하지 않는다.</p></div></div><div class="block"><h3>상품이 오지 않을 때 위험의 흐름<sup class="ref"><a href="#src-tf" aria-label="출처 9">9</a></sup><sup class="ref"><a href="#src-toss-insurance" aria-label="출처 3">3</a></sup></h3><figure class="diagram"><svg viewBox="0 0 356 368" width="356" style="min-width:285px" role="img" aria-labelledby="dg-2-t" preserveAspectRatio="xMidYMin meet"><title id="dg-2-t">고객 · 카드사 · PG사 · 판매자 · 정산 보류금 · 보증보험사 관계도</title><defs><marker id="dg-2-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow"/></marker></defs><path d="M178.0,52.0 C178.0,84.0 178.0,84.0 178.0,114.0" class="edge" marker-end="url(#dg-2-a)"/><path d="M178.0,152.0 C178.0,184.0 178.0,184.0 178.0,214.0" class="edge" marker-end="url(#dg-2-a)"/><path d="M178.0,252.0 C178.0,284.0 52.0,284.0 52.0,314.0" class="edge" marker-end="url(#dg-2-a)"/><path d="M178.0,252.0 C178.0,284.0 165.0,284.0 165.0,314.0" class="edge" marker-end="url(#dg-2-a)"/><path d="M178.0,252.0 C178.0,284.0 291.0,284.0 291.0,314.0" class="edge" marker-end="url(#dg-2-a)"/><g class="edge-label"><rect x="129.1" y="74.0" width="97.7" height="20" rx="3"/><text x="178.0" y="88.0" text-anchor="middle">결제 취소 요청</text></g><g class="edge-label"><rect x="129.1" y="174.0" width="97.7" height="20" rx="3"/><text x="178.0" y="188.0" text-anchor="middle">취소 대금 청구</text></g><g class="edge-label"><rect x="66.1" y="274.0" width="97.7" height="20" rx="3"/><text x="115.0" y="288.0" text-anchor="middle">취소 대금 환수</text></g><g class="edge-label"><rect x="120.1" y="296.0" width="102.9" height="20" rx="3"/><text x="171.5" y="310.0" text-anchor="middle">보류금으로 메움</text></g><g class="edge-label"><rect x="195.1" y="274.0" width="78.9" height="20" rx="3"/><text x="234.5" y="288.0" text-anchor="middle">보험금 청구</text></g><g class="node" tabindex="0" role="button" data-pick="customer" aria-label="고객"><rect x="142.0" y="16.0" width="72.0" height="36" rx="4"/><text x="178.0" y="39.0" text-anchor="middle">고객</text></g><g class="node" tabindex="0" role="button" data-pick="card" aria-label="카드사"><rect x="142.0" y="116.0" width="72.0" height="36" rx="4"/><text x="178.0" y="139.0" text-anchor="middle">카드사</text></g><g class="node" tabindex="0" role="button" data-pick="pg" aria-label="PG사"><rect x="142.0" y="216.0" width="72.0" height="36" rx="4"/><text x="178.0" y="239.0" text-anchor="middle">PG사</text></g><g class="node" tabindex="0" role="button" data-pick="seller" aria-label="판매자"><rect x="16.0" y="316.0" width="72.0" height="36" rx="4"/><text x="52.0" y="339.0" text-anchor="middle">판매자</text></g><g class="node" tabindex="0" role="button" data-pick="hold" aria-label="정산 보류금"><rect x="112.0" y="316.0" width="106.0" height="36" rx="4"/><text x="165.0" y="339.0" text-anchor="middle">정산 보류금</text></g><g class="node" tabindex="0" role="button" data-pick="insurer" aria-label="보증보험사"><rect x="242.0" y="316.0" width="98.0" height="36" rx="4"/><text x="291.0" y="339.0" text-anchor="middle">보증보험사</text></g></svg></figure><div class="panel" data-panel="customer" hidden><p class="panel-title">고객</p><p>상품을 받지 못하면 카드사에 결제 취소를 요청한다.</p></div><div class="panel" data-panel="card" hidden><p class="panel-title">카드사</p><p>이미 PG사에 준 대금을 되돌려 달라고 청구한다. 카드 업계는 이것을 차지백(chargeback, 지급한 카드 대금을 되돌려 받는 일)이라고 부른다.</p></div><div class="panel" data-panel="pg" hidden><p class="panel-title">PG사</p><p>카드사에 대금을 먼저 돌려주고, 그 돈을 판매자에게서 받아 내려 한다. 판매자가 사라졌으면 손실은 PG사에 남는다.</p></div><div class="panel" data-panel="seller" hidden><p class="panel-title">판매자</p><p>정상이라면 취소 대금을 PG사에 돌려준다. 폐업하거나 돈이 없으면 이 고리가 끊긴다.</p></div><div class="panel" data-panel="hold" hidden><p class="panel-title">정산 보류금 <span class="tag tag-inference">추론</span></p><p>PG사가 아직 판매자에게 정산하지 않은 돈이다. 정산 주기가 길수록 이 돈이 많아 취소 대금을 먼저 메울 수 있다.</p></div><div class="panel" data-panel="insurer" hidden><p class="panel-title">보증보험사</p><p>판매자가 PG사를 위해 가입한 보증보험의 보험사다. 판매자가 의무를 지키지 못하면 PG사가 보험금을 청구한다. 보험 금액을 넘는 손실은 메우지 못한다.</p></div></div><div class="block" data-depth="standard"><h3>신청에서 결제 오픈까지<sup class="ref"><a href="#src-toss-card" aria-label="출처 2">2</a></sup><sup class="ref"><a href="#src-toss-insurance" aria-label="출처 3">3</a></sup></h3><ol class="steps"><li><strong>신청</strong><span>판매자가 사업자등록증, 대표자 신분증, 정산 계좌, 사이트 주소 같은 서류와 정보를 PG사에 낸다.</span></li><li><strong>PG사 심사</strong><span>PG사가 서류와 사이트를 보고 받아들일지, 어떤 정산 조건을 붙일지 정한다.</span></li><li><strong>보증보험 가입</strong><span>PG사가 요구하면 판매자가 보증보험에 가입한다. 희망 정산 한도가 클수록 보증 금액도 커진다.</span></li><li><strong>카드사 심사</strong><span>PG사가 판매자 정보를 카드사에 넘기고, 9 개 카드사가 각자의 기준으로 다시 심사한다. 계약 뒤 최대 10~14 영업일이 걸린다는 안내가 있다.</span></li><li><strong>거래 감시</strong> <span class="tag tag-inference">추론</span><span>결제가 열린 뒤에도 PG사는 취소가 몰리거나 판매 상품이 바뀌는지 지켜보고, 필요하면 정산을 멈추거나 계약을 끝낸다.</span></li></ol></div><div class="block" data-depth="standard"><h3>손실의 크기를 묶는 수단<sup class="ref"><a href="#src-portone-limit" aria-label="출처 4">4</a></sup><sup class="ref"><a href="#src-toss-insurance" aria-label="출처 3">3</a></sup><sup class="ref"><a href="#src-toss-card" aria-label="출처 2">2</a></sup></h3><p class="basis">비교 기준: 각 수단이 무엇을 하고, 어떤 손실을 막고, 판매자에게 무엇을 지우는가</p><div class="table-wrap" tabindex="0"><table><thead><tr><th scope="col"></th><th scope="col">하는 일</th><th scope="col">막는 손실</th><th scope="col">판매자 부담</th></tr></thead><tbody><tr><th scope="row">정산 주기 늘리기</th><td>판매 대금을 며칠 더 들고 있다가 준다.</td><td>정산 뒤 판매자가 사라져 못 받는 취소 대금</td><td>돈이 늦게 들어와 운영 자금이 묶인다.</td></tr><tr><th scope="row">정산 한도</th><td>한 번에 정산하는 금액에 상한을 두고, 넘는 금액은 다음 정산일로 넘긴다.</td><td>한 번에 큰 돈이 빠져나간 뒤의 사고</td><td>매출이 급히 늘면 돈이 늦게 들어온다.</td></tr><tr><th scope="row">보증보험</th><td>판매자가 갚지 못할 때 메울 돈을 보험으로 미리 잡아 둔다.</td><td>보류금으로도 못 메우는 손실</td><td>보험료를 낸다. 한도를 늘리려면 보증 금액도 늘린다.</td></tr><tr><th scope="row">결제 한도와 업종 제한</th><td>상품 종류에 따라 하루나 한 달 결제 금액을 묶거나 받지 않는다.</td><td>카드깡과 큰 금액의 부정거래</td><td>팔 수 있는 상품과 금액이 줄어든다.</td></tr></tbody></table></div></div><div class="block" data-depth="deep"><h3>주기와 한도는 함께 움직인다</h3><p>한 결제 서비스 업체의 안내는 같은 보증보험 금액에 대해 정산 한도를 일 정산이면 2 배, 월 1 회 정산이면 5 배로 적는다.</p><p>정산을 늦출수록 PG사가 들고 있는 판매 대금이 늘어, 같은 담보로 더 큰 거래를 받아들일 수 있다는 계산이다. <span class="tag tag-inference">추론</span><sup class="ref"><a href="#src-portone-limit" aria-label="출처 4">4</a></sup></p></div><div class="block example" data-depth="standard"><h3>2024년 티몬·위메프 정산 지연 <span class="tag tag-real">실제 사례</span></h3><p>2024년 7월 오픈마켓 티몬과 위메프가 입점 판매자에게 대금을 정산하지 못했다. 이미 결제한 고객들이 결제 취소를 요구했다.</p><p>PG사들은 결제 대금을 이미 두 회사에 넘긴 뒤였다. PG협회는 카드사가 취소 대금을 PG사에 청구하면 PG사의 현금이 모자랄 수 있다고 밝혔다.</p><p>PG사들은 처음에 결제 취소를 막았다가, 며칠 뒤 환불 창구를 열고 취소를 처리했다.</p><p>두 회사는 PG사에게 하위 가맹점이면서, 자기 입점 판매자에게는 정산을 맡은 쪽이었다. 사슬이 한 고리 더 길었던 셈이다.</p><sup class="ref"><a href="#src-newsis" aria-label="출처 8">8</a></sup><sup class="ref"><a href="#src-tf" aria-label="출처 9">9</a></sup></div><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section><section class="sec" id="s4" data-level="overview" aria-labelledby="s4-h"><div class="sec-head"><span class="sec-num">04</span><h2 id="s4-h">조건과 한계</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s4-b" aria-label="조건과 한계 접기">접기</button></div><div class="sec-body" id="s4-b"><div class="limit-group" data-kind="condition" data-depth="standard"><h3>성립 조건</h3><ul><li data-depth="standard">보증보험과 정산 보류금은 그 금액만큼만 손실을 메운다. 그 금액을 넘는 사고는 PG사가 진다. <span class="tag tag-inference">추론</span></li></ul></div><div class="limit-group" data-kind="premise" data-depth="standard"><h3>핵심 전제</h3><ul><li data-depth="standard">카드사와 PG사, PG사와 판매자 사이의 손실 분담은 각자의 계약이 정한다. 여기 적은 흐름은 일반적인 구조이고, 계약이 공개되지 않아 회사마다의 차이는 확인하지 못했다. <span class="tag tag-inference">추론</span></li></ul></div><div class="limit-group" data-kind="change" data-depth="deep"><h3>조건이 바뀌면</h3><ul><li data-depth="deep">2025년 11월 국회를 통과한 전자금융거래법 개정안은 PG사가 판매자에게 줄 정산 자금을 예치, 신탁, 지급보증보험으로 따로 두게 한다. 시행은 2026년 12월께로 보도됐고, 시행일과 적용 비율은 하위 법령을 확인해야 한다. <span class="tag tag-inference">추론</span><sup class="ref"><a href="#src-bizwatch" aria-label="출처 7">7</a></sup></li></ul></div><div class="limit-group" data-kind="exception" data-depth="standard"><h3>예외</h3><ul><li data-depth="standard">다른 판매자들의 결제를 다시 대행하는 하위 PG사가 PG사와 계약하기도 한다. 2026년 10월부터 상위 PG사는 이런 하위 PG사를 정기적으로 위험 평가하고, 위험이 높으면 계약을 끊는 등의 조치를 해야 한다.<sup class="ref"><a href="#src-fsc-2026" aria-label="출처 6">6</a></sup></li></ul></div><div class="limit-group" data-kind="unknown" data-depth="standard"><h3>확인되지 않은 것</h3><ul><li data-depth="standard">카드사가 판매자를 어떤 기준으로 거절하는지는 공개 자료가 적어 확인하지 못했다. 같은 판매자가 카드사마다 다른 결과를 받는지도 확인하지 못했다. <span class="tag tag-unknown">미확인</span></li><li data-depth="deep">부정거래 대금을 카드사, PG사, 판매자가 어떤 비율로 나눠 지는지는 약관과 계약에 따라 달라 확인하지 못했다. <span class="tag tag-unknown">미확인</span></li></ul></div><fieldset class="scenario" data-depth="standard"><legend>판매자가 정산을 받은 다음 날 폐업했고, 고객의 결제 취소 대금 1,000 만 원이 PG사에 청구됐다. PG사가 미리 잡아 둔 수단에 따라 손실은 어떻게 되는가?</legend><div class="choices"><label class="choice"><input type="radio" name="sc-3" value="0" data-scenario="sc-3"><span>정산 보류금 1,500 만 원</span></label><label class="choice"><input type="radio" name="sc-3" value="1" data-scenario="sc-3"><span>보증보험 500 만 원, 보류금 없음</span></label><label class="choice"><input type="radio" name="sc-3" value="2" data-scenario="sc-3"><span>담보 없음, 매일 정산</span></label></div><div class="outcome" aria-live="polite" data-outcome="sc-3"><p class="hint">조건을 고르면 결과와 이유가 보인다.</p><div data-option="0" hidden><p><strong>결과</strong> 보류금에서 1,000 만 원을 메우고 PG사의 손실은 없다. <span class="tag tag-example">예시</span></p><p><strong>이유</strong> 정산 주기가 길어 아직 주지 않은 판매 대금이 취소 대금보다 많았다.</p></div><div data-option="1" hidden><p><strong>결과</strong> 보험금 500 만 원을 받고 나머지 500 만 원은 PG사가 진다. <span class="tag tag-example">예시</span></p><p><strong>이유</strong> 보증보험은 가입 금액까지만 메운다. 정산을 이미 마쳐 손에 쥔 판매 대금이 없다.</p></div><div data-option="2" hidden><p><strong>결과</strong> 1,000 만 원을 모두 PG사가 진다. 판매자에게 청구할 수는 있지만 받기 어렵다. <span class="tag tag-example">예시</span></p><p><strong>이유</strong> 사슬의 마지막 고리가 끊겼고, 그 앞 고리가 PG사다.</p></div></div></fieldset><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section><section class="sec" id="s5" data-level="overview" aria-labelledby="s5-h"><div class="sec-head"><span class="sec-num">05</span><h2 id="s5-h">기억할 원리</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s5-b" aria-label="기억할 원리 접기">접기</button></div><div class="sec-body" id="s5-b"><ol class="principles"><li><p class="statement">위험을 넘겨받는 사슬에서 손실은 갚을 수 있는 마지막 고리에 멈춘다. 그래서 각 고리는 바로 다음 고리를 심사하고 담보를 잡는다.</p><p><span class="k">성립 조건</span> 앞 고리가 뒤 고리의 의무를 대신 지는 계약이 있고, 뒤 고리가 사라질 수 있을 때 성립한다.</p><p><span class="k">적용 예</span> 전세보증금 반환보증에서는 집주인이 보증금을 못 돌려주면 보증 기관이 세입자에게 먼저 갚고 집주인에게 청구한다. 그래서 보증 기관은 가입 전에 집값과 보증금을 견준다.</p></li><li><p class="statement">돈을 늦게 내줄수록 되돌려 받을 일이 생겼을 때 덜 잃는다. 지급을 미루는 것이 담보 구실을 한다.</p><p><span class="k">성립 조건</span> 지급 뒤에 취소나 반환 의무가 생길 수 있고, 받은 쪽에게서 돈을 되찾기 어려울 때 성립한다. 늦게 주는 만큼 받는 쪽의 자금 부담이 커진다.</p><p><span class="k">적용 예</span> 공사 계약에서 대금 일부를 하자 보수 기간이 끝날 때까지 남겨 두면, 시공사가 하자를 고치지 않고 떠나도 그 돈으로 보수할 수 있다.</p></li></ol><details class="checks" data-reset-close><summary>이해 확인</summary><p class="basis">먼저 답을 떠올린 뒤 연다.</p><div class="check"><p class="q">같은 PG사에 두 판매자가 신청했다. 한 곳은 주문 다음 날 보내는 생활용품점이고, 한 곳은 1 년 회원권을 파는 헬스장이다. 어느 쪽에 더 엄한 정산 조건이 붙는가?</p><button type="button" class="btn" data-answer="ans-4" aria-expanded="false" aria-controls="ans-4">답 보기</button><div class="answer" id="ans-4" hidden><p><strong>답</strong> 헬스장이다. 결제와 서비스 제공 사이가 1 년이라, 폐업하면 남은 기간의 환불 요구가 PG사로 온다.</p><p>위험은 이미 정산했지만 아직 제공하지 않은 금액이 클수록 커진다. 생활용품점은 며칠 안에 제공이 끝나 그 금액이 작다.</p></div></div><div class="check" data-depth="deep"><p class="q">PG사가 정산 주기를 하루에서 한 달로 늘리면, 같은 보증보험 금액으로 더 큰 정산 한도를 줄 수 있다. 왜 그런가?</p><button type="button" class="btn" data-answer="ans-5" aria-expanded="false" aria-controls="ans-5">답 보기</button><div class="answer" id="ans-5" hidden><p><strong>답</strong> 정산 전까지 PG사가 판매 대금을 들고 있어서, 취소 대금이 생기면 그 돈으로 먼저 메울 수 있기 때문이다.</p><p>보증보험은 정산 보류금으로 못 메운 부분만 맡으면 된다. 보류금이 클수록 보험이 떠안을 몫이 준다.</p></div></div><div class="check" data-depth="deep"><p class="q">「심사를 통과한 판매자는 안전하니 보증보험은 낭비다」는 판단의 틀린 점은?</p><button type="button" class="btn" data-answer="ans-6" aria-expanded="false" aria-controls="ans-6">답 보기</button><div class="answer" id="ans-6" hidden><p><strong>답</strong> 심사는 손실 가능성을 줄일 뿐 없애지 못한다. 통과한 판매자도 정산 뒤 무너질 수 있고, 그때 손실을 메울 돈이 보증보험이다.</p><p>티몬과 위메프도 여러 해 정상 거래를 이어 온 큰 판매자였다. 심사 시점의 상태는 뒤의 상태를 보장하지 않는다.</p></div></div><div class="check" data-depth="deep"><p class="q">하청이 임금을 못 주면 원청이 대신 줘야 하는 규칙이 있다고 하자. 원청은 하청을 고를 때와 대금을 줄 때 무엇을 하겠는가?</p><button type="button" class="btn" data-answer="ans-7" aria-expanded="false" aria-controls="ans-7">답 보기</button><div class="answer" id="ans-7" hidden><p><strong>답</strong> 하청이 무너질 가능성과 그때 갚을 능력을 미리 본다. 대금 일부를 늦게 주거나 보증을 받아 자기가 질 손실을 묶는다.</p><p>앞 고리가 뒤 고리의 의무를 대신 지는 구조라서, PG사가 판매자를 심사하고 정산을 늦추는 것과 같은 일을 한다.</p></div></div></details><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section>
+    <footer class="foot">
+      <section class="sources-box" id="sources" aria-labelledby="sources-h">
+        <h2 id="sources-h">출처</h2>
+        <ol class="sources"><li id="src-law-yeosin">여신전문금융업법 <span class="muted">제2조가 판매자를 위해 카드 거래를 대행하는 자를 결제대행업체로 정의한다. 카드 결제를 꾸며 자금을 융통하는 일도 이 법이 금지한다.</span></li><li id="src-toss-card"><a href="https://www.tosspayments.com/blog/articles/53711" rel="noopener noreferrer">토스페이먼츠 블로그, 카드사 심사 통과 체크리스트: 준비물부터 소요기간까지</a> <span class="muted">PG사가 판매자에게 주는 안내다. 카드사의 공식 기준 문서는 아니다.</span></li><li id="src-toss-insurance"><a href="https://www.tosspayments.com/blog/articles/54333" rel="noopener noreferrer">토스페이먼츠 블로그, PG사 보증보험 가입 조건과 면제 기준</a></li><li id="src-portone-limit"><a href="https://blog.portone.io/opi_settlement-limit/" rel="noopener noreferrer">포트원 블로그, PG 정산 한도 안내</a> <span class="muted">정산 주기별 한도 배수는 이 글이 든 예다. PG사마다 다르다.</span></li><li id="src-portone-risk"><a href="https://blog.portone.io/opi_high-risk-industry/" rel="noopener noreferrer">포트원 블로그, PG 고위험 업종 안내</a></li><li id="src-fsc-2026"><a href="https://fsc.go.kr/po010102/87339" rel="noopener noreferrer">금융위원회 보도자료, 「전자금융감독규정」 개정안 금융위 의결 (2026년 7월 15일)</a></li><li id="src-bizwatch"><a href="https://news.bizwatch.co.kr/article/finance/2025/11/27/0025" rel="noopener noreferrer">비즈워치, PG 정산자금 전액 외부관리 의무화, 전금법 개정안 국회 통과 (2025년 11월 27일)</a></li><li id="src-newsis"><a href="https://www.newsis.com/view/NISX20240727_0002828264" rel="noopener noreferrer">뉴시스, PG사·페이사, 티메프 관련 창구 열고 환불 시작 (2024년 7월 27일)</a></li><li id="src-tf"><a href="https://news.tf.co.kr/read/ogmeta/2119578.htm" rel="noopener noreferrer">더팩트, PG협회 「티메프 사태, 대규모 카드 취소 사태 발생 시 이커머스 전반 위기」 (2024년 7월 26일)</a></li></ol>
+      </section>
+      <button type="button" class="btn" data-reset>초기화</button>
+    </footer>
+  </main>
+</div>
+<script>
+(function () {
+  "use strict";
+  var LEVELS = ["overview", "standard", "deep"];
+  var LABEL = { overview: "개요", standard: "표준", deep: "심층" };
+  var body = document.body;
+  var sections = Array.prototype.slice.call(document.querySelectorAll(".sec"));
+  var global = 0;
+  var local = {};
+  var all = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
+  var idx = function (d) { return Math.max(0, LEVELS.indexOf(d)); };
+
+  function anchor() {
+    var top = document.querySelector(".top").getBoundingClientRect().bottom + 8;
+    var candidates = all(".sec-head, .block, .rung, .limit-group, .principles > li, .lead");
+    for (var i = 0; i < candidates.length; i++) {
+      var r = candidates[i].getBoundingClientRect();
+      if (r.bottom > top && r.height > 0) return { el: candidates[i], y: r.top };
+    }
+    return null;
+  }
+
+  function apply(keep) {
+    var a = keep ? anchor() : null;
+    body.setAttribute("data-zoom", LEVELS[global]);
+    all(".seg").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-zoom") === LEVELS[global])); });
+    sections.forEach(function (sec) {
+      var lv = Math.max(global, local[sec.id] || 0);
+      sec.setAttribute("data-level", LEVELS[lv]);
+      var hidden = all("[data-depth]", sec).filter(function (el) { return idx(el.getAttribute("data-depth")) > lv; });
+      var more = sec.querySelector("[data-more]");
+      var next = Math.min.apply(null, hidden.map(function (el) { return idx(el.getAttribute("data-depth")); }).concat([3]));
+      more.hidden = next > 2;
+      more.setAttribute("data-next", String(next));
+      if (next <= 2) more.textContent = LABEL[LEVELS[next]] + "까지 더 보기";
+      var b = sec.querySelector(".sec-body");
+      var hint = b.querySelector(".empty-hint");
+      var shown = all(":scope > *", b).filter(function (el) {
+        return el !== hint && !(el.hasAttribute("data-depth") && idx(el.getAttribute("data-depth")) > lv);
+      });
+      hint.hidden = shown.length > 0;
+    });
+    if (a && a.el.getBoundingClientRect().height > 0) window.scrollBy({ top: a.el.getBoundingClientRect().top - a.y, behavior: "instant" });
+  }
+
+  all(".seg").forEach(function (b) {
+    b.addEventListener("click", function () {
+      global = idx(b.getAttribute("data-zoom"));
+      local = {};
+      apply(true);
+    });
+  });
+
+  sections.forEach(function (sec) {
+    sec.querySelector("[data-more]").addEventListener("click", function () {
+      local[sec.id] = Number(sec.querySelector("[data-more]").getAttribute("data-next"));
+      apply(false);
+      var more = sec.querySelector("[data-more]");
+      (more.hidden ? sec.querySelector("[data-fold]") : more).focus();
+    });
+    var fold = sec.querySelector("[data-fold]");
+    var name = sec.querySelector("h2").textContent;
+    fold.addEventListener("click", function () {
+      var folded = sec.classList.toggle("folded");
+      fold.setAttribute("aria-expanded", String(!folded));
+      fold.textContent = folded ? "펼치기" : "접기";
+      fold.setAttribute("aria-label", name + (folded ? " 펼치기" : " 접기"));
+    });
+  });
+
+  function pick(trigger) {
+    var scope = trigger.closest(".ladder, .block");
+    var id = trigger.getAttribute("data-pick");
+    var panel = scope.querySelector('[data-panel="' + id + '"]');
+    var open = panel && panel.hidden;
+    all("[data-panel]", scope).forEach(function (p) { p.hidden = true; });
+    all("[data-pick]", scope).forEach(function (t) {
+      var on = open && t.getAttribute("data-pick") === id;
+      t.setAttribute(t.tagName === "BUTTON" ? "aria-expanded" : "aria-pressed", String(on));
+    });
+    if (panel) panel.hidden = !open;
+    if (document.activeElement !== trigger) trigger.focus({ preventScroll: true });
+  }
+  all("[data-pick]").forEach(function (t) {
+    t.addEventListener("click", function () { pick(t); });
+    if (t.tagName !== "BUTTON") {
+      t.addEventListener("keydown", function (ev) {
+        if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); pick(t); }
+      });
+    }
+  });
+
+  all("[data-answer]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var a = document.getElementById(b.getAttribute("data-answer"));
+      a.hidden = !a.hidden;
+      b.setAttribute("aria-expanded", String(!a.hidden));
+      b.textContent = a.hidden ? "답 보기" : "답 숨기기";
+    });
+  });
+
+  all("[data-scenario]").forEach(function (r) {
+    r.addEventListener("change", function () {
+      var out = document.querySelector('[data-outcome="' + r.getAttribute("data-scenario") + '"]');
+      out.querySelector(".hint").hidden = true;
+      all("[data-option]", out).forEach(function (o) { o.hidden = o.getAttribute("data-option") !== r.value; });
+    });
+  });
+
+  var toc = document.querySelector(".toc");
+  var tocBtn = toc.querySelector(".toc-toggle");
+  function setToc(open) {
+    toc.classList.toggle("open", open);
+    tocBtn.setAttribute("aria-expanded", String(open));
+  }
+  tocBtn.addEventListener("click", function () { setToc(!toc.classList.contains("open")); });
+  all(".toc a").forEach(function (a) {
+    a.addEventListener("click", function () {
+      var sec = document.querySelector(a.getAttribute("href"));
+      if (sec && sec.classList.contains("folded")) sec.querySelector("[data-fold]").click();
+      setToc(false);
+    });
+  });
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        all(".toc a").forEach(function (a) { a.setAttribute("aria-current", String(a.getAttribute("href") === "#" + en.target.id)); });
+      });
+    }, { rootMargin: "-30% 0px -60% 0px" });
+    sections.forEach(function (s) { io.observe(s); });
+  }
+
+  document.querySelector("[data-reset]").addEventListener("click", function () {
+    global = 0;
+    local = {};
+    all(".sec.folded [data-fold]").forEach(function (f) { f.click(); });
+    all("[data-panel]").forEach(function (p) { p.hidden = true; });
+    all("[data-pick]").forEach(function (t) { t.setAttribute(t.tagName === "BUTTON" ? "aria-expanded" : "aria-pressed", "false"); });
+    all("[data-answer]").forEach(function (b) {
+      document.getElementById(b.getAttribute("data-answer")).hidden = true;
+      b.setAttribute("aria-expanded", "false");
+      b.textContent = "답 보기";
+    });
+    all("[data-scenario]").forEach(function (r) { r.checked = false; });
+    all("[data-outcome]").forEach(function (o) {
+      o.querySelector(".hint").hidden = false;
+      all("[data-option]", o).forEach(function (x) { x.hidden = true; });
+    });
+    all("details").forEach(function (d) { d.open = false; });
+    setToc(false);
+    apply(false);
+    window.scrollTo({ top: 0, behavior: "instant" });
+    document.querySelector('.seg[data-zoom="overview"]').focus({ preventScroll: true });
+  });
+
+  apply(false);
+})();
+
+</script>
+</body>
+</html>

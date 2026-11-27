@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'sha256-+r7cGWV/QF0uiwDw6OvXw3/AA4hvWKcj8pdJVpf7FyU='; img-src data:; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>고액 환불 이중 확인을 유지하는 이유</title>
+<style>
+:root {
+  --bg: #fbfbfa; --surface: #ffffff; --fg: #1c1d1f; --muted: #5d6168; --line: #dcdee2; --line-strong: #b9bdc4;
+  --accent: #1f5fbf; --accent-fg: #ffffff; --accent-weak: #e8eff9; --focus: #1f5fbf;
+  --tag-bg: #f0f1f3; --warn-bg: #fbf3e4; --warn-fg: #7a4b00;
+  --f-xs: 13px; --f-s: 15px; --f-m: 17px; --f-l: 22px;
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px;
+  --measure: 46rem; --radius: 6px;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15171a; --surface: #1d2024; --fg: #e8e9eb; --muted: #a3a8b0; --line: #33373d; --line-strong: #4a5058;
+    --accent: #7fb0ff; --accent-fg: #0d1420; --accent-weak: #1f2b3d; --focus: #7fb0ff;
+    --tag-bg: #2a2e34; --warn-bg: #3a2f1b; --warn-fg: #f1c57a;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #15171a; --surface: #1d2024; --fg: #e8e9eb; --muted: #a3a8b0; --line: #33373d; --line-strong: #4a5058;
+  --accent: #7fb0ff; --accent-fg: #0d1420; --accent-weak: #1f2b3d; --focus: #7fb0ff;
+  --tag-bg: #2a2e34; --warn-bg: #3a2f1b; --warn-fg: #f1c57a;
+}
+* { box-sizing: border-box; }
+html { scroll-padding-top: 120px; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: var(--f-s)/1.65 -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", system-ui, sans-serif; word-break: keep-all; overflow-wrap: anywhere; }
+p { margin: 0 0 var(--s2); }
+h1, h2, h3 { margin: 0; line-height: 1.35; }
+h3 { font-size: var(--f-s); margin: var(--s4) 0 var(--s2); }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.skip { position: absolute; left: -999px; }
+.skip:focus { left: var(--s4); top: var(--s2); z-index: 10; background: var(--surface); padding: var(--s2); }
+[hidden] { display: none !important; }
+
+.top { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); }
+.top-in { max-width: 72rem; margin: 0 auto; padding: var(--s3) var(--s4); display: grid; grid-template-columns: 1fr auto; grid-template-areas: "brand zoom" "title zoom"; column-gap: var(--s4); align-items: center; }
+.brand { grid-area: brand; font-size: var(--f-xs); letter-spacing: .12em; color: var(--muted); font-weight: 600; }
+.top h1 { grid-area: title; font-size: var(--f-l); }
+.zoom { grid-area: zoom; display: inline-flex; border: 1px solid var(--line-strong); border-radius: var(--radius); overflow: hidden; }
+.seg { font: inherit; font-size: var(--f-xs); padding: var(--s2) var(--s3); min-height: 36px; border: 0; background: var(--surface); color: var(--fg); cursor: pointer; }
+.seg + .seg { border-left: 1px solid var(--line-strong); }
+.seg[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); font-weight: 600; }
+
+.frame { max-width: 72rem; margin: 0 auto; padding: 0 var(--s4); display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: var(--s6); }
+.toc { position: sticky; top: 104px; align-self: start; padding-top: var(--s6); }
+.toc ol { list-style: none; margin: 0; padding: 0; }
+.toc a { display: flex; gap: var(--s2); padding: var(--s1) 0; color: var(--muted); text-decoration: none; font-size: var(--f-xs); }
+.toc a:hover, .toc a[aria-current="true"] { color: var(--fg); }
+.toc-toggle { display: none; }
+main { max-width: var(--measure); padding: var(--s5) 0 var(--s7); min-width: 0; }
+
+.sec { padding: var(--s5) 0; border-bottom: 1px solid var(--line); }
+.sec-head { display: flex; align-items: center; gap: var(--s3); margin-bottom: var(--s3); }
+.sec-head h2 { font-size: var(--f-m); flex: 1; }
+.sec-num { font-variant-numeric: tabular-nums; color: var(--muted); font-size: var(--f-xs); font-weight: 600; min-width: 1.6em; }
+.sec.folded .sec-body { display: none; }
+.lead { font-size: var(--f-m); font-weight: 600; }
+.hint, .basis, .muted { color: var(--muted); font-size: var(--f-xs); }
+
+.btn { font: inherit; font-size: var(--f-xs); min-height: 32px; padding: var(--s1) var(--s3); border: 1px solid var(--line-strong); border-radius: var(--radius); background: var(--surface); color: var(--fg); cursor: pointer; }
+.btn:hover { border-color: var(--accent); }
+.btn[aria-expanded="true"]:not([data-fold]) { background: var(--accent-weak); }
+
+.tag { display: inline-block; font-size: 12px; line-height: 1.4; padding: 0 var(--s1); margin-left: var(--s1); border-radius: 3px; background: var(--tag-bg); color: var(--muted); font-weight: 600; vertical-align: 1px; white-space: nowrap; }
+.tag-unknown, .tag-assumption { background: var(--warn-bg); color: var(--warn-fg); }
+.ref { font-size: 11px; margin-left: 2px; }
+.ref a { text-decoration: none; }
+
+.ladder { display: grid; gap: var(--s3); }
+.rung { display: grid; grid-template-columns: 2.2rem minmax(0, 1fr); gap: var(--s2); }
+.rung-name { font-size: 12px; color: var(--muted); font-weight: 600; padding-top: 3px; }
+.rung-1 > div { border-left: 3px solid var(--accent); padding-left: var(--s3); }
+.rung-1 p { margin: 0; color: var(--muted); }
+.rel { display: block; font-size: var(--f-xs); color: var(--muted); margin-bottom: var(--s2); }
+.picks { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: var(--s2); }
+.pick { font: inherit; text-align: left; padding: var(--s3); border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--fg); cursor: pointer; display: grid; gap: var(--s1); align-content: start; }
+.pick:hover { border-color: var(--line-strong); }
+.pick[aria-expanded="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.pick-label { font-weight: 600; }
+.pick-sum { font-size: var(--f-xs); color: var(--muted); }
+.panel { margin-top: var(--s3); padding: var(--s3) var(--s4); border-left: 3px solid var(--accent); background: var(--surface); }
+.panel-title { font-weight: 600; }
+.l3 { list-style: none; margin: var(--s3) 0 0; padding: 0; display: grid; gap: var(--s2); }
+.l3 li { display: grid; grid-template-columns: 2.2rem minmax(0, 1fr); gap: var(--s2); }
+.more-detail { margin-top: var(--s1); }
+summary { cursor: pointer; color: var(--accent); font-size: var(--f-xs); }
+
+.diagram { margin: var(--s4) 0 0; overflow-x: auto; }
+.diagram svg { display: block; max-width: 100%; height: auto; margin: 0 auto; font: 14px -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif; }
+.diagram .edge { fill: none; stroke: var(--line-strong); stroke-width: 1.5; }
+.diagram .arrow { fill: var(--line-strong); }
+.diagram .edge-label rect { fill: var(--bg); }
+.diagram .edge-label text { fill: var(--muted); font-size: 12px; }
+.diagram .node rect { fill: var(--surface); stroke: var(--line-strong); }
+.diagram .node text { fill: var(--fg); }
+.diagram .node { cursor: pointer; }
+.diagram .node:hover rect, .diagram .node[aria-pressed="true"] rect { stroke: var(--accent); stroke-width: 2; }
+.diagram .node:focus-visible { outline: none; }
+.diagram .node:focus-visible rect { stroke: var(--focus); stroke-width: 3; }
+
+.block { margin-bottom: var(--s4); }
+.block > h3:first-child { margin-top: 0; }
+.steps { margin: 0; padding-left: 1.4em; display: grid; gap: var(--s2); }
+.steps strong { margin-right: var(--s2); }
+.example { padding: var(--s3) var(--s4); border: 1px dashed var(--line-strong); border-radius: var(--radius); }
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: var(--f-xs); }
+th, td { text-align: left; vertical-align: top; padding: var(--s2); border-bottom: 1px solid var(--line); }
+thead th { color: var(--muted); font-weight: 600; }
+tbody th { font-weight: 600; white-space: nowrap; }
+
+.limit-group h3 { margin-top: var(--s3); color: var(--muted); font-size: var(--f-xs); }
+.limit-group ul, .principles { margin: 0; padding-left: 1.2em; }
+.limit-group li { margin-bottom: var(--s1); }
+.scenario { margin: var(--s4) 0 0; border: 1px solid var(--line); border-radius: var(--radius); padding: var(--s3) var(--s4); }
+.scenario legend { font-weight: 600; padding: 0 var(--s1); }
+.choices { display: flex; flex-wrap: wrap; gap: var(--s2); margin: var(--s2) 0 var(--s3); }
+.choice { display: inline-flex; align-items: center; gap: var(--s1); padding: var(--s1) var(--s3); min-height: 36px; border: 1px solid var(--line-strong); border-radius: var(--radius); cursor: pointer; font-size: var(--f-xs); }
+.choice:has(input:checked) { border-color: var(--accent); background: var(--accent-weak); }
+.choice input { margin: 0; accent-color: var(--accent); }
+.outcome { border-top: 1px solid var(--line); padding-top: var(--s3); }
+
+.principles li { margin-bottom: var(--s4); }
+.statement { font-weight: 600; }
+.k { font-size: var(--f-xs); color: var(--muted); font-weight: 600; margin-right: var(--s1); }
+.checks { margin-top: var(--s5); padding: var(--s3) var(--s4); border: 1px solid var(--line); border-radius: var(--radius); }
+.checks > summary { font-size: var(--f-s); font-weight: 600; }
+.check { margin-top: var(--s3); padding-top: var(--s3); border-top: 1px solid var(--line); }
+.q { font-weight: 600; }
+.answer { margin-top: var(--s2); }
+.na summary { color: var(--muted); }
+
+.foot { padding: var(--s5) 0; display: grid; gap: var(--s4); justify-items: start; }
+.foot h2 { font-size: var(--f-s); margin-bottom: var(--s2); }
+.sources { margin: 0; padding-left: 1.4em; font-size: var(--f-xs); }
+
+.sec[data-level="overview"] [data-depth="standard"],
+.sec[data-level="overview"] [data-depth="deep"],
+.sec[data-level="standard"] [data-depth="deep"] { display: none !important; }
+
+@media (max-width: 760px) {
+  .top-in { grid-template-columns: 1fr; grid-template-areas: "brand" "title" "zoom"; row-gap: var(--s2); padding: var(--s2) var(--s4); }
+  .top h1 { font-size: var(--f-m); }
+  .zoom { justify-self: stretch; }
+  .seg { flex: 1; }
+  .frame { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .toc { position: static; padding-top: var(--s3); }
+  .toc-toggle { display: inline-block; }
+  .toc ol { display: none; margin-top: var(--s2); }
+  .toc.open ol { display: block; }
+  main { padding-top: var(--s2); }
+  html { scroll-padding-top: 150px; }
+  .picks { grid-template-columns: minmax(0, 1fr); }
+  .sec-head { flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+@media print { .top, .toc, .btn, [data-reset] { display: none; } .sec[data-level] [data-depth] { display: block !important; } }
+
+</style>
+</head>
+<body data-zoom="overview">
+<a class="skip" href="#s1">본문으로</a>
+<header class="top">
+  <div class="top-in">
+    <div class="brand">UNDERSTAND</div>
+    <h1>고액 환불 이중 확인을 유지하는 이유</h1>
+    <div class="zoom" role="group" aria-label="탐색 깊이">
+      <button type="button" class="seg" data-zoom="overview" aria-pressed="true">개요</button>
+      <button type="button" class="seg" data-zoom="standard" aria-pressed="false">표준</button>
+      <button type="button" class="seg" data-zoom="deep" aria-pressed="false">심층</button>
+    </div>
+  </div>
+</header>
+<div class="frame">
+  <nav class="toc" aria-label="목차">
+    <button type="button" class="btn toc-toggle" aria-expanded="false" aria-controls="toc-list">목차</button>
+    <ol id="toc-list"><li><a href="#s1"><span class="sec-num">01</span>본질</a></li><li><a href="#s2"><span class="sec-num">02</span>전체 구조</a></li><li><a href="#s3"><span class="sec-num">03</span>작동 원리</a></li><li><a href="#s4"><span class="sec-num">04</span>조건과 한계</a></li><li><a href="#s5"><span class="sec-num">05</span>기억할 원리</a></li></ol>
+  </nav>
+  <main>
+<section class="sec" id="s1" data-level="overview" aria-labelledby="s1-h"><div class="sec-head"><span class="sec-num">01</span><h2 id="s1-h">본질</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s1-b" aria-label="본질 접기">접기</button></div><div class="sec-body" id="s1-b"><p class="lead">이 회의는 고액 환불의 이중 확인 절차를 규칙 기반 자동 승인으로 바꿀지 검토했고, 결정을 미룬 채 절차를 당분간 유지하기로 했다.<sup class="ref"><a href="#src-minutes" aria-label="출처 1">1</a></sup></p><p>절차는 2021년 상담원의 허위 환불 사고를 막으려고 생겼고, 그 사고 유형은 2023년부터 시스템 제한이 막는다.</p><p>회의가 결정을 미룬 이유는 제안한 규칙이 못 막는 부정 유형이 실제로 있었는지와, 규칙 승인이 사내 규정의 책임자 승인 요건을 채우는지가 확인되지 않았기 때문이다.</p><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section><section class="sec" id="s2" data-level="overview" aria-labelledby="s2-h"><div class="sec-head"><span class="sec-num">02</span><h2 id="s2-h">전체 구조</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s2-b" aria-label="전체 구조 접기">접기</button></div><div class="sec-body" id="s2-b"><div class="ladder"><div class="rung rung-1"><span class="rung-name">L1</span><div><strong>지연 비용과 확인 책임</strong><sup class="ref"><a href="#src-minutes" aria-label="출처 1">1</a></sup><p>환불 지연의 비용은 운영팀 평가에 잡히고, 절차를 바꿀지 가를 확인은 보안팀과 법무팀이 맡았다.</p></div></div><div class="rung rung-2"><span class="rung-name">L2</span><div><span class="rel">결정에 의견을 낸 팀과 그 이해관계</span><div class="picks" role="group" aria-label="주요 구조"><button type="button" class="pick" data-pick="ops" aria-expanded="false" aria-controls="panel-ops"><span class="pick-label">운영팀</span><span class="pick-sum">고액 환불도 규칙을 통과하면 자동 승인하자고 제안했다.</span></button><button type="button" class="pick" data-pick="fin" aria-expanded="false" aria-controls="panel-fin"><span class="pick-label">재무팀</span><span class="pick-sum">지금 50만 원 이상 환불을 확인하고 반려하는 팀이다. 자동화에 찬반을 밝히지 않았다.</span></button><button type="button" class="pick" data-pick="sec" aria-expanded="false" aria-controls="panel-sec"><span class="pick-label">보안팀</span><span class="pick-sum">2021년 사고 유형은 이제 시스템이 막지만, 원거래를 가짜로 만드는 유형은 제안한 규칙이 못 막는다고 했다.</span></button><button type="button" class="pick" data-pick="legal" aria-expanded="false" aria-controls="panel-legal"><span class="pick-label">법무팀</span><span class="pick-sum">사내 내부통제 규정이 고액 환불에 책임자 승인 기록을 요구한다고 했다.</span></button></div><figure class="diagram"><svg viewBox="0 0 456 168" width="456" style="min-width:365px" role="img" aria-labelledby="dg-1-t" preserveAspectRatio="xMidYMin meet"><title id="dg-1-t">운영팀 · 재무팀 · 보안팀 · 법무팀 관계도</title><defs><marker id="dg-1-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow"/></marker></defs><path d="M132.0,52.0 C132.0,84.0 228.0,84.0 228.0,114.0" class="edge" marker-end="url(#dg-1-a)"/><path d="M264.0,134.0 C336.0,134.0 336.0,34.0 171.0,34.0" class="edge" marker-end="url(#dg-1-a)"/><g class="edge-label"><rect x="131.1" y="74.0" width="97.7" height="20" rx="3"/><text x="180.0" y="88.0" text-anchor="middle">검수 업무 축소</text></g><g class="edge-label"><rect x="244.3" y="74.0" width="97.7" height="20" rx="3"/><text x="293.1" y="88.0" text-anchor="middle">확인 단계 지연</text></g><g class="node" tabindex="0" role="button" data-pick="ops" aria-label="운영팀"><rect x="96.0" y="16.0" width="72.0" height="36" rx="4"/><text x="132.0" y="39.0" text-anchor="middle">운영팀</text></g><g class="node" tabindex="0" role="button" data-pick="fin" aria-label="재무팀"><rect x="192.0" y="116.0" width="72.0" height="36" rx="4"/><text x="228.0" y="139.0" text-anchor="middle">재무팀</text></g><g class="node" tabindex="0" role="button" data-pick="sec" aria-label="보안팀"><rect x="192.0" y="16.0" width="72.0" height="36" rx="4"/><text x="228.0" y="39.0" text-anchor="middle">보안팀</text></g><g class="node" tabindex="0" role="button" data-pick="legal" aria-label="법무팀"><rect x="288.0" y="16.0" width="72.0" height="36" rx="4"/><text x="324.0" y="39.0" text-anchor="middle">법무팀</text></g></svg></figure><div class="panel" id="panel-ops" data-panel="ops" hidden><p class="panel-title">운영팀<sup class="ref"><a href="#src-minutes" aria-label="출처 1">1</a></sup></p><p>환불 지연 불만이 운영팀 평가에 들어간다.</p><p>재무팀 확인 단계는 운영팀 권한 밖이라 운영팀이 줄일 방법이 없다고 팀장이 말했다.</p><p>후속으로 50만~100만 원 구간만 먼저 자동화하는 안을 만든다.</p></div><div class="panel" id="panel-fin" data-panel="fin" hidden><p class="panel-title">재무팀<sup class="ref"><a href="#src-minutes" aria-label="출처 1">1</a></sup></p><p>환불 검수 건수가 재무팀 업무 지표에 들어간다.</p><p>자동화하면 인원 조정 논의가 따라올까 걱정하는 팀원이 있다고 말했다.</p><p>입력 오류로 반려한 29건의 대부분은 규칙으로도 걸러질 것으로 봤다.</p></div><div class="panel" id="panel-sec" data-panel="sec" hidden><p class="panel-title">보안팀<sup class="ref"><a href="#src-minutes" aria-label="출처 1">1</a></sup></p><p>그 유형이 실제로 있었는지는 확인하지 않았다.</p><p>후속으로 지난 2년의 발생 여부를 확인한다.</p></div><div class="panel" id="panel-legal" data-panel="legal" hidden><p class="panel-title">법무팀<sup class="ref"><a href="#src-minutes" aria-label="출처 1">1</a></sup></p><p>규칙이 승인하면 규정의 책임자를 누구로 볼지 정해야 한다.</p><p>규정 개정은 내부통제위원회 의결 사항이고, 법무팀은 후속으로 검토 의견을 낸다.</p></div></div></div></div><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section><section class="sec" id="s3" data-level="overview" aria-labelledby="s3-h"><div class="sec-head"><span class="sec-num">03</span><h2 id="s3-h">작동 원리</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s3-b" aria-label="작동 원리 접기">접기</button></div><div class="sec-body" id="s3-b"><div class="block" data-depth="standard"><h3>절차가 생기고 지금에 이른 과정<sup class="ref"><a href="#src-minutes" aria-label="출처 1">1</a></sup></h3><ol class="steps"><li><strong>2021년 1월</strong><span>상담원 한 명이 지인 계좌로 허위 환불 14건, 약 2,300만 원을 처리했다.</span></li><li><strong>2021년 3월</strong><span>50만 원 이상 환불에 재무팀 확인을 더하는 이중 확인이 생겼다.</span></li><li><strong>2023년</strong><span>환불 계좌를 원거래 결제 수단으로 묶는 시스템 제한이 들어갔다.</span></li><li><strong>지난 1년</strong><span>재무팀이 31건을 반려했다. 2건은 부정 의심, 29건은 금액이나 계좌 입력 오류다.</span></li><li><strong>2026년 11월</strong><span>운영팀이 규칙 기반 자동 승인을 제안했고, 회의는 결정을 미뤘다.</span></li></ol></div><div class="block"><h3>당시 선택과 지금 조건<sup class="ref"><a href="#src-minutes" aria-label="출처 1">1</a></sup></h3><p class="basis">비교 기준: 같은 이중 확인 절차를 2021년 도입 때와 2026년 11월 회의 때로 나눠 본다</p><div class="table-wrap" tabindex="0"><table><thead><tr><th scope="col"></th><th scope="col">당시 선택의 합리성</th><th scope="col">지금 남은 이유</th><th scope="col">지금 조건의 타당성</th></tr></thead><tbody><tr><th scope="row">막으려는 위험</th><td>허위 환불 사고가 실제로 났고, 환불 계좌를 원거래 수단으로 묶는 시스템 장치가 없었다.</td><td>원거래를 가짜로 만드는 유형은 제안한 규칙으로 못 막는다.</td><td>2021년과 같은 유형은 시스템 제한이 막는다. 남은 위험의 크기는 모른다.</td></tr><tr><th scope="row">처리 비용</th><td>당시 처리 건수와 지연 기록은 회의록에 없다.</td><td>지연은 운영팀 평가에 잡히고, 확인 단계는 재무팀에 있다.</td><td>월 약 1,900건이 평균 1.8영업일을 기다린다. 늦은 환불이 지난 분기 불만 1위다.</td></tr><tr><th scope="row">확인이 잡은 것</th><td>회의록에 없다.</td><td>지난 1년 반려 31건 가운데 2건이 부정 의심이었다.</td><td>나머지 29건은 입력 오류이고, 재무팀은 그 대부분을 규칙으로도 거를 수 있다고 본다.</td></tr><tr><th scope="row">사내 규정</th><td>규정이 언제 생겼는지는 회의록에 없다.</td><td>규정이 고액 환불에 책임자 승인 기록을 요구한다.</td><td>규칙 승인을 인정하려면 법무 검토가, 규정을 고치려면 위원회 의결이 필요하다.</td></tr></tbody></table></div></div><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section><section class="sec" id="s4" data-level="overview" aria-labelledby="s4-h"><div class="sec-head"><span class="sec-num">04</span><h2 id="s4-h">조건과 한계</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s4-b" aria-label="조건과 한계 접기">접기</button></div><div class="sec-body" id="s4-b"><div class="limit-group" data-kind="tradeoff" data-depth="standard"><h3>트레이드오프</h3><ul><li data-depth="standard">반려 31건 가운데 29건이 입력 오류라, 지금 이중 확인이 실제로 하는 일은 부정 방지보다 입력 오류 교정에 가깝다. <span class="tag tag-inference">추론</span></li></ul></div><div class="limit-group" data-kind="boundary" data-depth="standard"><h3>적용 한계</h3><ul><li data-depth="standard">제안 담당의 80% 추정은 지난 3개월 데이터에 규칙을 대 본 결과다. 그 3개월에 없던 유형의 환불은 이 추정에 들어 있지 않다.<sup class="ref"><a href="#src-minutes" aria-label="출처 1">1</a></sup></li></ul></div><div class="limit-group" data-kind="unknown"><h3>확인되지 않은 것</h3><ul><li>원거래를 가짜로 만드는 유형이 지난 2년 동안 있었는지 아직 모른다. 보안팀이 확인하기로 했다.<sup class="ref"><a href="#src-minutes" aria-label="출처 1">1</a></sup></li><li>규칙 승인을 사내 규정의 책임자 승인으로 볼 수 있는지 아직 모른다. 법무팀이 검토 의견을 내기로 했다.<sup class="ref"><a href="#src-minutes" aria-label="출처 1">1</a></sup></li><li data-depth="standard">지난 1년의 부정 의심 2건이 실제 부정이었는지는 회의록에 없다. 이중 확인이 2021년 이후 막은 부정 환불의 수도 없다.<sup class="ref"><a href="#src-minutes" aria-label="출처 1">1</a></sup></li></ul></div><fieldset class="scenario" data-depth="standard"><legend>후속 확인 결과에 따라 자동화 논의는 어떻게 갈까?</legend><div class="choices"><label class="choice"><input type="radio" name="sc-2" value="0" data-scenario="sc-2"><span>가짜 원거래 없음, 규정상 인정</span></label><label class="choice"><input type="radio" name="sc-2" value="1" data-scenario="sc-2"><span>가짜 원거래가 있었음</span></label><label class="choice"><input type="radio" name="sc-2" value="2" data-scenario="sc-2"><span>규정상 인정 안 됨</span></label><label class="choice"><input type="radio" name="sc-2" value="3" data-scenario="sc-2"><span>50만~100만 원만 먼저</span></label></div><div class="outcome" aria-live="polite" data-outcome="sc-2"><p class="hint">조건을 고르면 결과와 이유가 보인다.</p><div data-option="0" hidden><p><strong>결과</strong> 50만 원 이상도 규칙 자동 승인으로 갈 근거가 선다. <span class="tag tag-inference">추론</span></p><p><strong>이유</strong> 회의가 결정을 미룬 두 미확인 사항이 모두 풀린다.</p></div><div data-option="1" hidden><p><strong>결과</strong> 그 유형을 거르는 조건이 규칙에 더해지기 전까지 자동 승인은 어렵다. <span class="tag tag-inference">추론</span></p><p><strong>이유</strong> 보안팀이 지적한 규칙의 공백이 실제 위험으로 확인된다.</p></div><div data-option="2" hidden><p><strong>결과</strong> 내부통제위원회가 규정을 고치기 전에는 고액 자동 승인을 할 수 없다. <span class="tag tag-inference">추론</span></p><p><strong>이유</strong> 규정이 책임자 승인 기록을 요구하고, 개정은 위원회 의결 사항이다.</p></div><div data-option="3" hidden><p><strong>결과</strong> 이 구간이 규정이 말하는 고액에 들어가는지에 따라 규정 문제가 남거나 사라진다. <span class="tag tag-unknown">미확인</span></p><p><strong>이유</strong> 회의록에는 규정이 말하는 고액의 기준 금액이 없다.</p></div></div></fieldset><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section><section class="sec" id="s5" data-level="overview" aria-labelledby="s5-h"><div class="sec-head"><span class="sec-num">05</span><h2 id="s5-h">기억할 원리</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s5-b" aria-label="기억할 원리 접기">접기</button></div><div class="sec-body" id="s5-b"><ol class="principles"><li><p class="statement">오래된 통제 절차를 볼 때는 처음 막으려던 위험을 지금 무엇이 막고 있는지 먼저 확인한다.</p><p><span class="k">성립 조건</span> 절차가 생긴 뒤 시스템이나 규정이 바뀌었을 때 성립한다.</p><p><span class="k">적용 예</span> 배포 전 수동 승인 단계가 있다면, 그 단계가 막던 사고를 지금 자동 테스트가 막는지 본다.</p></li><li><p class="statement">절차를 바꾸자는 논의에서는 각 팀이 그 절차로 무엇을 평가받는지 함께 적는다. 같은 절차가 한 팀에는 비용이고 다른 팀에는 실적일 수 있다.</p><p><span class="k">성립 조건</span> 여러 팀이 한 절차의 다른 단계를 맡고 팀마다 지표가 다를 때 쓴다.</p><p><span class="k">적용 예</span> 코드 리뷰 승인 단계를 줄이자는 제안이면, 리뷰 건수가 리뷰어 평가에 들어가는지 먼저 확인한다.</p></li></ol><details class="checks" data-reset-close><summary>이해 확인</summary><p class="basis">먼저 답을 떠올린 뒤 연다.</p><div class="check"><p class="q">보안팀이 「원거래를 가짜로 만드는 유형은 지난 2년 동안 없었다」고 확인했다고 하자. 다음 회의에서 50만 원 이상 자동 승인을 바로 정할 수 있는가?</p><button type="button" class="btn" data-answer="ans-3" aria-expanded="false" aria-controls="ans-3">답 보기</button><div class="answer" id="ans-3" hidden><p><strong>답</strong> 바로 정할 수는 없다. 규칙 승인을 규정의 책임자 승인으로 볼 수 있는지가 남고, 볼 수 없으면 규정 개정은 내부통제위원회가 의결해야 한다.</p><p>회의가 결정을 미룬 이유는 둘이고 서로 따로 풀린다.</p><p>보안팀 확인은 위험 쪽 질문만 닫는다.</p></div></div><div class="check" data-depth="deep"><p class="q">반려 31건 가운데 29건이 입력 오류라는 사실은 자동화 논의에 어떤 뜻이 있는가?</p><button type="button" class="btn" data-answer="ans-4" aria-expanded="false" aria-controls="ans-4">답 보기</button><div class="answer" id="ans-4" hidden><p><strong>답</strong> 지금 이중 확인이 주로 하는 일은 부정 방지보다 입력 오류 교정이다. 재무팀이 입력 오류 대부분을 규칙으로 거를 수 있다고 봤으므로, 자동화로 잃는 것은 주로 부정 의심 2건 같은 경우를 사람이 잡을 기회다.</p><p>절차의 이름이 아니라 그 절차가 실제로 잡아낸 것으로 절차의 값을 잰다.</p></div></div><div class="check" data-depth="deep"><p class="q">「재무팀은 인원이 줄까 봐 자동화를 막고 있다」는 설명의 틀린 점은?</p><button type="button" class="btn" data-answer="ans-5" aria-expanded="false" aria-controls="ans-5">답 보기</button><div class="answer" id="ans-5" hidden><p><strong>답</strong> 회의록에 재무팀이 자동화에 반대했다는 기록은 없다. 기록된 것은 그런 걱정을 하는 팀원이 있다는 발언과, 입력 오류 대부분을 규칙으로 거를 수 있다는 재무팀의 판단이다.</p><p>자료에 있는 발언과 자료에 없는 동기를 가른다.</p><p>회의록이 결정을 미룬 이유로 든 것은 보안팀과 법무팀의 두 확인이다.</p></div></div><div class="check" data-depth="deep"><p class="q">다른 회사에서 「모든 계약서는 법무팀이 두 번 본다」는 절차를 없애자는 제안이 나왔다. 이 회의의 방식대로면 먼저 확인할 것 두 가지는?</p><button type="button" class="btn" data-answer="ans-6" aria-expanded="false" aria-controls="ans-6">답 보기</button><div class="answer" id="ans-6" hidden><p><strong>답</strong> 처음 그 절차가 막으려던 사고를 지금 다른 장치가 막는지, 그 절차를 요구하는 사내 규정이 있는지 확인한다.</p><p>이 회의에서 결정을 미루게 한 것도 같은 두 질문이다. 처음 위험은 시스템이 대신했지만 규정 요건이 남았다.</p></div></div></details><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section>
+    <footer class="foot">
+      <section class="sources-box" id="sources" aria-labelledby="sources-h">
+        <h2 id="sources-h">출처</h2>
+        <ol class="sources"><li id="src-minutes">tests/inputs/process-retention.md <span class="muted">고액 환불 이중 확인 자동화 검토 회의록, 2026년 11월 12일. 테스트용으로 지어낸 자료다.</span></li></ol>
+      </section>
+      <button type="button" class="btn" data-reset>초기화</button>
+    </footer>
+  </main>
+</div>
+<script>
+(function () {
+  "use strict";
+  var LEVELS = ["overview", "standard", "deep"];
+  var LABEL = { overview: "개요", standard: "표준", deep: "심층" };
+  var body = document.body;
+  var sections = Array.prototype.slice.call(document.querySelectorAll(".sec"));
+  var global = 0;
+  var local = {};
+  var all = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
+  var idx = function (d) { return Math.max(0, LEVELS.indexOf(d)); };
+
+  function anchor() {
+    var top = document.querySelector(".top").getBoundingClientRect().bottom + 8;
+    var candidates = all(".sec-head, .block, .rung, .limit-group, .principles > li, .lead");
+    for (var i = 0; i < candidates.length; i++) {
+      var r = candidates[i].getBoundingClientRect();
+      if (r.bottom > top && r.height > 0) return { el: candidates[i], y: r.top };
+    }
+    return null;
+  }
+
+  function apply(keep) {
+    var a = keep ? anchor() : null;
+    body.setAttribute("data-zoom", LEVELS[global]);
+    all(".seg").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-zoom") === LEVELS[global])); });
+    sections.forEach(function (sec) {
+      var lv = Math.max(global, local[sec.id] || 0);
+      sec.setAttribute("data-level", LEVELS[lv]);
+      var hidden = all("[data-depth]", sec).filter(function (el) { return idx(el.getAttribute("data-depth")) > lv; });
+      var more = sec.querySelector("[data-more]");
+      var next = Math.min.apply(null, hidden.map(function (el) { return idx(el.getAttribute("data-depth")); }).concat([3]));
+      more.hidden = next > 2;
+      more.setAttribute("data-next", String(next));
+      if (next <= 2) more.textContent = LABEL[LEVELS[next]] + "까지 더 보기";
+      var b = sec.querySelector(".sec-body");
+      var hint = b.querySelector(".empty-hint");
+      var shown = all(":scope > *", b).filter(function (el) {
+        return el !== hint && !(el.hasAttribute("data-depth") && idx(el.getAttribute("data-depth")) > lv);
+      });
+      hint.hidden = shown.length > 0;
+    });
+    if (a && a.el.getBoundingClientRect().height > 0) window.scrollBy({ top: a.el.getBoundingClientRect().top - a.y, behavior: "instant" });
+  }
+
+  all(".seg").forEach(function (b) {
+    b.addEventListener("click", function () {
+      global = idx(b.getAttribute("data-zoom"));
+      local = {};
+      apply(true);
+    });
+  });
+
+  sections.forEach(function (sec) {
+    sec.querySelector("[data-more]").addEventListener("click", function () {
+      local[sec.id] = Number(sec.querySelector("[data-more]").getAttribute("data-next"));
+      apply(false);
+      var more = sec.querySelector("[data-more]");
+      (more.hidden ? sec.querySelector("[data-fold]") : more).focus();
+    });
+    var fold = sec.querySelector("[data-fold]");
+    var name = sec.querySelector("h2").textContent;
+    fold.addEventListener("click", function () {
+      var folded = sec.classList.toggle("folded");
+      fold.setAttribute("aria-expanded", String(!folded));
+      fold.textContent = folded ? "펼치기" : "접기";
+      fold.setAttribute("aria-label", name + (folded ? " 펼치기" : " 접기"));
+    });
+  });
+
+  function pick(trigger) {
+    var scope = trigger.closest(".ladder, .block");
+    var id = trigger.getAttribute("data-pick");
+    var panel = scope.querySelector('[data-panel="' + id + '"]');
+    var open = panel && panel.hidden;
+    all("[data-panel]", scope).forEach(function (p) { p.hidden = true; });
+    all("[data-pick]", scope).forEach(function (t) {
+      var on = open && t.getAttribute("data-pick") === id;
+      t.setAttribute(t.tagName === "BUTTON" ? "aria-expanded" : "aria-pressed", String(on));
+    });
+    if (panel) panel.hidden = !open;
+    if (document.activeElement !== trigger) trigger.focus({ preventScroll: true });
+  }
+  all("[data-pick]").forEach(function (t) {
+    t.addEventListener("click", function () { pick(t); });
+    if (t.tagName !== "BUTTON") {
+      t.addEventListener("keydown", function (ev) {
+        if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); pick(t); }
+      });
+    }
+  });
+
+  all("[data-answer]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var a = document.getElementById(b.getAttribute("data-answer"));
+      a.hidden = !a.hidden;
+      b.setAttribute("aria-expanded", String(!a.hidden));
+      b.textContent = a.hidden ? "답 보기" : "답 숨기기";
+    });
+  });
+
+  all("[data-scenario]").forEach(function (r) {
+    r.addEventListener("change", function () {
+      var out = document.querySelector('[data-outcome="' + r.getAttribute("data-scenario") + '"]');
+      out.querySelector(".hint").hidden = true;
+      all("[data-option]", out).forEach(function (o) { o.hidden = o.getAttribute("data-option") !== r.value; });
+    });
+  });
+
+  var toc = document.querySelector(".toc");
+  var tocBtn = toc.querySelector(".toc-toggle");
+  function setToc(open) {
+    toc.classList.toggle("open", open);
+    tocBtn.setAttribute("aria-expanded", String(open));
+  }
+  tocBtn.addEventListener("click", function () { setToc(!toc.classList.contains("open")); });
+  all(".toc a").forEach(function (a) {
+    a.addEventListener("click", function () {
+      var sec = document.querySelector(a.getAttribute("href"));
+      if (sec && sec.classList.contains("folded")) sec.querySelector("[data-fold]").click();
+      setToc(false);
+    });
+  });
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        all(".toc a").forEach(function (a) { a.setAttribute("aria-current", String(a.getAttribute("href") === "#" + en.target.id)); });
+      });
+    }, { rootMargin: "-30% 0px -60% 0px" });
+    sections.forEach(function (s) { io.observe(s); });
+  }
+
+  document.querySelector("[data-reset]").addEventListener("click", function () {
+    global = 0;
+    local = {};
+    all(".sec.folded [data-fold]").forEach(function (f) { f.click(); });
+    all("[data-panel]").forEach(function (p) { p.hidden = true; });
+    all("[data-pick]").forEach(function (t) { t.setAttribute(t.tagName === "BUTTON" ? "aria-expanded" : "aria-pressed", "false"); });
+    all("[data-answer]").forEach(function (b) {
+      document.getElementById(b.getAttribute("data-answer")).hidden = true;
+      b.setAttribute("aria-expanded", "false");
+      b.textContent = "답 보기";
+    });
+    all("[data-scenario]").forEach(function (r) { r.checked = false; });
+    all("[data-outcome]").forEach(function (o) {
+      o.querySelector(".hint").hidden = false;
+      all("[data-option]", o).forEach(function (x) { x.hidden = true; });
+    });
+    all("details").forEach(function (d) { d.open = false; });
+    setToc(false);
+    apply(false);
+    window.scrollTo({ top: 0, behavior: "instant" });
+    document.querySelector('.seg[data-zoom="overview"]').focus({ preventScroll: true });
+  });
+
+  apply(false);
+})();
+
+</script>
+</body>
+</html>

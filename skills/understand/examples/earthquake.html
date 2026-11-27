@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'sha256-+r7cGWV/QF0uiwDw6OvXw3/AA4hvWKcj8pdJVpf7FyU='; img-src data:; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>지진이 일어나는 원리</title>
+<style>
+:root {
+  --bg: #fbfbfa; --surface: #ffffff; --fg: #1c1d1f; --muted: #5d6168; --line: #dcdee2; --line-strong: #b9bdc4;
+  --accent: #1f5fbf; --accent-fg: #ffffff; --accent-weak: #e8eff9; --focus: #1f5fbf;
+  --tag-bg: #f0f1f3; --warn-bg: #fbf3e4; --warn-fg: #7a4b00;
+  --f-xs: 13px; --f-s: 15px; --f-m: 17px; --f-l: 22px;
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px;
+  --measure: 46rem; --radius: 6px;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15171a; --surface: #1d2024; --fg: #e8e9eb; --muted: #a3a8b0; --line: #33373d; --line-strong: #4a5058;
+    --accent: #7fb0ff; --accent-fg: #0d1420; --accent-weak: #1f2b3d; --focus: #7fb0ff;
+    --tag-bg: #2a2e34; --warn-bg: #3a2f1b; --warn-fg: #f1c57a;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #15171a; --surface: #1d2024; --fg: #e8e9eb; --muted: #a3a8b0; --line: #33373d; --line-strong: #4a5058;
+  --accent: #7fb0ff; --accent-fg: #0d1420; --accent-weak: #1f2b3d; --focus: #7fb0ff;
+  --tag-bg: #2a2e34; --warn-bg: #3a2f1b; --warn-fg: #f1c57a;
+}
+* { box-sizing: border-box; }
+html { scroll-padding-top: 120px; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: var(--f-s)/1.65 -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", system-ui, sans-serif; word-break: keep-all; overflow-wrap: anywhere; }
+p { margin: 0 0 var(--s2); }
+h1, h2, h3 { margin: 0; line-height: 1.35; }
+h3 { font-size: var(--f-s); margin: var(--s4) 0 var(--s2); }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.skip { position: absolute; left: -999px; }
+.skip:focus { left: var(--s4); top: var(--s2); z-index: 10; background: var(--surface); padding: var(--s2); }
+[hidden] { display: none !important; }
+
+.top { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); }
+.top-in { max-width: 72rem; margin: 0 auto; padding: var(--s3) var(--s4); display: grid; grid-template-columns: 1fr auto; grid-template-areas: "brand zoom" "title zoom"; column-gap: var(--s4); align-items: center; }
+.brand { grid-area: brand; font-size: var(--f-xs); letter-spacing: .12em; color: var(--muted); font-weight: 600; }
+.top h1 { grid-area: title; font-size: var(--f-l); }
+.zoom { grid-area: zoom; display: inline-flex; border: 1px solid var(--line-strong); border-radius: var(--radius); overflow: hidden; }
+.seg { font: inherit; font-size: var(--f-xs); padding: var(--s2) var(--s3); min-height: 36px; border: 0; background: var(--surface); color: var(--fg); cursor: pointer; }
+.seg + .seg { border-left: 1px solid var(--line-strong); }
+.seg[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); font-weight: 600; }
+
+.frame { max-width: 72rem; margin: 0 auto; padding: 0 var(--s4); display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: var(--s6); }
+.toc { position: sticky; top: 104px; align-self: start; padding-top: var(--s6); }
+.toc ol { list-style: none; margin: 0; padding: 0; }
+.toc a { display: flex; gap: var(--s2); padding: var(--s1) 0; color: var(--muted); text-decoration: none; font-size: var(--f-xs); }
+.toc a:hover, .toc a[aria-current="true"] { color: var(--fg); }
+.toc-toggle { display: none; }
+main { max-width: var(--measure); padding: var(--s5) 0 var(--s7); min-width: 0; }
+
+.sec { padding: var(--s5) 0; border-bottom: 1px solid var(--line); }
+.sec-head { display: flex; align-items: center; gap: var(--s3); margin-bottom: var(--s3); }
+.sec-head h2 { font-size: var(--f-m); flex: 1; }
+.sec-num { font-variant-numeric: tabular-nums; color: var(--muted); font-size: var(--f-xs); font-weight: 600; min-width: 1.6em; }
+.sec.folded .sec-body { display: none; }
+.lead { font-size: var(--f-m); font-weight: 600; }
+.hint, .basis, .muted { color: var(--muted); font-size: var(--f-xs); }
+
+.btn { font: inherit; font-size: var(--f-xs); min-height: 32px; padding: var(--s1) var(--s3); border: 1px solid var(--line-strong); border-radius: var(--radius); background: var(--surface); color: var(--fg); cursor: pointer; }
+.btn:hover { border-color: var(--accent); }
+.btn[aria-expanded="true"]:not([data-fold]) { background: var(--accent-weak); }
+
+.tag { display: inline-block; font-size: 12px; line-height: 1.4; padding: 0 var(--s1); margin-left: var(--s1); border-radius: 3px; background: var(--tag-bg); color: var(--muted); font-weight: 600; vertical-align: 1px; white-space: nowrap; }
+.tag-unknown, .tag-assumption { background: var(--warn-bg); color: var(--warn-fg); }
+.ref { font-size: 11px; margin-left: 2px; }
+.ref a { text-decoration: none; }
+
+.ladder { display: grid; gap: var(--s3); }
+.rung { display: grid; grid-template-columns: 2.2rem minmax(0, 1fr); gap: var(--s2); }
+.rung-name { font-size: 12px; color: var(--muted); font-weight: 600; padding-top: 3px; }
+.rung-1 > div { border-left: 3px solid var(--accent); padding-left: var(--s3); }
+.rung-1 p { margin: 0; color: var(--muted); }
+.rel { display: block; font-size: var(--f-xs); color: var(--muted); margin-bottom: var(--s2); }
+.picks { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: var(--s2); }
+.pick { font: inherit; text-align: left; padding: var(--s3); border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--fg); cursor: pointer; display: grid; gap: var(--s1); align-content: start; }
+.pick:hover { border-color: var(--line-strong); }
+.pick[aria-expanded="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.pick-label { font-weight: 600; }
+.pick-sum { font-size: var(--f-xs); color: var(--muted); }
+.panel { margin-top: var(--s3); padding: var(--s3) var(--s4); border-left: 3px solid var(--accent); background: var(--surface); }
+.panel-title { font-weight: 600; }
+.l3 { list-style: none; margin: var(--s3) 0 0; padding: 0; display: grid; gap: var(--s2); }
+.l3 li { display: grid; grid-template-columns: 2.2rem minmax(0, 1fr); gap: var(--s2); }
+.more-detail { margin-top: var(--s1); }
+summary { cursor: pointer; color: var(--accent); font-size: var(--f-xs); }
+
+.diagram { margin: var(--s4) 0 0; overflow-x: auto; }
+.diagram svg { display: block; max-width: 100%; height: auto; margin: 0 auto; font: 14px -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif; }
+.diagram .edge { fill: none; stroke: var(--line-strong); stroke-width: 1.5; }
+.diagram .arrow { fill: var(--line-strong); }
+.diagram .edge-label rect { fill: var(--bg); }
+.diagram .edge-label text { fill: var(--muted); font-size: 12px; }
+.diagram .node rect { fill: var(--surface); stroke: var(--line-strong); }
+.diagram .node text { fill: var(--fg); }
+.diagram .node { cursor: pointer; }
+.diagram .node:hover rect, .diagram .node[aria-pressed="true"] rect { stroke: var(--accent); stroke-width: 2; }
+.diagram .node:focus-visible { outline: none; }
+.diagram .node:focus-visible rect { stroke: var(--focus); stroke-width: 3; }
+
+.block { margin-bottom: var(--s4); }
+.block > h3:first-child { margin-top: 0; }
+.steps { margin: 0; padding-left: 1.4em; display: grid; gap: var(--s2); }
+.steps strong { margin-right: var(--s2); }
+.example { padding: var(--s3) var(--s4); border: 1px dashed var(--line-strong); border-radius: var(--radius); }
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: var(--f-xs); }
+th, td { text-align: left; vertical-align: top; padding: var(--s2); border-bottom: 1px solid var(--line); }
+thead th { color: var(--muted); font-weight: 600; }
+tbody th { font-weight: 600; white-space: nowrap; }
+
+.limit-group h3 { margin-top: var(--s3); color: var(--muted); font-size: var(--f-xs); }
+.limit-group ul, .principles { margin: 0; padding-left: 1.2em; }
+.limit-group li { margin-bottom: var(--s1); }
+.scenario { margin: var(--s4) 0 0; border: 1px solid var(--line); border-radius: var(--radius); padding: var(--s3) var(--s4); }
+.scenario legend { font-weight: 600; padding: 0 var(--s1); }
+.choices { display: flex; flex-wrap: wrap; gap: var(--s2); margin: var(--s2) 0 var(--s3); }
+.choice { display: inline-flex; align-items: center; gap: var(--s1); padding: var(--s1) var(--s3); min-height: 36px; border: 1px solid var(--line-strong); border-radius: var(--radius); cursor: pointer; font-size: var(--f-xs); }
+.choice:has(input:checked) { border-color: var(--accent); background: var(--accent-weak); }
+.choice input { margin: 0; accent-color: var(--accent); }
+.outcome { border-top: 1px solid var(--line); padding-top: var(--s3); }
+
+.principles li { margin-bottom: var(--s4); }
+.statement { font-weight: 600; }
+.k { font-size: var(--f-xs); color: var(--muted); font-weight: 600; margin-right: var(--s1); }
+.checks { margin-top: var(--s5); padding: var(--s3) var(--s4); border: 1px solid var(--line); border-radius: var(--radius); }
+.checks > summary { font-size: var(--f-s); font-weight: 600; }
+.check { margin-top: var(--s3); padding-top: var(--s3); border-top: 1px solid var(--line); }
+.q { font-weight: 600; }
+.answer { margin-top: var(--s2); }
+.na summary { color: var(--muted); }
+
+.foot { padding: var(--s5) 0; display: grid; gap: var(--s4); justify-items: start; }
+.foot h2 { font-size: var(--f-s); margin-bottom: var(--s2); }
+.sources { margin: 0; padding-left: 1.4em; font-size: var(--f-xs); }
+
+.sec[data-level="overview"] [data-depth="standard"],
+.sec[data-level="overview"] [data-depth="deep"],
+.sec[data-level="standard"] [data-depth="deep"] { display: none !important; }
+
+@media (max-width: 760px) {
+  .top-in { grid-template-columns: 1fr; grid-template-areas: "brand" "title" "zoom"; row-gap: var(--s2); padding: var(--s2) var(--s4); }
+  .top h1 { font-size: var(--f-m); }
+  .zoom { justify-self: stretch; }
+  .seg { flex: 1; }
+  .frame { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .toc { position: static; padding-top: var(--s3); }
+  .toc-toggle { display: inline-block; }
+  .toc ol { display: none; margin-top: var(--s2); }
+  .toc.open ol { display: block; }
+  main { padding-top: var(--s2); }
+  html { scroll-padding-top: 150px; }
+  .picks { grid-template-columns: minmax(0, 1fr); }
+  .sec-head { flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+@media print { .top, .toc, .btn, [data-reset] { display: none; } .sec[data-level] [data-depth] { display: block !important; } }
+
+</style>
+</head>
+<body data-zoom="overview">
+<a class="skip" href="#s1">본문으로</a>
+<header class="top">
+  <div class="top-in">
+    <div class="brand">UNDERSTAND</div>
+    <h1>지진이 일어나는 원리</h1>
+    <div class="zoom" role="group" aria-label="탐색 깊이">
+      <button type="button" class="seg" data-zoom="overview" aria-pressed="true">개요</button>
+      <button type="button" class="seg" data-zoom="standard" aria-pressed="false">표준</button>
+      <button type="button" class="seg" data-zoom="deep" aria-pressed="false">심층</button>
+    </div>
+  </div>
+</header>
+<div class="frame">
+  <nav class="toc" aria-label="목차">
+    <button type="button" class="btn toc-toggle" aria-expanded="false" aria-controls="toc-list">목차</button>
+    <ol id="toc-list"><li><a href="#s1"><span class="sec-num">01</span>본질</a></li><li><a href="#s2"><span class="sec-num">02</span>전체 구조</a></li><li><a href="#s3"><span class="sec-num">03</span>작동 원리</a></li><li><a href="#s4"><span class="sec-num">04</span>조건과 한계</a></li><li><a href="#s5"><span class="sec-num">05</span>기억할 원리</a></li></ol>
+  </nav>
+  <main>
+<section class="sec" id="s1" data-level="overview" aria-labelledby="s1-h"><div class="sec-head"><span class="sec-num">01</span><h2 id="s1-h">본질</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s1-b" aria-label="본질 접기">접기</button></div><div class="sec-body" id="s1-b"><p class="lead">지진은 단층(암석이 깨져 어긋난 면) 양쪽의 암석이 오래 쌓인 변형을 견디지 못하고 갑자기 미끄러지며, 그 에너지가 지진파로 퍼져 땅이 흔들리는 현상이다.</p><p>판(지구 표면을 덮은 단단한 암석 조각)은 해마다 수 cm 씩 움직이지만, 판이 맞닿은 단층면은 마찰로 붙어 있어 함께 미끄러지지 못한다.</p><p>그 사이 양쪽 암석이 휘며 변형 에너지를 쌓다가, 힘이 마찰을 넘는 순간 한꺼번에 미끄러진다.</p><p>그래서 힘은 꾸준히 들어와도 지진은 고르게 나지 않고, 긴 조용함 끝에 짧은 순간에 몰려 난다.</p><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section><section class="sec" id="s2" data-level="overview" aria-labelledby="s2-h"><div class="sec-head"><span class="sec-num">02</span><h2 id="s2-h">전체 구조</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s2-b" aria-label="전체 구조 접기">접기</button></div><div class="sec-body" id="s2-b"><div class="ladder"><div class="rung rung-1"><span class="rung-name">L1</span><div><strong>쌓였다 한꺼번에 풀리는 변형</strong><p>꾸준한 힘과 붙잡는 마찰이 만나, 에너지가 천천히 쌓였다가 짧은 순간에 풀린다.</p></div></div><div class="rung rung-2"><span class="rung-name">L2</span><div><span class="rel">원인에서 흔들림까지 이어지는 단계</span><div class="picks" role="group" aria-label="주요 구조"><button type="button" class="pick" data-pick="plate" aria-expanded="false" aria-controls="panel-plate"><span class="pick-label">판 운동</span><span class="pick-sum">판들이 서로 다른 방향으로 움직여 경계 근처 암석에 힘을 가한다.</span></button><button type="button" class="pick" data-pick="stress" aria-expanded="false" aria-controls="panel-stress"><span class="pick-label">응력 축적</span><span class="pick-sum">단층면이 붙어 있는 동안 양쪽 암석에 응력(단위 면적에 걸린 힘)이 쌓이고, 암석은 휘며 변형 에너지를 품는다.</span></button><button type="button" class="pick" data-pick="rupture" aria-expanded="false" aria-controls="panel-rupture"><span class="pick-label">단층 파열</span><span class="pick-sum">응력이 마찰을 넘으면 한 점에서 미끄러짐이 시작돼 단층면을 따라 번지고, 휘었던 암석이 제자리로 튀어 돌아간다.</span></button><button type="button" class="pick" data-pick="waves" aria-expanded="false" aria-controls="panel-waves"><span class="pick-label">지진파 전파</span><span class="pick-sum">풀린 에너지의 일부가 지진파가 되어 땅속과 지표를 따라 퍼진다.</span></button><button type="button" class="pick" data-pick="shaking" aria-expanded="false" aria-controls="panel-shaking"><span class="pick-label">흔들림</span><span class="pick-sum">지진파가 닿은 곳의 땅이 흔들린다. 흔들림의 세기는 장소마다 다르다.</span></button></div><figure class="diagram"><svg viewBox="0 0 298 468" width="298" style="min-width:238px" role="img" aria-labelledby="dg-1-t" preserveAspectRatio="xMidYMin meet"><title id="dg-1-t">판 운동 · 응력 축적 · 단층 파열 · 지진파 전파 · 흔들림 관계도</title><defs><marker id="dg-1-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow"/></marker></defs><path d="M149.0,52.0 C149.0,84.0 149.0,84.0 149.0,114.0" class="edge" marker-end="url(#dg-1-a)"/><path d="M149.0,152.0 C149.0,184.0 149.0,184.0 149.0,214.0" class="edge" marker-end="url(#dg-1-a)"/><path d="M149.0,252.0 C149.0,284.0 149.0,284.0 149.0,314.0" class="edge" marker-end="url(#dg-1-a)"/><path d="M149.0,352.0 C149.0,384.0 149.0,384.0 149.0,414.0" class="edge" marker-end="url(#dg-1-a)"/><path d="M195.0,234.0 C267.0,234.0 267.0,134.0 198.0,134.0" class="edge" marker-end="url(#dg-1-a)"/><g class="edge-label"><rect x="115.6" y="74.0" width="66.9" height="20" rx="3"/><text x="149.0" y="88.0" text-anchor="middle">힘을 가함</text></g><g class="edge-label"><rect x="109.6" y="174.0" width="78.9" height="20" rx="3"/><text x="149.0" y="188.0" text-anchor="middle">마찰을 넘음</text></g><g class="edge-label"><rect x="109.6" y="274.0" width="78.9" height="20" rx="3"/><text x="149.0" y="288.0" text-anchor="middle">에너지 방출</text></g><g class="edge-label"><rect x="131.0" y="374.0" width="36.0" height="20" rx="3"/><text x="149.0" y="388.0" text-anchor="middle">도달</text></g><g class="edge-label"><rect x="206.1" y="174.0" width="66.9" height="20" rx="3"/><text x="239.6" y="188.0" text-anchor="middle">다시 쌓임</text></g><g class="node" tabindex="0" role="button" data-pick="plate" aria-label="판 운동"><rect x="110.0" y="16.0" width="78.0" height="36" rx="4"/><text x="149.0" y="39.0" text-anchor="middle">판 운동</text></g><g class="node" tabindex="0" role="button" data-pick="stress" aria-label="응력 축적"><rect x="103.0" y="116.0" width="92.0" height="36" rx="4"/><text x="149.0" y="139.0" text-anchor="middle">응력 축적</text></g><g class="node" tabindex="0" role="button" data-pick="rupture" aria-label="단층 파열"><rect x="103.0" y="216.0" width="92.0" height="36" rx="4"/><text x="149.0" y="239.0" text-anchor="middle">단층 파열</text></g><g class="node" tabindex="0" role="button" data-pick="waves" aria-label="지진파 전파"><rect x="96.0" y="316.0" width="106.0" height="36" rx="4"/><text x="149.0" y="339.0" text-anchor="middle">지진파 전파</text></g><g class="node" tabindex="0" role="button" data-pick="shaking" aria-label="흔들림"><rect x="113.0" y="416.0" width="72.0" height="36" rx="4"/><text x="149.0" y="439.0" text-anchor="middle">흔들림</text></g></svg></figure><div class="panel" id="panel-plate" data-panel="plate" hidden><p class="panel-title">판 운동</p><p>지구 표면은 큰 판 일곱과 작은 판 여럿으로 나뉜다. 지진 대부분은 판끼리 맞닿은 경계 근처에서 난다.</p></div><div class="panel" id="panel-stress" data-panel="stress" hidden><p class="panel-title">응력 축적</p><p>새 암석이 깨지기보다 이미 있던 단층이 다시 미끄러지는 경우가 많다. 한 번 깨진 면은 주변보다 약하기 때문이다.</p></div><div class="panel" id="panel-rupture" data-panel="rupture" hidden><p class="panel-title">단층 파열</p><p>휘었던 암석이 튀어 돌아가는 이 과정을 탄성 반발이라고 한다. 1906 년 샌프란시스코 지진의 관측에서 나온 설명이다.</p><ul class="l3"><li data-depth="standard"><span class="rung-name">L3</span><div><strong>진원</strong> <span>미끄러짐이 처음 시작된 땅속 지점이다. 지진 대부분은 70 km 보다 얕은 곳에서 시작한다.</span></div></li><li data-depth="standard"><span class="rung-name">L3</span><div><strong>진앙</strong> <span>진원 바로 위의 지표 지점이다. 지도에 찍히는 지진 위치가 이것이다.</span></div></li><li data-depth="standard"><span class="rung-name">L3</span><div><strong>규모</strong><sup class="ref"><a href="#src-usgs-mag" aria-label="출처 2">2</a></sup><sup class="ref"><a href="#src-kma" aria-label="출처 4">4</a></sup> <span>단층이 내놓은 에너지의 크기를 로그로 나타낸 값이다. 1 오르면 에너지는 약 32 배가 된다.</span><details class="more-detail"><summary>자세히</summary><p>지금 주로 쓰는 모멘트 규모는 미끄러진 단층 면적, 미끄러진 거리, 암석의 단단함을 곱한 값에서 구한다.</p></details></div></li></ul></div><div class="panel" id="panel-waves" data-panel="waves" hidden><p class="panel-title">지진파 전파</p></div><div class="panel" id="panel-shaking" data-panel="shaking" hidden><p class="panel-title">흔들림</p><ul class="l3"><li data-depth="standard"><span class="rung-name">L3</span><div><strong>진도</strong><sup class="ref"><a href="#src-kma" aria-label="출처 4">4</a></sup> <span>한 장소의 흔들림과 피해를 등급으로 나타낸 값이다. 한국 기상청은 I 부터 XII 까지 12 단계인 수정 메르칼리 진도를 쓴다.</span><details class="more-detail"><summary>자세히</summary><p>진도는 진앙에서 멀어질수록 대체로 약해진다. 그러나 땅의 성질에 따라 먼 곳이 더 세게 흔들리기도 한다.</p></details></div></li></ul></div></div></div></div><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section><section class="sec" id="s3" data-level="overview" aria-labelledby="s3-h"><div class="sec-head"><span class="sec-num">03</span><h2 id="s3-h">작동 원리</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s3-b" aria-label="작동 원리 접기">접기</button></div><div class="sec-body" id="s3-b"><div class="block"><h3>지진 한 번의 주기</h3><ol class="steps"><li><strong>판이 끈다</strong><span>판이 해마다 수 cm 씩 움직여 단층 양쪽을 서로 다른 방향으로 끈다.</span></li><li><strong>단층이 붙잡는다</strong><span>단층면의 마찰 때문에 양쪽이 함께 미끄러지지 못한다. 그동안 암석이 휘며 변형 에너지가 쌓인다.</span></li><li><strong>문턱을 넘는다</strong><span>어느 한 점에서 응력이 마찰 강도를 넘으면 그 점이 미끄러지기 시작한다. 이 점이 진원이다.</span></li><li><strong>파열이 번진다</strong><span>미끄러짐이 단층면을 따라 초속 수 km 로 번진다. 큰 지진일수록 파열 면적이 넓고 미끄러진 거리가 길다.</span></li><li><strong>되튄다</strong><span>휘었던 암석이 제자리로 돌아가며 쌓였던 에너지를 내놓는다. 그 일부가 지진파가 된다.</span></li><li><strong>다시 쌓인다</strong><span>판은 멈추지 않으므로 응력이 다시 쌓이기 시작한다. 같은 단층의 다음 큰 지진까지는 수십 년에서 수천 년이 걸린다.</span></li></ol></div><div class="block" data-depth="standard"><h3>단층의 세 종류</h3><p class="basis">비교 기준: 단층 양쪽 암석이 어느 방향으로 움직이는가</p><div class="table-wrap" tabindex="0"><table><thead><tr><th scope="col"></th><th scope="col">정단층</th><th scope="col">역단층</th><th scope="col">주향이동단층</th></tr></thead><tbody><tr><th scope="row">작용하는 힘</th><td>양쪽으로 잡아당긴다.</td><td>양쪽에서 밀어붙인다.</td><td>옆으로 엇갈려 민다.</td></tr><tr><th scope="row">움직임</th><td>기울어진 단층면 위쪽 덩어리가 아래로 미끄러진다.</td><td>위쪽 덩어리가 위로 올라탄다.</td><td>양쪽이 수평으로 어긋난다.</td></tr><tr><th scope="row">흔한 판 경계</th><td>판이 벌어지는 발산 경계</td><td>판이 부딪치는 수렴 경계</td><td>판이 옆으로 스치는 변환 경계</td></tr><tr><th scope="row">예</th><td>동아프리카 열곡대</td><td>2011 년 동일본 대지진. 한 판이 다른 판 아래로 들어가는 섭입대에서 났다.</td><td>미국 샌안드레아스 단층</td></tr></tbody></table></div></div><div class="block"><h3>지진파 세 종류</h3><p class="basis">비교 기준: 흔드는 방향, 속도, 지나는 물질, 피해. 속도는 지각을 지날 때의 어림값이다</p><div class="table-wrap" tabindex="0"><table><thead><tr><th scope="col"></th><th scope="col">P파</th><th scope="col">S파</th><th scope="col">표면파</th></tr></thead><tbody><tr><th scope="row">흔드는 방향</th><td>나아가는 방향으로 밀고 당긴다.</td><td>나아가는 방향에 수직으로 흔든다.</td><td>지표를 따라 구르거나 옆으로 흔든다.</td></tr><tr><th scope="row">속도</th><td>초속 약 6 km 로 가장 빠르다.</td><td>초속 약 3.5 km 다.</td><td>S파보다 조금 느리다.</td></tr><tr><th scope="row">지나는 물질</th><td>고체, 액체, 기체</td><td>고체만</td><td>지표 가까운 층</td></tr><tr><th scope="row">피해</th><td>대개 작다. 먼저 도착해 경보에 쓰인다.</td><td>흔들림이 커서 피해를 많이 낸다.</td><td>진폭이 크고 오래 흔들어 먼 곳과 높은 건물의 피해를 키운다.</td></tr></tbody></table></div></div><div class="block"><h3>규모와 진도는 다른 것을 잰다</h3><p>규모는 진원 쪽의 값이라 지진 하나에 하나다. 진도는 받는 쪽의 값이라 장소마다 다르다.</p><p>진도를 가르는 것은 주로 단층 파열 면과의 거리다. 진원 깊이, 파열이 번진 방향, 그 장소의 땅도 진도를 바꾼다.</p><p>그래서 규모 숫자만으로는 한 도시의 피해를 알 수 없다. 규모가 작아도 얕고 가까우면 피해가 클 수 있다.<sup class="ref"><a href="#src-usgs-mag" aria-label="출처 2">2</a></sup><sup class="ref"><a href="#src-kma" aria-label="출처 4">4</a></sup></p></div><div class="block" data-depth="standard"><h3>예측이 안 되는 이유</h3><p>예측은 언제, 어디서, 얼마나 큰 지진이 날지를 미리 정하는 일이다. 지금까지 누구도 큰 지진을 이렇게 예측하지 못했다.</p><p>진원은 수 km 에서 수십 km 땅속이라 단층에 걸린 응력과 마찰 강도를 직접 잴 수 없다.</p><p>같은 단층에서도 지진 사이 간격이 들쑥날쑥하다. 미국 파크필드 구간은 1857 년부터 1966 년까지 평균 22 년쯤마다 규모 6 안팎의 지진이 났다.</p><p>그래서 1993 년 전에 다음 지진이 올 것으로 보고 관측망을 깔았지만, 실제 지진은 2004 년에 났다.</p><p>대신 과학자들은 한 지역에서 정해진 기간 안에 큰 지진이 날 확률을 낸다.<sup class="ref"><a href="#src-usgs-faq" aria-label="출처 1">1</a></sup><sup class="ref"><a href="#src-parkfield" aria-label="출처 3">3</a></sup></p></div><div class="block" data-depth="standard"><h3>조기 경보는 예측이 아니다</h3><p>지진 조기 경보는 지진이 이미 난 뒤에 먼저 도착한 P파를 잡아, 피해를 주는 S파와 표면파가 오기 전에 알린다.</p><p>P파를 감지하고 분석해 경보를 내는 데에도 몇 초가 걸린다.<sup class="ref"><a href="#src-kma" aria-label="출처 4">4</a></sup></p></div><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section><section class="sec" id="s4" data-level="overview" aria-labelledby="s4-h"><div class="sec-head"><span class="sec-num">04</span><h2 id="s4-h">조건과 한계</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s4-b" aria-label="조건과 한계 접기">접기</button></div><div class="sec-body" id="s4-b"><div class="limit-group" data-kind="condition" data-depth="standard"><h3>성립 조건</h3><ul><li data-depth="standard">탄성 반발은 암석이 부서지며 미끄러지는 얕은 곳에서 성립한다. 더 깊고 뜨거운 곳의 암석은 깨지지 않고 천천히 휘어 흘러 변형 에너지를 쌓아 두지 못한다.</li></ul></div><div class="limit-group" data-kind="change" data-depth="standard"><h3>조건이 바뀌면</h3><ul><li data-depth="standard">단층이 붙지 않고 늘 조금씩 미끄러지면 응력이 쌓이지 않아 큰 지진이 드물다. 이런 움직임을 크리프라고 한다. 샌안드레아스 단층의 중부 캘리포니아 구간이 이렇게 움직인다.</li></ul></div><div class="limit-group" data-kind="counterexample"><h3>반례</h3><ul><li>판 경계에서 먼 판 안에서도 지진이 난다. 한국은 유라시아판 안쪽에 있지만 2016 년 경주에서 규모 5.8 지진이 났다. 미국 중부 뉴마드리드에서는 1811~1812 년에 큰 지진이 잇따랐다.</li><li data-depth="standard">판 안의 지진은 판 경계에서 전해진 힘이 오래된 약한 단층에 모여 생긴다고 본다. 왜 특정 단층에 힘이 모이는지는 아직 다 설명되지 않는다. <span class="tag tag-inference">추론</span></li></ul></div><div class="limit-group" data-kind="exception" data-depth="standard"><h3>예외</h3><ul><li data-depth="standard">사람이 땅속에 물을 넣어도 지진이 난다. 2019 년 정부조사연구단은 2017 년 포항 지진(규모 5.4)을 지열발전의 물 주입이 촉발했다고 결론 냈다.<sup class="ref"><a href="#src-pohang" aria-label="출처 5">5</a></sup></li><li data-depth="standard">화산 아래에서 마그마가 움직이며 나는 지진도 있다. 이때는 판의 힘보다 마그마의 압력이 암석을 깬다.</li></ul></div><div class="limit-group" data-kind="unknown" data-depth="standard"><h3>확인되지 않은 것</h3><ul><li data-depth="standard">미끄러짐이 시작될 때 그것이 작은 지진으로 끝날지 큰 지진으로 번질지 미리 가려 주는 믿을 만한 신호는 아직 찾지 못했다. <span class="tag tag-unknown">미확인</span></li><li data-depth="deep">깊이 300~700 km 의 깊은 지진은 높은 압력 때문에 마찰 미끄러짐이 어렵다. 무엇이 이 지진을 일으키는지는 여러 설명이 있지만 정해지지 않았다. <span class="tag tag-unknown">미확인</span></li></ul></div><fieldset class="scenario" data-depth="standard"><legend>규모 6.5 지진 하나가 났다. 아래 조건의 도시는 각각 어떻게 흔들리는가?</legend><div class="choices"><label class="choice"><input type="radio" name="sc-2" value="0" data-scenario="sc-2"><span>진앙에서 10 km, 진원 깊이 10 km</span></label><label class="choice"><input type="radio" name="sc-2" value="1" data-scenario="sc-2"><span>진앙 바로 위, 진원 깊이 300 km</span></label><label class="choice"><input type="radio" name="sc-2" value="2" data-scenario="sc-2"><span>진앙에서 300 km, 단단한 암반</span></label><label class="choice"><input type="radio" name="sc-2" value="3" data-scenario="sc-2"><span>진앙에서 300 km, 무른 퇴적층</span></label></div><div class="outcome" aria-live="polite" data-outcome="sc-2"><p class="hint">조건을 고르면 결과와 이유가 보인다.</p><div data-option="0" hidden><p><strong>결과</strong> 가장 세게 흔들린다. 진도가 높고 피해가 크다.</p><p><strong>이유</strong> 파열 면이 가깝고 얕아 지진파가 거의 약해지지 않은 채 닿는다.</p></div><div data-option="1" hidden><p><strong>결과</strong> 넓은 지역이 비교적 약하게 흔들린다. 피해는 대개 작다.</p><p><strong>이유</strong> 지진파가 땅속 300 km 를 지나오는 동안 퍼지고 약해진다.</p></div><div data-option="2" hidden><p><strong>결과</strong> 약하게 흔들린다.</p><p><strong>이유</strong> 거리가 멀어 지진파가 약해진 채 닿는다.</p></div><div data-option="3" hidden><p><strong>결과</strong> 같은 거리의 암반보다 더 세게, 더 오래 흔들릴 수 있다.</p><p><strong>이유</strong> 무른 퇴적층은 지진파를 키우고 가둔다. 1985 년 멕시코 지진에서 진앙에서 약 350 km 떨어진 옛 호수 바닥 위의 멕시코시티가 이렇게 큰 피해를 입었다.</p></div></div></fieldset><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section><section class="sec" id="s5" data-level="overview" aria-labelledby="s5-h"><div class="sec-head"><span class="sec-num">05</span><h2 id="s5-h">기억할 원리</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s5-b" aria-label="기억할 원리 접기">접기</button></div><div class="sec-body" id="s5-b"><ol class="principles"><li><p class="statement">꾸준히 들어오는 힘을 문턱이 있는 저항이 붙잡으면, 변화는 고르게 오지 않고 오래 쌓였다가 한꺼번에 온다.</p><p><span class="k">성립 조건</span> 힘이 꾸준히 들어오고, 저항이 문턱을 넘을 때만 풀리며, 풀린 뒤 다시 붙는 계에서 성립한다. 힘이 조금씩 새어 나가는 계에서는 약해진다.</p><p><span class="k">적용 예</span> 요금을 오래 묶어 두면 원가 상승분이 쌓였다가 묶음이 풀릴 때 한 번에 크게 오른다. 조금씩 자주 올리면 한 번의 폭은 작다.</p></li><li><p class="statement">원천의 크기와 받는 곳의 영향은 따로 잰다. 영향은 거리, 경로, 받는 곳의 성질에 따라 달라진다.</p><p><span class="k">성립 조건</span> 원천에서 나온 것이 퍼지면서 줄거나 커지는 현상에서 성립한다.</p><p><span class="k">적용 예</span> 서비스 장애도 서버가 멈춘 시간과 사용자가 실제로 막힌 요청 수를 따로 잰다. 같은 장애라도 캐시가 있는 기능은 영향이 작다.</p></li><li data-depth="standard"><p class="statement">언제 터질지 모를 때는 예측 대신, 피해보다 먼저 오는 신호를 잡아 대비할 시간을 번다.</p><p><span class="k">성립 조건</span> 피해를 주는 것보다 빨리 오는 신호가 있고, 그 시간 차가 대응에 드는 시간보다 길 때 성립한다.</p><p><span class="k">적용 예</span> 카나리 배포는 새 버전을 일부 사용자에게만 먼저 내보낸다. 오류 신호가 보이면 전체 사용자에게 퍼지기 전에 되돌린다.</p></li></ol><details class="checks" data-reset-close><summary>이해 확인</summary><p class="basis">먼저 답을 떠올린 뒤 연다.</p><div class="check"><p class="q">어느 관측소에 P파가 닿고 10 초 뒤에 S파가 닿았다. P파는 초속 6 km, S파는 초속 3.5 km 로 간다고 하면 진원까지 거리는 대략 얼마인가?</p><button type="button" class="btn" data-answer="ans-3" aria-expanded="false" aria-controls="ans-3">답 보기</button><div class="answer" id="ans-3" hidden><p><strong>답</strong> 약 84 km 다. 거리를 d 라 하면 d 를 3.5 로 나눈 값에서 d 를 6 으로 나눈 값을 뺀 것이 10 초이므로, d 는 약 84 km 다.</p><p>두 파의 속도가 달라 도착 시간 차가 거리에 비례해 벌어진다. 이 속도라면 차이 1 초가 약 8 km 다.</p><p>관측소 세 곳 이상의 거리를 겹치면 진원의 위치가 나온다.</p></div></div><div class="check" data-depth="deep"><p class="q">「작은 지진이 자주 나면 에너지가 조금씩 빠져 큰 지진을 막는다」는 설명의 틀린 점은?</p><button type="button" class="btn" data-answer="ans-4" aria-expanded="false" aria-controls="ans-4">답 보기</button><div class="answer" id="ans-4" hidden><p><strong>답</strong> 규모 4 지진 약 1,000 번이 내놓는 에너지가 규모 6 지진 한 번과 비슷하다. 작은 지진으로는 쌓인 에너지를 거의 덜어 내지 못한다.</p><p>규모가 1 오를 때 에너지가 약 32 배이니, 2 오르면 약 1,000 배다.</p><p>응력을 실제로 덜어 내는 것은 큰 지진이나 크리프다.</p></div></div><div class="check" data-depth="deep"><p class="q">조기 경보를 받는다면 진앙에서 20 km 떨어진 도시와 150 km 떨어진 도시 가운데 어디에 더 쓸모가 있는가?</p><button type="button" class="btn" data-answer="ans-5" aria-expanded="false" aria-controls="ans-5">답 보기</button><div class="answer" id="ans-5" hidden><p><strong>답</strong> 150 km 도시다. 20 km 도시는 S파가 P파보다 약 2 초 늦게 와서 경보를 내는 데 드는 몇 초보다 짧다. 150 km 도시는 약 18 초가 남는다.</p><p>경보가 버는 시간은 두 파의 도착 차이에서 경보를 내는 데 드는 시간을 뺀 것이다. 진앙 가까운 곳은 이 값이 0 보다 작아 경보보다 흔들림이 먼저 온다.</p></div></div><div class="check" data-depth="deep"><p class="q">어느 단층 구간에 지난 100 년 동안 큰 지진이 없었다. 이 구간을 안전하다고 볼 수 없는 이유는?</p><button type="button" class="btn" data-answer="ans-6" aria-expanded="false" aria-controls="ans-6">답 보기</button><div class="answer" id="ans-6" hidden><p><strong>답</strong> 판이 계속 움직이는 한 붙어 있는 단층에는 응력이 쌓인다. 오래 조용했다는 것은 쌓인 응력이 풀리지 않았다는 뜻일 수 있다.</p><p>그 구간이 크리프로 조금씩 미끄러지고 있다면 응력이 덜 쌓인다. 어느 쪽인지는 위성 위치 측정으로 단층 양쪽이 붙어 움직이는지 재야 가린다.</p></div></div></details><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section>
+    <footer class="foot">
+      <section class="sources-box" id="sources" aria-labelledby="sources-h">
+        <h2 id="sources-h">출처</h2>
+        <ol class="sources"><li id="src-usgs-faq"><a href="https://www.usgs.gov/faqs/can-you-predict-earthquakes" rel="noopener noreferrer">USGS, Can you predict earthquakes?</a></li><li id="src-usgs-mag"><a href="https://www.usgs.gov/programs/earthquake-hazards/earthquake-magnitude-energy-release-and-shaking-intensity" rel="noopener noreferrer">USGS, Earthquake Magnitude, Energy Release, and Shaking Intensity</a></li><li id="src-parkfield"><a href="https://earthquake.usgs.gov/learn/parkfield/" rel="noopener noreferrer">USGS, The Parkfield, California, Earthquake Experiment</a></li><li id="src-kma"><a href="https://www.weather.go.kr/pews/man/m.html" rel="noopener noreferrer">기상청 날씨누리, 사용자 맞춤형 지진정보서비스 도움말</a></li><li id="src-pohang">포항지진 정부조사연구단, 조사 결과 발표 (2019년 3월 20일) <span class="muted">대한지질학회 주관 발표다. 원문 주소는 확인하지 못했다.</span></li></ol>
+      </section>
+      <button type="button" class="btn" data-reset>초기화</button>
+    </footer>
+  </main>
+</div>
+<script>
+(function () {
+  "use strict";
+  var LEVELS = ["overview", "standard", "deep"];
+  var LABEL = { overview: "개요", standard: "표준", deep: "심층" };
+  var body = document.body;
+  var sections = Array.prototype.slice.call(document.querySelectorAll(".sec"));
+  var global = 0;
+  var local = {};
+  var all = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
+  var idx = function (d) { return Math.max(0, LEVELS.indexOf(d)); };
+
+  function anchor() {
+    var top = document.querySelector(".top").getBoundingClientRect().bottom + 8;
+    var candidates = all(".sec-head, .block, .rung, .limit-group, .principles > li, .lead");
+    for (var i = 0; i < candidates.length; i++) {
+      var r = candidates[i].getBoundingClientRect();
+      if (r.bottom > top && r.height > 0) return { el: candidates[i], y: r.top };
+    }
+    return null;
+  }
+
+  function apply(keep) {
+    var a = keep ? anchor() : null;
+    body.setAttribute("data-zoom", LEVELS[global]);
+    all(".seg").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-zoom") === LEVELS[global])); });
+    sections.forEach(function (sec) {
+      var lv = Math.max(global, local[sec.id] || 0);
+      sec.setAttribute("data-level", LEVELS[lv]);
+      var hidden = all("[data-depth]", sec).filter(function (el) { return idx(el.getAttribute("data-depth")) > lv; });
+      var more = sec.querySelector("[data-more]");
+      var next = Math.min.apply(null, hidden.map(function (el) { return idx(el.getAttribute("data-depth")); }).concat([3]));
+      more.hidden = next > 2;
+      more.setAttribute("data-next", String(next));
+      if (next <= 2) more.textContent = LABEL[LEVELS[next]] + "까지 더 보기";
+      var b = sec.querySelector(".sec-body");
+      var hint = b.querySelector(".empty-hint");
+      var shown = all(":scope > *", b).filter(function (el) {
+        return el !== hint && !(el.hasAttribute("data-depth") && idx(el.getAttribute("data-depth")) > lv);
+      });
+      hint.hidden = shown.length > 0;
+    });
+    if (a && a.el.getBoundingClientRect().height > 0) window.scrollBy({ top: a.el.getBoundingClientRect().top - a.y, behavior: "instant" });
+  }
+
+  all(".seg").forEach(function (b) {
+    b.addEventListener("click", function () {
+      global = idx(b.getAttribute("data-zoom"));
+      local = {};
+      apply(true);
+    });
+  });
+
+  sections.forEach(function (sec) {
+    sec.querySelector("[data-more]").addEventListener("click", function () {
+      local[sec.id] = Number(sec.querySelector("[data-more]").getAttribute("data-next"));
+      apply(false);
+      var more = sec.querySelector("[data-more]");
+      (more.hidden ? sec.querySelector("[data-fold]") : more).focus();
+    });
+    var fold = sec.querySelector("[data-fold]");
+    var name = sec.querySelector("h2").textContent;
+    fold.addEventListener("click", function () {
+      var folded = sec.classList.toggle("folded");
+      fold.setAttribute("aria-expanded", String(!folded));
+      fold.textContent = folded ? "펼치기" : "접기";
+      fold.setAttribute("aria-label", name + (folded ? " 펼치기" : " 접기"));
+    });
+  });
+
+  function pick(trigger) {
+    var scope = trigger.closest(".ladder, .block");
+    var id = trigger.getAttribute("data-pick");
+    var panel = scope.querySelector('[data-panel="' + id + '"]');
+    var open = panel && panel.hidden;
+    all("[data-panel]", scope).forEach(function (p) { p.hidden = true; });
+    all("[data-pick]", scope).forEach(function (t) {
+      var on = open && t.getAttribute("data-pick") === id;
+      t.setAttribute(t.tagName === "BUTTON" ? "aria-expanded" : "aria-pressed", String(on));
+    });
+    if (panel) panel.hidden = !open;
+    if (document.activeElement !== trigger) trigger.focus({ preventScroll: true });
+  }
+  all("[data-pick]").forEach(function (t) {
+    t.addEventListener("click", function () { pick(t); });
+    if (t.tagName !== "BUTTON") {
+      t.addEventListener("keydown", function (ev) {
+        if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); pick(t); }
+      });
+    }
+  });
+
+  all("[data-answer]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var a = document.getElementById(b.getAttribute("data-answer"));
+      a.hidden = !a.hidden;
+      b.setAttribute("aria-expanded", String(!a.hidden));
+      b.textContent = a.hidden ? "답 보기" : "답 숨기기";
+    });
+  });
+
+  all("[data-scenario]").forEach(function (r) {
+    r.addEventListener("change", function () {
+      var out = document.querySelector('[data-outcome="' + r.getAttribute("data-scenario") + '"]');
+      out.querySelector(".hint").hidden = true;
+      all("[data-option]", out).forEach(function (o) { o.hidden = o.getAttribute("data-option") !== r.value; });
+    });
+  });
+
+  var toc = document.querySelector(".toc");
+  var tocBtn = toc.querySelector(".toc-toggle");
+  function setToc(open) {
+    toc.classList.toggle("open", open);
+    tocBtn.setAttribute("aria-expanded", String(open));
+  }
+  tocBtn.addEventListener("click", function () { setToc(!toc.classList.contains("open")); });
+  all(".toc a").forEach(function (a) {
+    a.addEventListener("click", function () {
+      var sec = document.querySelector(a.getAttribute("href"));
+      if (sec && sec.classList.contains("folded")) sec.querySelector("[data-fold]").click();
+      setToc(false);
+    });
+  });
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        all(".toc a").forEach(function (a) { a.setAttribute("aria-current", String(a.getAttribute("href") === "#" + en.target.id)); });
+      });
+    }, { rootMargin: "-30% 0px -60% 0px" });
+    sections.forEach(function (s) { io.observe(s); });
+  }
+
+  document.querySelector("[data-reset]").addEventListener("click", function () {
+    global = 0;
+    local = {};
+    all(".sec.folded [data-fold]").forEach(function (f) { f.click(); });
+    all("[data-panel]").forEach(function (p) { p.hidden = true; });
+    all("[data-pick]").forEach(function (t) { t.setAttribute(t.tagName === "BUTTON" ? "aria-expanded" : "aria-pressed", "false"); });
+    all("[data-answer]").forEach(function (b) {
+      document.getElementById(b.getAttribute("data-answer")).hidden = true;
+      b.setAttribute("aria-expanded", "false");
+      b.textContent = "답 보기";
+    });
+    all("[data-scenario]").forEach(function (r) { r.checked = false; });
+    all("[data-outcome]").forEach(function (o) {
+      o.querySelector(".hint").hidden = false;
+      all("[data-option]", o).forEach(function (x) { x.hidden = true; });
+    });
+    all("details").forEach(function (d) { d.open = false; });
+    setToc(false);
+    apply(false);
+    window.scrollTo({ top: 0, behavior: "instant" });
+    document.querySelector('.seg[data-zoom="overview"]').focus({ preventScroll: true });
+  });
+
+  apply(false);
+})();
+
+</script>
+</body>
+</html>
