@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'sha256-__CSP_HASH__'; img-src data:; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>__TITLE__</title>
+<style>
+__STYLES__
+</style>
+</head>
+<body data-zoom="overview">
+<a class="skip" href="#s1">본문으로</a>
+<header class="top">
+  <div class="top-in">
+    <div class="brand">UNDERSTAND</div>
+    <h1>__TITLE__</h1>
+    <div class="zoom" role="group" aria-label="탐색 깊이">
+      <button type="button" class="seg" data-zoom="overview" aria-pressed="true">개요</button>
+      <button type="button" class="seg" data-zoom="standard" aria-pressed="false">표준</button>
+      <button type="button" class="seg" data-zoom="deep" aria-pressed="false">심층</button>
+    </div>
+  </div>
+</header>
+<div class="frame">
+  <nav class="toc" aria-label="목차">
+    <button type="button" class="btn toc-toggle" aria-expanded="false" aria-controls="toc-list">목차</button>
+    <ol id="toc-list">__NAV__</ol>
+  </nav>
+  <main>
+__SECTIONS__
+    <footer class="foot">
+      <section class="sources-box" id="sources" aria-labelledby="sources-h">
+        <h2 id="sources-h">출처</h2>
+        __SOURCES__
+      </section>
+      <button type="button" class="btn" data-reset>초기화</button>
+    </footer>
+  </main>
+</div>
+<script>
+__SCRIPT__
+</script>
+</body>
+</html>

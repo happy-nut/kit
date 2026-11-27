@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'sha256-+r7cGWV/QF0uiwDw6OvXw3/AA4hvWKcj8pdJVpf7FyU='; img-src data:; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>코드 리뷰 필수화를 두고 엇갈린 두 주장</title>
+<style>
+:root {
+  --bg: #fbfbfa; --surface: #ffffff; --fg: #1c1d1f; --muted: #5d6168; --line: #dcdee2; --line-strong: #b9bdc4;
+  --accent: #1f5fbf; --accent-fg: #ffffff; --accent-weak: #e8eff9; --focus: #1f5fbf;
+  --tag-bg: #f0f1f3; --warn-bg: #fbf3e4; --warn-fg: #7a4b00;
+  --f-xs: 13px; --f-s: 15px; --f-m: 17px; --f-l: 22px;
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px;
+  --measure: 46rem; --radius: 6px;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15171a; --surface: #1d2024; --fg: #e8e9eb; --muted: #a3a8b0; --line: #33373d; --line-strong: #4a5058;
+    --accent: #7fb0ff; --accent-fg: #0d1420; --accent-weak: #1f2b3d; --focus: #7fb0ff;
+    --tag-bg: #2a2e34; --warn-bg: #3a2f1b; --warn-fg: #f1c57a;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #15171a; --surface: #1d2024; --fg: #e8e9eb; --muted: #a3a8b0; --line: #33373d; --line-strong: #4a5058;
+  --accent: #7fb0ff; --accent-fg: #0d1420; --accent-weak: #1f2b3d; --focus: #7fb0ff;
+  --tag-bg: #2a2e34; --warn-bg: #3a2f1b; --warn-fg: #f1c57a;
+}
+* { box-sizing: border-box; }
+html { scroll-padding-top: 120px; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: var(--f-s)/1.65 -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", system-ui, sans-serif; word-break: keep-all; overflow-wrap: anywhere; }
+p { margin: 0 0 var(--s2); }
+h1, h2, h3 { margin: 0; line-height: 1.35; }
+h3 { font-size: var(--f-s); margin: var(--s4) 0 var(--s2); }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.skip { position: absolute; left: -999px; }
+.skip:focus { left: var(--s4); top: var(--s2); z-index: 10; background: var(--surface); padding: var(--s2); }
+[hidden] { display: none !important; }
+
+.top { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); }
+.top-in { max-width: 72rem; margin: 0 auto; padding: var(--s3) var(--s4); display: grid; grid-template-columns: 1fr auto; grid-template-areas: "brand zoom" "title zoom"; column-gap: var(--s4); align-items: center; }
+.brand { grid-area: brand; font-size: var(--f-xs); letter-spacing: .12em; color: var(--muted); font-weight: 600; }
+.top h1 { grid-area: title; font-size: var(--f-l); }
+.zoom { grid-area: zoom; display: inline-flex; border: 1px solid var(--line-strong); border-radius: var(--radius); overflow: hidden; }
+.seg { font: inherit; font-size: var(--f-xs); padding: var(--s2) var(--s3); min-height: 36px; border: 0; background: var(--surface); color: var(--fg); cursor: pointer; }
+.seg + .seg { border-left: 1px solid var(--line-strong); }
+.seg[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); font-weight: 600; }
+
+.frame { max-width: 72rem; margin: 0 auto; padding: 0 var(--s4); display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: var(--s6); }
+.toc { position: sticky; top: 104px; align-self: start; padding-top: var(--s6); }
+.toc ol { list-style: none; margin: 0; padding: 0; }
+.toc a { display: flex; gap: var(--s2); padding: var(--s1) 0; color: var(--muted); text-decoration: none; font-size: var(--f-xs); }
+.toc a:hover, .toc a[aria-current="true"] { color: var(--fg); }
+.toc-toggle { display: none; }
+main { max-width: var(--measure); padding: var(--s5) 0 var(--s7); min-width: 0; }
+
+.sec { padding: var(--s5) 0; border-bottom: 1px solid var(--line); }
+.sec-head { display: flex; align-items: center; gap: var(--s3); margin-bottom: var(--s3); }
+.sec-head h2 { font-size: var(--f-m); flex: 1; }
+.sec-num { font-variant-numeric: tabular-nums; color: var(--muted); font-size: var(--f-xs); font-weight: 600; min-width: 1.6em; }
+.sec.folded .sec-body { display: none; }
+.lead { font-size: var(--f-m); font-weight: 600; }
+.hint, .basis, .muted { color: var(--muted); font-size: var(--f-xs); }
+
+.btn { font: inherit; font-size: var(--f-xs); min-height: 32px; padding: var(--s1) var(--s3); border: 1px solid var(--line-strong); border-radius: var(--radius); background: var(--surface); color: var(--fg); cursor: pointer; }
+.btn:hover { border-color: var(--accent); }
+.btn[aria-expanded="true"]:not([data-fold]) { background: var(--accent-weak); }
+
+.tag { display: inline-block; font-size: 12px; line-height: 1.4; padding: 0 var(--s1); margin-left: var(--s1); border-radius: 3px; background: var(--tag-bg); color: var(--muted); font-weight: 600; vertical-align: 1px; white-space: nowrap; }
+.tag-unknown, .tag-assumption { background: var(--warn-bg); color: var(--warn-fg); }
+.ref { font-size: 11px; margin-left: 2px; }
+.ref a { text-decoration: none; }
+
+.ladder { display: grid; gap: var(--s3); }
+.rung { display: grid; grid-template-columns: 2.2rem minmax(0, 1fr); gap: var(--s2); }
+.rung-name { font-size: 12px; color: var(--muted); font-weight: 600; padding-top: 3px; }
+.rung-1 > div { border-left: 3px solid var(--accent); padding-left: var(--s3); }
+.rung-1 p { margin: 0; color: var(--muted); }
+.rel { display: block; font-size: var(--f-xs); color: var(--muted); margin-bottom: var(--s2); }
+.picks { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: var(--s2); }
+.pick { font: inherit; text-align: left; padding: var(--s3); border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--fg); cursor: pointer; display: grid; gap: var(--s1); align-content: start; }
+.pick:hover { border-color: var(--line-strong); }
+.pick[aria-expanded="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.pick-label { font-weight: 600; }
+.pick-sum { font-size: var(--f-xs); color: var(--muted); }
+.panel { margin-top: var(--s3); padding: var(--s3) var(--s4); border-left: 3px solid var(--accent); background: var(--surface); }
+.panel-title { font-weight: 600; }
+.l3 { list-style: none; margin: var(--s3) 0 0; padding: 0; display: grid; gap: var(--s2); }
+.l3 li { display: grid; grid-template-columns: 2.2rem minmax(0, 1fr); gap: var(--s2); }
+.more-detail { margin-top: var(--s1); }
+summary { cursor: pointer; color: var(--accent); font-size: var(--f-xs); }
+
+.diagram { margin: var(--s4) 0 0; overflow-x: auto; }
+.diagram svg { display: block; max-width: 100%; height: auto; margin: 0 auto; font: 14px -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif; }
+.diagram .edge { fill: none; stroke: var(--line-strong); stroke-width: 1.5; }
+.diagram .arrow { fill: var(--line-strong); }
+.diagram .edge-label rect { fill: var(--bg); }
+.diagram .edge-label text { fill: var(--muted); font-size: 12px; }
+.diagram .node rect { fill: var(--surface); stroke: var(--line-strong); }
+.diagram .node text { fill: var(--fg); }
+.diagram .node { cursor: pointer; }
+.diagram .node:hover rect, .diagram .node[aria-pressed="true"] rect { stroke: var(--accent); stroke-width: 2; }
+.diagram .node:focus-visible { outline: none; }
+.diagram .node:focus-visible rect { stroke: var(--focus); stroke-width: 3; }
+
+.block { margin-bottom: var(--s4); }
+.block > h3:first-child { margin-top: 0; }
+.steps { margin: 0; padding-left: 1.4em; display: grid; gap: var(--s2); }
+.steps strong { margin-right: var(--s2); }
+.example { padding: var(--s3) var(--s4); border: 1px dashed var(--line-strong); border-radius: var(--radius); }
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: var(--f-xs); }
+th, td { text-align: left; vertical-align: top; padding: var(--s2); border-bottom: 1px solid var(--line); }
+thead th { color: var(--muted); font-weight: 600; }
+tbody th { font-weight: 600; white-space: nowrap; }
+
+.limit-group h3 { margin-top: var(--s3); color: var(--muted); font-size: var(--f-xs); }
+.limit-group ul, .principles { margin: 0; padding-left: 1.2em; }
+.limit-group li { margin-bottom: var(--s1); }
+.scenario { margin: var(--s4) 0 0; border: 1px solid var(--line); border-radius: var(--radius); padding: var(--s3) var(--s4); }
+.scenario legend { font-weight: 600; padding: 0 var(--s1); }
+.choices { display: flex; flex-wrap: wrap; gap: var(--s2); margin: var(--s2) 0 var(--s3); }
+.choice { display: inline-flex; align-items: center; gap: var(--s1); padding: var(--s1) var(--s3); min-height: 36px; border: 1px solid var(--line-strong); border-radius: var(--radius); cursor: pointer; font-size: var(--f-xs); }
+.choice:has(input:checked) { border-color: var(--accent); background: var(--accent-weak); }
+.choice input { margin: 0; accent-color: var(--accent); }
+.outcome { border-top: 1px solid var(--line); padding-top: var(--s3); }
+
+.principles li { margin-bottom: var(--s4); }
+.statement { font-weight: 600; }
+.k { font-size: var(--f-xs); color: var(--muted); font-weight: 600; margin-right: var(--s1); }
+.checks { margin-top: var(--s5); padding: var(--s3) var(--s4); border: 1px solid var(--line); border-radius: var(--radius); }
+.checks > summary { font-size: var(--f-s); font-weight: 600; }
+.check { margin-top: var(--s3); padding-top: var(--s3); border-top: 1px solid var(--line); }
+.q { font-weight: 600; }
+.answer { margin-top: var(--s2); }
+.na summary { color: var(--muted); }
+
+.foot { padding: var(--s5) 0; display: grid; gap: var(--s4); justify-items: start; }
+.foot h2 { font-size: var(--f-s); margin-bottom: var(--s2); }
+.sources { margin: 0; padding-left: 1.4em; font-size: var(--f-xs); }
+
+.sec[data-level="overview"] [data-depth="standard"],
+.sec[data-level="overview"] [data-depth="deep"],
+.sec[data-level="standard"] [data-depth="deep"] { display: none !important; }
+
+@media (max-width: 760px) {
+  .top-in { grid-template-columns: 1fr; grid-template-areas: "brand" "title" "zoom"; row-gap: var(--s2); padding: var(--s2) var(--s4); }
+  .top h1 { font-size: var(--f-m); }
+  .zoom { justify-self: stretch; }
+  .seg { flex: 1; }
+  .frame { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .toc { position: static; padding-top: var(--s3); }
+  .toc-toggle { display: inline-block; }
+  .toc ol { display: none; margin-top: var(--s2); }
+  .toc.open ol { display: block; }
+  main { padding-top: var(--s2); }
+  html { scroll-padding-top: 150px; }
+  .picks { grid-template-columns: minmax(0, 1fr); }
+  .sec-head { flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+@media print { .top, .toc, .btn, [data-reset] { display: none; } .sec[data-level] [data-depth] { display: block !important; } }
+
+</style>
+</head>
+<body data-zoom="overview">
+<a class="skip" href="#s1">본문으로</a>
+<header class="top">
+  <div class="top-in">
+    <div class="brand">UNDERSTAND</div>
+    <h1>코드 리뷰 필수화를 두고 엇갈린 두 주장</h1>
+    <div class="zoom" role="group" aria-label="탐색 깊이">
+      <button type="button" class="seg" data-zoom="overview" aria-pressed="true">개요</button>
+      <button type="button" class="seg" data-zoom="standard" aria-pressed="false">표준</button>
+      <button type="button" class="seg" data-zoom="deep" aria-pressed="false">심층</button>
+    </div>
+  </div>
+</header>
+<div class="frame">
+  <nav class="toc" aria-label="목차">
+    <button type="button" class="btn toc-toggle" aria-expanded="false" aria-controls="toc-list">목차</button>
+    <ol id="toc-list"><li><a href="#s1"><span class="sec-num">01</span>본질</a></li><li><a href="#s2"><span class="sec-num">02</span>전체 구조</a></li><li><a href="#s3"><span class="sec-num">03</span>작동 원리</a></li><li><a href="#s4"><span class="sec-num">04</span>조건과 한계</a></li><li><a href="#s5"><span class="sec-num">05</span>기억할 원리</a></li></ol>
+  </nav>
+  <main>
+<section class="sec" id="s1" data-level="overview" aria-labelledby="s1-h"><div class="sec-head"><span class="sec-num">01</span><h2 id="s1-h">본질</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s1-b" aria-label="본질 접기">접기</button></div><div class="sec-body" id="s1-b"><p class="lead">두 글은 코드 리뷰 필수화의 효과를 두고 반대 결론을 내지만, 서로 다른 지표로 서로 다른 조건의 조직에서 잰 결과라 한쪽이 다른 쪽을 바로 반박하지 못한다.<sup class="ref"><a href="#src-posts" aria-label="출처 1">1</a></sup></p><p>글 A 는 필수 리뷰 뒤에 장애가 줄었는지만 쟀고, 글 B 는 줄어든 결함과 늦어진 배포를 함께 쟀다.</p><p>어느 쪽이 더 맞는지는 글 A 의 연도별 배포 횟수와 글 B 의 실제 롤백 건수가 나와야 좁혀진다.</p><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section><section class="sec" id="s2" data-level="overview" aria-labelledby="s2-h"><div class="sec-head"><span class="sec-num">02</span><h2 id="s2-h">전체 구조</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s2-b" aria-label="전체 구조 접기">접기</button></div><div class="sec-body" id="s2-b"><div class="ladder"><div class="rung rung-1"><span class="rung-name">L1</span><div><strong>반대 결론, 다른 측정</strong><p>두 글의 숫자는 각자 맞을 수 있다. 갈리는 것은 무엇을 결함으로 셌고 어떤 조직에서 쟀는가이다.</p></div></div><div class="rung rung-2"><span class="rung-name">L2</span><div><span class="rel">두 주장과 각자의 근거</span><div class="picks" role="group" aria-label="주요 구조"><button type="button" class="pick" data-pick="a" aria-expanded="false" aria-controls="panel-a"><span class="pick-label">글 A 필수 리뷰 찬성</span><span class="pick-sum">필수 리뷰가 운영 장애로 이어지는 결함을 줄인다고 주장한다.</span></button><button type="button" class="pick" data-pick="b" aria-expanded="false" aria-controls="panel-b"><span class="pick-label">글 B 필수 리뷰 반대</span><span class="pick-sum">필수 리뷰는 배포를 크게 늦추고 결함은 조금만 줄인다고 주장한다.</span></button></div><figure class="diagram"><svg viewBox="0 0 198 168" width="198" style="min-width:158px" role="img" aria-labelledby="dg-1-t" preserveAspectRatio="xMidYMin meet"><title id="dg-1-t">글 A 필수 리뷰 찬성 · 글 B 필수 리뷰 반대 관계도</title><defs><marker id="dg-1-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow"/></marker></defs><path d="M99.0,52.0 C99.0,84.0 99.0,84.0 99.0,114.0" class="edge" marker-end="url(#dg-1-a)"/><g class="edge-label"><rect x="81.0" y="74.0" width="36.0" height="20" rx="3"/><text x="99.0" y="88.0" text-anchor="middle">반박</text></g><g class="node" tabindex="0" role="button" data-pick="a" aria-label="글 A 필수 리뷰 찬성"><rect x="16.0" y="116.0" width="166.0" height="36" rx="4"/><text x="99.0" y="139.0" text-anchor="middle">글 A 필수 리뷰 찬성</text></g><g class="node" tabindex="0" role="button" data-pick="b" aria-label="글 B 필수 리뷰 반대"><rect x="16.0" y="16.0" width="166.0" height="36" rx="4"/><text x="99.0" y="39.0" text-anchor="middle">글 B 필수 리뷰 반대</text></g></svg></figure><div class="panel" id="panel-a" data-panel="a" hidden><p class="panel-title">글 A 필수 리뷰 찬성<sup class="ref"><a href="#src-posts" aria-label="출처 1">1</a></sup></p><p>결론은 규모와 상관없이 모든 조직이 리뷰를 필수로 해야 한다는 것이다.</p><ul class="l3"><li data-depth="standard"><span class="rung-name">L3</span><div><strong>장애 46건에서 29건</strong><sup class="ref"><a href="#src-posts" aria-label="출처 1">1</a></sup> <span>운영 장애로 이어진 결함이 2023년에서 2025년 사이 37% 줄었다.</span></div></li><li data-depth="standard"><span class="rung-name">L3</span><div><strong>버그 태그 약 1,200개</strong><sup class="ref"><a href="#src-posts" aria-label="출처 1">1</a></sup> <span>2025년 리뷰 코멘트 가운데 버그 태그가 약 1,200개다. 글 A 는 이만큼의 결함이 걸러졌다고 본다.</span></div></li><li data-depth="standard"><span class="rung-name">L3</span><div><strong>남의 코드의 부작용</strong><sup class="ref"><a href="#src-posts" aria-label="출처 1">1</a></sup> <span>40개 팀이 한 결제 코드베이스를 고쳐서, 그 코드를 아는 리뷰어가 부작용을 잡는다고 설명한다.</span></div></li></ul></div><div class="panel" id="panel-b" data-panel="b" hidden><p class="panel-title">글 B 필수 리뷰 반대<sup class="ref"><a href="#src-posts" aria-label="출처 1">1</a></sup></p><p>결론은 리뷰를 위험한 변경에만 요청하면 된다는 것이다.</p><ul class="l3"><li data-depth="standard"><span class="rung-name">L3</span><div><strong>병합 3시간에서 19시간</strong><sup class="ref"><a href="#src-posts" aria-label="출처 1">1</a></sup> <span>필수 리뷰 6개월 동안 병합까지 걸린 시간의 중앙값이 늘고, 주당 배포가 40회에서 22회로 줄었다.</span></div></li><li data-depth="standard"><span class="rung-name">L3</span><div><strong>롤백 4.1%에서 3.8%</strong><sup class="ref"><a href="#src-posts" aria-label="출처 1">1</a></sup> <span>배포 뒤 롤백 비율은 거의 그대로였고, 필수 리뷰를 그만둔 뒤에는 3.9%였다.</span></div></li><li data-depth="standard"><span class="rung-name">L3</span><div><strong>작은 PR과 빠른 롤백</strong><sup class="ref"><a href="#src-posts" aria-label="출처 1">1</a></sup> <span>결함을 줄이는 것은 리뷰보다 작은 PR, 자동 테스트, 빠른 롤백이라고 본다.</span></div></li></ul></div></div></div></div><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section><section class="sec" id="s3" data-level="overview" aria-labelledby="s3-h"><div class="sec-head"><span class="sec-num">03</span><h2 id="s3-h">작동 원리</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s3-b" aria-label="작동 원리 접기">접기</button></div><div class="sec-body" id="s3-b"><div class="block"><h3>두 주장이 갈리는 자리<sup class="ref"><a href="#src-posts" aria-label="출처 1">1</a></sup></h3><p class="basis">비교 기준: 같은 항목을 두 글이 어떻게 쟀는지 견준다</p><div class="table-wrap" tabindex="0"><table><thead><tr><th scope="col"></th><th scope="col">글 A</th><th scope="col">글 B</th><th scope="col">결론에 주는 영향</th></tr></thead><tbody><tr><th scope="row">결함의 정의</th><td>운영 장애로 이어진 결함</td><td>배포 뒤 롤백한 변경</td><td>A 는 장애가 난 결함만, B 는 되돌린 변경 전부를 센다.</td></tr><tr><th scope="row">지표의 분모</th><td>한 해 건수</td><td>배포 대비 비율</td><td>배포가 줄면 건수는 결함률이 그대로여도 준다.</td></tr><tr><th scope="row">비용 측정</th><td>재지 않았다.</td><td>병합 시간과 배포 횟수를 쟀다.</td><td>속도를 잃는 값은 B 에서만 따질 수 있다.</td></tr><tr><th scope="row">조직 조건</th><td>약 300명, 40개 팀, 한 결제 코드베이스</td><td>25명, 4개 팀, 자동 테스트와 기능 플래그</td><td>A 가 든 효과의 이유는 여러 팀이 한 코드를 고치는 조건에 기댄다.</td></tr><tr><th scope="row">기간과 표본</th><td>2023년과 2025년 두 해</td><td>필수 리뷰 6개월과 앞뒤 6개월씩</td><td>A 는 두 해 사이의 다른 변화가 섞이고, B 는 롤백 건수가 적어 우연이 섞인다.</td></tr><tr><th scope="row">함께 바뀐 것</th><td>테스트 커버리지 52%에서 71%</td><td>적혀 있지 않다.</td><td>A 의 장애 감소를 리뷰 하나의 효과로 볼 수 없다.</td></tr></tbody></table></div></div><div class="block example" data-depth="standard"><h3>건수와 비율이 갈리는 최소 사례 <span class="tag tag-example">지어낸 예시</span></h3><p>한 해 배포가 1,000회이고 배포당 장애율이 4.6%면 장애는 46건이다.</p><p>다음 해 배포가 500회로 줄고 장애율이 5.8%로 올라도 장애는 29건이 된다.</p><p>건수만 보면 37% 줄었지만 배포 1회당 장애는 늘었다.</p></div><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section><section class="sec" id="s4" data-level="overview" aria-labelledby="s4-h"><div class="sec-head"><span class="sec-num">04</span><h2 id="s4-h">조건과 한계</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s4-b" aria-label="조건과 한계 접기">접기</button></div><div class="sec-body" id="s4-b"><div class="limit-group" data-kind="premise" data-depth="standard"><h3>핵심 전제</h3><ul><li data-depth="standard">글 B 의 결론은 작은 PR, 자동 테스트, 빠른 롤백이 리뷰를 대신한다는 전제에 기댄다. 글 B 는 이 전제를 받치는 숫자를 내지 않았다.<sup class="ref"><a href="#src-posts" aria-label="출처 1">1</a></sup></li></ul></div><div class="limit-group" data-kind="tradeoff" data-depth="standard"><h3>트레이드오프</h3><ul><li data-depth="standard">필수 리뷰는 배포 전에 결함을 잡을 기회를 주는 대신 병합을 늦춘다. 어느 쪽이 큰지는 결함 한 건의 비용과 되돌리는 데 드는 시간에 달려 있다. <span class="tag tag-inference">추론</span></li></ul></div><div class="limit-group" data-kind="boundary" data-depth="standard"><h3>적용 한계</h3><ul><li data-depth="standard">버그 태그 1,200개는 리뷰어가 버그라고 표시한 코멘트 수다. 그 가운데 운영 장애로 이어졌을 결함이 몇 개인지는 알 수 없다.<sup class="ref"><a href="#src-posts" aria-label="출처 1">1</a></sup></li><li data-depth="standard">글 A 는 한 조직의 결과로 모든 조직을 말한다. 글 A 의 근거가 닿는 범위는 여러 팀이 한 코드베이스를 함께 고치는 조직까지다.<sup class="ref"><a href="#src-posts" aria-label="출처 1">1</a></sup></li></ul></div><div class="limit-group" data-kind="unknown"><h3>확인되지 않은 것</h3><ul><li>글 A 는 연도별 배포 횟수를 적지 않았다. 배포가 37% 넘게 줄었다면 배포 1회당 장애는 줄지 않았고, 글 A 의 핵심 근거가 무너진다.<sup class="ref"><a href="#src-posts" aria-label="출처 1">1</a></sup></li><li data-depth="standard">글 B 는 롤백 건수를 적지 않았다. 주 22회씩 26주면 배포는 약 570회, 3.8%면 롤백은 약 22건이다. 이 정도 건수에서 4.1%와 3.8%의 차이는 우연과 가르기 어렵다. <span class="tag tag-inference">추론</span><sup class="ref"><a href="#src-posts" aria-label="출처 1">1</a></sup></li><li data-depth="standard">글 A 에서 테스트 커버리지가 오른 시점과 장애가 준 시점이 적혀 있지 않다. 두 시점이 나오면 장애 감소에서 리뷰의 몫을 가늠할 수 있다.<sup class="ref"><a href="#src-posts" aria-label="출처 1">1</a></sup></li><li data-depth="standard">글 B 의 롤백 가운데 운영 장애로 이어진 것이 몇 건인지 적혀 있지 않다. 장애만 따로 세면 필수 리뷰 기간의 차이가 다르게 나올 수 있다.<sup class="ref"><a href="#src-posts" aria-label="출처 1">1</a></sup></li></ul></div><fieldset class="scenario"><legend>조직이 어떤 조건이면 어느 주장이 더 맞을까?</legend><div class="choices"><label class="choice"><input type="radio" name="sc-2" value="0" data-scenario="sc-2"><span>여러 팀이 한 코드를 고친다</span></label><label class="choice"><input type="radio" name="sc-2" value="1" data-scenario="sc-2"><span>작은 팀, 빠른 롤백 수단</span></label><label class="choice"><input type="radio" name="sc-2" value="2" data-scenario="sc-2"><span>장애 한 건의 손실이 크다</span></label></div><div class="outcome" aria-live="polite" data-outcome="sc-2"><p class="hint">조건을 고르면 결과와 이유가 보인다.</p><div data-option="0" hidden><p><strong>결과</strong> 글 A 쪽이 더 맞을 가능성이 크다. <span class="tag tag-inference">추론</span></p><p><strong>이유</strong> 글 A 가 든 효과의 이유가 이 조건이다. 남의 코드를 고칠 때 생기는 부작용을 그 코드를 아는 리뷰어가 잡는다.</p></div><div data-option="1" hidden><p><strong>결과</strong> 글 B 쪽이 더 맞을 가능성이 크다. <span class="tag tag-inference">추론</span></p><p><strong>이유</strong> 글 B 의 숫자가 이 조건에서 나왔다. 결함을 빨리 되돌릴 수 있으면 배포 전에 잡는 값이 작아진다.</p></div><div data-option="2" hidden><p><strong>결과</strong> 결함 감소 폭이 작아도 필수 리뷰가 값을 할 수 있다. <span class="tag tag-inference">추론</span></p><p><strong>이유</strong> 글 B 는 감소 폭이 작다고 했지만, 장애 한 건의 손실이 늦어진 배포의 손실보다 크면 계산이 뒤집힌다.</p></div></div></fieldset><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section><section class="sec" id="s5" data-level="overview" aria-labelledby="s5-h"><div class="sec-head"><span class="sec-num">05</span><h2 id="s5-h">기억할 원리</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s5-b" aria-label="기억할 원리 접기">접기</button></div><div class="sec-body" id="s5-b"><ol class="principles"><li><p class="statement">두 자료가 반대 결론을 내면 결과 지표의 정의와 분모가 같은지 먼저 본다.</p><p><span class="k">성립 조건</span> 같은 낱말을 서로 다른 지표로 셀 때 쓴다. 결함, 성과, 이탈 같은 낱말이 흔한 예다.</p><p><span class="k">적용 예</span> 한 보고서는 고객 이탈 건수가 줄었다 하고 다른 보고서는 이탈률이 그대로라 하면, 그 기간 고객 수가 줄었는지부터 본다.</p></li><li><p class="statement">통제 장치의 효과를 볼 때는 그 장치가 줄인 손실과 그 장치가 만든 비용을 함께 잰다. 한쪽만 잰 근거로는 도입 여부를 정할 수 없다.</p><p><span class="k">성립 조건</span> 장치가 품질을 높이는 대신 속도나 처리량을 줄일 때 성립한다.</p><p><span class="k">적용 예</span> 결재 단계를 하나 늘려 오류가 줄었다는 보고가 있으면, 그 단계 때문에 늘어난 처리 시간도 함께 요구한다.</p></li></ol><details class="checks" data-reset-close><summary>이해 확인</summary><p class="basis">먼저 답을 떠올린 뒤 연다.</p><div class="check"><p class="q">글 A 와 글 B 의 숫자가 모두 맞다고 해도 두 결론이 함께 성립할 수 있는 이유는?</p><button type="button" class="btn" data-answer="ans-3" aria-expanded="false" aria-controls="ans-3">답 보기</button><div class="answer" id="ans-3" hidden><p><strong>답</strong> 글 A 는 여러 팀이 한 코드를 고치는 큰 조직에서 장애 건수를 쟀고, 글 B 는 작은 팀에서 배포당 롤백 비율과 속도를 쟀다. 조건과 지표가 달라 두 결과가 서로를 부정하지 않는다.</p><p>두 결론이 부딪히는 것은 각자 자기 조건 밖까지 결론을 넓힐 때다.</p><p>글 A 의 「규모와 상관없이 모든 조직」과 글 B 의 「비용에 비해 효과가 작다」가 그 자리다.</p></div></div><div class="check" data-depth="deep"><p class="q">글 A 회사의 배포 횟수가 2023년에서 2025년 사이 30% 줄었다고 하자. 배포 1회당 장애는 어떻게 바뀌고, 글 A 의 주장은 어떻게 되는가?</p><button type="button" class="btn" data-answer="ans-4" aria-expanded="false" aria-controls="ans-4">답 보기</button><div class="answer" id="ans-4" hidden><p><strong>답</strong> 배포 1회당 장애는 약 10% 준다. 글 A 의 주장은 남지만 감소 폭은 37%가 아니라 약 10%다.</p><p>2025년 장애 29건을 배포 비율 0.7로 나누면 2023년의 46건과 견줄 값은 약 41건이다.</p><p>41건은 46건보다 약 10% 적다.</p></div></div><div class="check" data-depth="deep"><p class="q">「글 B 는 작은 조직이라 결과를 믿을 수 없다」는 반박의 틀린 점은?</p><button type="button" class="btn" data-answer="ans-5" aria-expanded="false" aria-controls="ans-5">답 보기</button><div class="answer" id="ans-5" hidden><p><strong>답</strong> 조직이 작다고 결과가 틀리지는 않는다. 작은 조직이라는 점은 그 결과를 옮길 수 있는 범위를 좁힐 뿐이다. 글 B 에서 따질 약점은 롤백 건수가 적어 차이가 우연일 수 있다는 점이다.</p><p>결과가 맞는지와 결과를 어디까지 옮길 수 있는지는 다른 질문이다.</p></div></div><div class="check" data-depth="deep"><p class="q">디자인 시안에 팀장 승인을 필수로 하자 수정 요청이 줄었다는 보고가 있다. 이 보고를 받아들이기 전에 물을 것 세 가지는?</p><button type="button" class="btn" data-answer="ans-6" aria-expanded="false" aria-controls="ans-6">답 보기</button><div class="answer" id="ans-6" hidden><p><strong>답</strong> 같은 기간 시안 수가 줄었는지, 승인을 기다리느라 늘어난 시간이 얼마인지, 함께 바뀐 다른 절차가 있는지 묻는다.</p><p>분모, 비용, 함께 바뀐 원인은 글 A 와 글 B 가 갈린 자리와 같다.</p></div></div></details><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section>
+    <footer class="foot">
+      <section class="sources-box" id="sources" aria-labelledby="sources-h">
+        <h2 id="sources-h">출처</h2>
+        <ol class="sources"><li id="src-posts">tests/inputs/conflicting-claims.md <span class="muted">서로 다른 회사의 개발 블로그 글 두 편으로 설정한 자료다. 테스트용으로 지어낸 자료다.</span></li></ol>
+      </section>
+      <button type="button" class="btn" data-reset>초기화</button>
+    </footer>
+  </main>
+</div>
+<script>
+(function () {
+  "use strict";
+  var LEVELS = ["overview", "standard", "deep"];
+  var LABEL = { overview: "개요", standard: "표준", deep: "심층" };
+  var body = document.body;
+  var sections = Array.prototype.slice.call(document.querySelectorAll(".sec"));
+  var global = 0;
+  var local = {};
+  var all = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
+  var idx = function (d) { return Math.max(0, LEVELS.indexOf(d)); };
+
+  function anchor() {
+    var top = document.querySelector(".top").getBoundingClientRect().bottom + 8;
+    var candidates = all(".sec-head, .block, .rung, .limit-group, .principles > li, .lead");
+    for (var i = 0; i < candidates.length; i++) {
+      var r = candidates[i].getBoundingClientRect();
+      if (r.bottom > top && r.height > 0) return { el: candidates[i], y: r.top };
+    }
+    return null;
+  }
+
+  function apply(keep) {
+    var a = keep ? anchor() : null;
+    body.setAttribute("data-zoom", LEVELS[global]);
+    all(".seg").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-zoom") === LEVELS[global])); });
+    sections.forEach(function (sec) {
+      var lv = Math.max(global, local[sec.id] || 0);
+      sec.setAttribute("data-level", LEVELS[lv]);
+      var hidden = all("[data-depth]", sec).filter(function (el) { return idx(el.getAttribute("data-depth")) > lv; });
+      var more = sec.querySelector("[data-more]");
+      var next = Math.min.apply(null, hidden.map(function (el) { return idx(el.getAttribute("data-depth")); }).concat([3]));
+      more.hidden = next > 2;
+      more.setAttribute("data-next", String(next));
+      if (next <= 2) more.textContent = LABEL[LEVELS[next]] + "까지 더 보기";
+      var b = sec.querySelector(".sec-body");
+      var hint = b.querySelector(".empty-hint");
+      var shown = all(":scope > *", b).filter(function (el) {
+        return el !== hint && !(el.hasAttribute("data-depth") && idx(el.getAttribute("data-depth")) > lv);
+      });
+      hint.hidden = shown.length > 0;
+    });
+    if (a && a.el.getBoundingClientRect().height > 0) window.scrollBy({ top: a.el.getBoundingClientRect().top - a.y, behavior: "instant" });
+  }
+
+  all(".seg").forEach(function (b) {
+    b.addEventListener("click", function () {
+      global = idx(b.getAttribute("data-zoom"));
+      local = {};
+      apply(true);
+    });
+  });
+
+  sections.forEach(function (sec) {
+    sec.querySelector("[data-more]").addEventListener("click", function () {
+      local[sec.id] = Number(sec.querySelector("[data-more]").getAttribute("data-next"));
+      apply(false);
+      var more = sec.querySelector("[data-more]");
+      (more.hidden ? sec.querySelector("[data-fold]") : more).focus();
+    });
+    var fold = sec.querySelector("[data-fold]");
+    var name = sec.querySelector("h2").textContent;
+    fold.addEventListener("click", function () {
+      var folded = sec.classList.toggle("folded");
+      fold.setAttribute("aria-expanded", String(!folded));
+      fold.textContent = folded ? "펼치기" : "접기";
+      fold.setAttribute("aria-label", name + (folded ? " 펼치기" : " 접기"));
+    });
+  });
+
+  function pick(trigger) {
+    var scope = trigger.closest(".ladder, .block");
+    var id = trigger.getAttribute("data-pick");
+    var panel = scope.querySelector('[data-panel="' + id + '"]');
+    var open = panel && panel.hidden;
+    all("[data-panel]", scope).forEach(function (p) { p.hidden = true; });
+    all("[data-pick]", scope).forEach(function (t) {
+      var on = open && t.getAttribute("data-pick") === id;
+      t.setAttribute(t.tagName === "BUTTON" ? "aria-expanded" : "aria-pressed", String(on));
+    });
+    if (panel) panel.hidden = !open;
+    if (document.activeElement !== trigger) trigger.focus({ preventScroll: true });
+  }
+  all("[data-pick]").forEach(function (t) {
+    t.addEventListener("click", function () { pick(t); });
+    if (t.tagName !== "BUTTON") {
+      t.addEventListener("keydown", function (ev) {
+        if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); pick(t); }
+      });
+    }
+  });
+
+  all("[data-answer]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var a = document.getElementById(b.getAttribute("data-answer"));
+      a.hidden = !a.hidden;
+      b.setAttribute("aria-expanded", String(!a.hidden));
+      b.textContent = a.hidden ? "답 보기" : "답 숨기기";
+    });
+  });
+
+  all("[data-scenario]").forEach(function (r) {
+    r.addEventListener("change", function () {
+      var out = document.querySelector('[data-outcome="' + r.getAttribute("data-scenario") + '"]');
+      out.querySelector(".hint").hidden = true;
+      all("[data-option]", out).forEach(function (o) { o.hidden = o.getAttribute("data-option") !== r.value; });
+    });
+  });
+
+  var toc = document.querySelector(".toc");
+  var tocBtn = toc.querySelector(".toc-toggle");
+  function setToc(open) {
+    toc.classList.toggle("open", open);
+    tocBtn.setAttribute("aria-expanded", String(open));
+  }
+  tocBtn.addEventListener("click", function () { setToc(!toc.classList.contains("open")); });
+  all(".toc a").forEach(function (a) {
+    a.addEventListener("click", function () {
+      var sec = document.querySelector(a.getAttribute("href"));
+      if (sec && sec.classList.contains("folded")) sec.querySelector("[data-fold]").click();
+      setToc(false);
+    });
+  });
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        all(".toc a").forEach(function (a) { a.setAttribute("aria-current", String(a.getAttribute("href") === "#" + en.target.id)); });
+      });
+    }, { rootMargin: "-30% 0px -60% 0px" });
+    sections.forEach(function (s) { io.observe(s); });
+  }
+
+  document.querySelector("[data-reset]").addEventListener("click", function () {
+    global = 0;
+    local = {};
+    all(".sec.folded [data-fold]").forEach(function (f) { f.click(); });
+    all("[data-panel]").forEach(function (p) { p.hidden = true; });
+    all("[data-pick]").forEach(function (t) { t.setAttribute(t.tagName === "BUTTON" ? "aria-expanded" : "aria-pressed", "false"); });
+    all("[data-answer]").forEach(function (b) {
+      document.getElementById(b.getAttribute("data-answer")).hidden = true;
+      b.setAttribute("aria-expanded", "false");
+      b.textContent = "답 보기";
+    });
+    all("[data-scenario]").forEach(function (r) { r.checked = false; });
+    all("[data-outcome]").forEach(function (o) {
+      o.querySelector(".hint").hidden = false;
+      all("[data-option]", o).forEach(function (x) { x.hidden = true; });
+    });
+    all("details").forEach(function (d) { d.open = false; });
+    setToc(false);
+    apply(false);
+    window.scrollTo({ top: 0, behavior: "instant" });
+    document.querySelector('.seg[data-zoom="overview"]').focus({ preventScroll: true });
+  });
+
+  apply(false);
+})();
+
+</script>
+</body>
+</html>
