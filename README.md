@@ -56,7 +56,7 @@ skills/mode/principles.md        원칙 24개. 한 파일에 절마다 "## 영�
 skills/mode/playbooks/           플레이북 22개
 skills/mode/references/          플레이북이 읽는 참고 문서
 skills/mode/scripts/             플레이북이 돌리는 스크립트
-skills/<이름>/SKILL.md           /dev:<이름> 으로 부르는 스킬. mode 를 넣어 39개
+skills/<이름>/SKILL.md           /dev:<이름> 으로 부르는 스킬. mode 를 넣어 40개
 hooks/session-start.sh           대화마다 mode 를 켜고, 격리 검증이 없는 저장소면 verify-setup 을 안내하는 SessionStart 훅
 agents/                          서브에이전트 dev:worker, dev:comment-reviewer
 scripts/check.py                 저장소 검사
@@ -111,6 +111,7 @@ docs/authoring.md                이 저장소를 고치는 규칙
 | `/dev:how` | 코드가 어떻게 도는지, 새 코드를 어디에 둘지 설명한다 |
 | `/dev:why` | 커밋, PR, 이슈에서 근거를 찾아 코드가 왜 이렇게 됐는지 답한다 |
 | `/dev:teach` | 변경이나 하위 시스템을 how 와 why 로 풀어 그림 하나씩 쌓으며 가르친다 |
+| `/dev:explain` | 개념을 목적, 아는 것과의 차이, 최소 사례, 조건 바꾸기로 풀어 스스로 추론하게 하고, 다른 문제에도 쓸 원리로 끝낸다 |
 | `/dev:recall` | 며칠 전 작업의 맥락을 대화 기록에서 되살린다 |
 | `/dev:catchup` | 자리를 비운 사이 바뀐 것과 사용자가 정할 것만 짧게 보고한다 |
 | `/dev:catchup-video` | catchup 을 자막 달린 짧은 영상으로 만든다 |
