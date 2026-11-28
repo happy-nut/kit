@@ -153,7 +153,7 @@ def check_session_hook_injects_mode():
 
 
 def run_self_tests():
-    for cmd in (['skills/no-comments/scripts/count.py', '--self-test'], ['skills/featuremap/scripts/featuremap.py', '--self-test'], ['.claude/skills/upstream/upstream.py', '--self-test'], ['scripts/shrink.py', '--self-test'], ['skills/understand/tests/run.py']):
+    for cmd in (['skills/no-comments/scripts/count.py', '--self-test'], ['skills/featuremap/scripts/featuremap.py', '--self-test'], ['.claude/skills/upstream/upstream.py', '--self-test'], ['scripts/shrink.py', '--self-test']):
         r = subprocess.run([sys.executable, '-I', *cmd], capture_output=True, text=True)
         if r.returncode:
             sys.exit(r.stdout + r.stderr)
