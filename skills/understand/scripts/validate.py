@@ -23,10 +23,10 @@ INTERNAL = [
     "전이성", "지속성", "개인 적합성", "습득 비용", "정보 자산", "이해도", "이해 수준", "사고도구", "사고 도구",
     "분석 절차", "내부 판단", "MECE", "이슈 트리", "피라미드 원칙", "추상화 사다리",
 ]
-UI_TALK = re.compile(r"눌러|클릭|탭하|펼쳐 보|접어 두|더 보기|다음 단계로 넘어|아래에서 고르|선택해 보|가장 구체적인 수준|갈래로 더|\bL[1-5]\b|모르면")
+UI_TALK = re.compile(r"눌러|클릭|탭하|펼쳐 보|접어 두|더 보기|다음 단계로 넘어|아래에서 고르|선택해 보|스크롤|슬라이더|가장 구체적인 수준|갈래로 더|\bL[1-5]\b|모르면")
 EMOJI = re.compile("[\U0001F300-\U0001FAFF☀-➿⭐⭕️]")
 SCORE = re.compile(r"\b\d+\s*(점|/\s*10|/\s*100)\b|신뢰도\s*\d")
-SECTIONS = ["structure", "mechanism", "relations", "application", "principles"]
+PLACEHOLDER = re.compile(r"\{([a-z][a-z0-9]*)\}")
 
 
 def load_schema():
@@ -100,7 +100,7 @@ def strings(value, path="$"):
             yield from strings(v, f"{path}[{i}]")
     elif isinstance(value, dict):
         for k, v in value.items():
-            if k not in ("id", "from", "to", "src", "url", "kind", "type", "schema", "expr", "when", "parts", "sources"):
+            if k not in ("id", "from", "to", "src", "url", "kind", "type", "schema", "expr", "when", "show", "controls", "sources"):
                 yield from strings(v, f"{path}.{k}")
 
 
@@ -112,77 +112,107 @@ def norm(text):
     return re.sub(r"[\s.,·「」'\"()]", "", text)
 
 
-def check_figure(fig, path, errors):
-    if fig["type"] == "graph":
-        ids = [n["id"] for n in fig["nodes"]]
-        if len(set(ids)) != len(ids):
-            errors.append(f"{path}: 같은 id 의 마디가 둘")
-        used = set()
-        for e in fig["edges"]:
-            for end in (e["from"], e["to"]):
-                if end not in ids:
-                    errors.append(f"{path}: 선이 없는 마디 {end} 를 가리킨다")
-                used.add(end)
-            if e["from"] == e["to"]:
-                errors.append(f"{path}: 자기 자신으로 가는 선 ({e['from']})")
-        for i in ids:
-            if i not in used:
-                errors.append(f"{path}: 마디 {i} 에 이어진 선이 없다. 관계가 없으면 그림에서 뺀다")
-        if all(e["from"] in ids and e["to"] in ids for e in fig["edges"]):
-            from layout import layout, overlap, NODE_H
-            pos, _, _, paths = layout(fig["nodes"], fig["edges"])
-            boxes = [(x, y, x + w, y + NODE_H) for x, y, w in pos.values()]
-            rects = [(p["lx"] - p["lw"] / 2, p["ly"] - 10, p["lx"] + p["lw"] / 2, p["ly"] + 10) for p in paths]
-            for k, r in enumerate(rects):
-                if any(overlap(r, b, 0) for b in boxes) or any(overlap(r, q, 0) for q in rects[:k]):
-                    errors.append(f"{path}: 선 이름 「{paths[k]['label']}」 이 마디나 다른 선 이름과 겹친다. 마디나 선을 줄인다")
-    elif fig["type"] == "sequence":
-        ids = [a["id"] for a in fig["actors"]]
-        for m in fig["messages"]:
-            if m["from"] not in ids or m["to"] not in ids:
-                errors.append(f"{path}: 없는 참여자를 가리킨다 ({m['from']}→{m['to']})")
-            if m["from"] == m["to"]:
-                errors.append(f"{path}: 자기 자신에게 보내는 메시지 ({m['from']})")
-    elif fig["type"] == "table":
-        for r in fig["rows"]:
-            if len(r["cells"]) != len(fig["columns"]):
-                errors.append(f"{path}: 「{r['label']}」 칸 수가 열 수와 다르다")
+def edge_id(e):
+    return e.get("id") or f"{e['from']}>{e['to']}"
 
 
-def check_sim(sim, path, errors):
+def check_story(st, errors, warns):
+    fig = st["figure"]
+    nodes = [n["id"] for n in fig["nodes"]]
+    edges = [edge_id(e) for e in fig["edges"]]
+    if len(set(nodes)) != len(nodes) or len(set(edges)) != len(edges) or set(nodes) & set(edges):
+        errors.append("$.story.figure: 같은 id 가 둘이다. 같은 짝의 선이 되풀이되면 선에 id 를 준다")
+    linked = set()
+    for e in fig["edges"]:
+        for end in (e["from"], e["to"]):
+            if end not in nodes:
+                errors.append(f"$.story.figure: 선이 없는 마디 {end} 를 가리킨다")
+            linked.add(end)
+        if e["from"] == e["to"]:
+            errors.append(f"$.story.figure: 자기 자신으로 가는 선 ({e['from']})")
+    for n in nodes:
+        if n not in linked:
+            errors.append(f"$.story.figure: 마디 {n} 에 이어진 선이 없다")
+
+    v = st.get("vars")
+    names = set()
+    if v:
+        names = check_vars(v, errors)
+    seen, used_inputs = set(), set()
+    for i, step in enumerate(st["steps"]):
+        path = f"$.story.steps[{i}]"
+        for el in step["show"]:
+            if el not in nodes and el not in edges:
+                errors.append(f"{path}.show: 그림에 없는 {el}")
+            elif el in seen:
+                errors.append(f"{path}.show: {el} 은 앞 단계에서 이미 드러났다")
+            elif el in edges:
+                e = fig["edges"][edges.index(el)]
+                if not ({e["from"], e["to"]} <= seen | set(step["show"])):
+                    errors.append(f"{path}.show: 선 {el} 이 양 끝 마디보다 먼저 드러난다")
+            seen.add(el)
+        if not step["show"] and not step.get("controls") and not step.get("notes"):
+            errors.append(f"{path}: 그림에 더하는 것도, 손댈 입력도 없다. 앞 단계에 합친다")
+        for c in step.get("controls", []):
+            if c not in {x["id"] for x in (v or {}).get("inputs", [])}:
+                errors.append(f"{path}.controls: 없는 입력 {c}")
+            if c in used_inputs:
+                errors.append(f"{path}.controls: 입력 {c} 를 두 번 놓는다")
+            used_inputs.add(c)
+        for t in step["body"] + [n["text"] for n in step.get("notes", [])]:
+            for m in PLACEHOLDER.findall(t):
+                if m not in names:
+                    errors.append(f"{path}.body: 없는 변수 {{{m}}}")
+        for n in step.get("notes", []):
+            try:
+                from expr import compile_expr, ExprError
+                compile_expr(n["when"], names)
+            except ExprError as x:
+                errors.append(f"{path}.notes: 식 오류 ({x})")
+    for el in nodes + edges:
+        if el not in seen:
+            errors.append(f"$.story: {el} 이 어느 단계에서도 드러나지 않는다")
+    for lab in [n["label"] for n in fig["nodes"]] + [e["label"] for e in fig["edges"]]:
+        for m in PLACEHOLDER.findall(lab):
+            if m not in names:
+                errors.append(f"$.story.figure: 없는 변수 {{{m}}}")
+    if v and len(used_inputs) < len(v["inputs"]):
+        errors.append("$.story.vars: 어느 단계에도 놓이지 않은 입력이 있다")
+    if v and not any(PLACEHOLDER.search(t) for s2 in st["steps"] for t in s2["body"]) and not any(PLACEHOLDER.search(e["label"]) for e in fig["edges"]):
+        errors.append("$.story.vars: 계산한 값이 본문에도 그림에도 쓰이지 않는다")
+    if fig["kind"] != "sequence" and not errors:
+        from layout import layout, overlap, NODE_H
+        pos, _, _, paths = layout([{"id": n["id"], "label": PLACEHOLDER.sub("000,000", n["label"])} for n in fig["nodes"]],
+                                  [{**e, "label": PLACEHOLDER.sub("000,000", e["label"])} for e in fig["edges"]])
+        boxes = [(x, y, x + w, y + NODE_H) for x, y, w in pos.values()]
+        rects = [(p["lx"] - p["lw"] / 2, p["ly"] - 10, p["lx"] + p["lw"] / 2, p["ly"] + 10) for p in paths]
+        for k, r in enumerate(rects):
+            if any(overlap(r, b, 0) for b in boxes) or any(overlap(r, q, 0) for q in rects[:k]):
+                errors.append(f"$.story.figure: 선 이름 「{paths[k]['label']}」 이 마디나 다른 선 이름과 겹친다")
+
+
+def check_vars(v, errors):
     from expr import compile_expr, run_sim, ExprError
     names = set()
-    for i in sim["inputs"]:
+    for i in v["inputs"]:
         if not i["min"] <= i["value"] <= i["max"] or i["min"] >= i["max"]:
-            errors.append(f"{path}.inputs {i['id']}: min < max 이고 value 는 그 안이어야 한다")
+            errors.append(f"$.story.vars.inputs {i['id']}: min < max 이고 value 는 그 안이어야 한다")
         names.add(i["id"])
-    for o in sim["outputs"]:
+    for o in v["outputs"]:
         if o["id"] in names:
-            errors.append(f"{path}.outputs {o['id']}: 이름이 겹친다")
+            errors.append(f"$.story.vars.outputs {o['id']}: 이름이 겹친다")
         try:
             compile_expr(o["expr"], names)
         except ExprError as x:
-            errors.append(f"{path}.outputs {o['id']}: 식 오류 ({x})")
-            return
+            errors.append(f"$.story.vars.outputs {o['id']}: 식 오류 ({x})")
+            return names
         names.add(o["id"])
-    for n in sim.get("notes", []):
-        try:
-            compile_expr(n["when"], names)
-        except ExprError as x:
-            errors.append(f"{path}.notes: 식 오류 ({x})")
-            return
-    outs = {o["id"] for o in sim["outputs"]}
-    for p in sim.get("share", {}).get("parts", []):
-        if p not in outs:
-            errors.append(f"{path}.share: 없는 출력 {p}")
     for corner in ("min", "value", "max"):
-        vals = {i["id"]: float(i[corner]) for i in sim["inputs"]}
-        res, _ = run_sim(sim, vals)
-        bad = [k for k, v in res.items() if v != v or abs(v) == float("inf")]
+        res, _ = run_sim(v, {i["id"]: float(i[corner]) for i in v["inputs"]})
+        bad = [k for k, x in res.items() if x != x or abs(x) == float("inf")]
         if bad:
-            errors.append(f"{path}: 입력이 모두 {corner} 일 때 {bad} 를 계산할 수 없다")
-        if sim.get("share") and any(res[p] < 0 for p in sim["share"]["parts"] if p in res):
-            errors.append(f"{path}.share: 입력이 모두 {corner} 일 때 음수인 몫이 있다")
+            errors.append(f"$.story.vars: 입력이 모두 {corner} 일 때 {bad} 를 계산할 수 없다")
+    return names
 
 
 def semantics(data):
@@ -210,8 +240,6 @@ def semantics(data):
 
     if len(sentences(data["thesis"])) > 1:
         errors.append("$.thesis: 핵심 명제는 한 문장이다")
-    if not any(k in data for k in SECTIONS[:4]):
-        errors.append("$: 01~04 중 적어도 한 영역은 있어야 한다")
 
     seen = {}
     for path, text in strings(data):
@@ -245,17 +273,10 @@ def semantics(data):
         if s not in used:
             warns.append(f"$.sources: {s} 를 근거로 삼은 설명이 없다(src). 근거 추적이 끊긴다")
 
-    for key in ("structure", "mechanism", "relations"):
-        if key in data and "figure" in data[key]:
-            check_figure(data[key]["figure"], f"$.{key}.figure", errors)
+    check_story(data["story"], errors, warns)
     app = data.get("application")
-    if app is not None:
-        if not any(app.get(k) for k in ("judgments", "sim", "switch", "limits")):
-            errors.append("$.application: 비었다. 내용이 없으면 키를 뺀다")
-        if "sim" in app:
-            check_sim(app["sim"], "$.application.sim", errors)
-    if "principles" in data and not data["principles"]:
-        errors.append("$.principles: 비었다. 재사용할 원리가 없으면 키를 뺀다")
+    if app is not None and not any(app.get(k) for k in ("judgments", "switch", "limits")):
+        errors.append("$.application: 비었다. 내용이 없으면 키를 뺀다")
     for i, m in enumerate(data.get("relations", {}).get("models", [])):
         if m["name"] in m["claim"] and len(m["claim"]) < len(m["name"]) + 12:
             warns.append(f"$.relations.models[{i}]: 모델 이름만 되풀이한다. 이 대상에서 무엇을 설명하는지 쓴다")

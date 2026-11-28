@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'sha256-6gjm7oN4VWcGp9OZxyMWGuHnlhMO7Sw9T5bDCvVMHrI='; img-src data:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'sha256-XFA7qtROv6l+NXw1/3x6JK/igQ+zhlnuVLpRoDLSjXY='; img-src data:; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>운영 플랫폼 통합 기획서</title>
 <style>
@@ -30,7 +30,7 @@
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--fg); font: var(--f-m)/1.7 -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", system-ui, sans-serif; word-break: keep-all; overflow-wrap: anywhere; }
-main { max-width: var(--measure); margin: 0 auto; padding: var(--s6) var(--s4) var(--s7); }
+main { max-width: 72rem; margin: 0 auto; padding: var(--s6) var(--s4) var(--s7); }
 p { margin: 0 0 var(--s3); }
 h1, h2, h3 { margin: 0; line-height: 1.35; }
 h3 { font-size: var(--f-m); margin: 0 0 var(--s2); }
@@ -44,7 +44,6 @@ li { margin-bottom: var(--s1); }
 .brand { font-size: var(--f-xs); letter-spacing: .14em; color: var(--muted); font-weight: 600; margin-bottom: var(--s2); }
 .head h1 { font-size: var(--f-xl); margin-bottom: var(--s4); }
 .thesis { font-size: var(--f-l); font-weight: 600; line-height: 1.55; border-left: 3px solid var(--accent); padding-left: var(--s4); }
-.primer { color: var(--fg); }
 
 .sec { padding: var(--s6) 0 var(--s2); border-bottom: 1px solid var(--line); }
 .sec:last-child { border-bottom: 0; }
@@ -57,18 +56,13 @@ li { margin-bottom: var(--s1); }
 .svg-wrap svg { display: block; max-width: 100%; height: auto; margin: 0 auto; font: 14px -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif; }
 .edge { fill: none; stroke: var(--muted); stroke-width: 1.6; }
 .arrow { fill: var(--muted); }
-.edge-label rect { fill: var(--bg); }
-.edge-label text, .msg { fill: var(--fg); font-size: 12.5px; }
+.lab { fill: var(--bg); }
+.edge-g text { fill: var(--fg); font-size: 12.5px; }
 .node rect { fill: var(--surface); stroke: var(--line-strong); }
 .node text { fill: var(--fg); font-weight: 600; }
 .life { stroke: var(--line-strong); stroke-dasharray: 4 4; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-.bars { display: grid; gap: var(--s2); }
-.bar-row { display: grid; grid-template-columns: minmax(6rem, 30%) 1fr auto; gap: var(--s3); align-items: center; font-size: var(--f-s); }
-.bar-track { height: 14px; background: var(--accent-weak); border-radius: 3px; overflow: hidden; }
-.bar { display: block; height: 100%; background: var(--c0); }
-.bar-val { font-variant-numeric: tabular-nums; font-weight: 600; }
 .basis { font-size: var(--f-xs); color: var(--muted); margin-top: var(--s2); }
 
 .table-wrap { overflow-x: auto; }
@@ -76,19 +70,8 @@ table { border-collapse: collapse; width: 100%; font-size: var(--f-s); }
 th, td { text-align: left; vertical-align: top; padding: var(--s2) var(--s3); border-bottom: 1px solid var(--line); }
 thead th { border-bottom: 2px solid var(--line-strong); }
 
-.case { padding: var(--s4); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: var(--s5); }
-.case p:last-child { margin-bottom: 0; }
-.chain { list-style: none; padding: 0; counter-reset: c; }
-.chain li { counter-increment: c; position: relative; padding: 0 0 var(--s4) 2.6rem; margin: 0; }
-.chain li::before { content: counter(c); position: absolute; left: 0; top: 0; width: 1.8rem; height: 1.8rem; border-radius: 50%; background: var(--accent-weak); color: var(--accent); font-size: var(--f-s); font-weight: 700; display: grid; place-items: center; }
-.chain li:not(:last-child)::after { content: ""; position: absolute; left: .86rem; top: 2rem; bottom: .2rem; border-left: 2px solid var(--line); }
-.chain p:last-child { margin-bottom: 0; }
 
-.model, .principle { margin-bottom: var(--s5); }
-.claim { font-weight: 600; }
 .boundary { color: var(--muted); }
-.cases { list-style: none; padding: 0; }
-.field { display: inline-block; font-size: var(--f-xs); font-weight: 600; color: var(--accent); margin-right: var(--s2); }
 
 .judge { padding: var(--s3) 0 var(--s3) var(--s4); border-left: 3px solid var(--line-strong); margin-bottom: var(--s4); }
 .judge p { margin-bottom: var(--s1); }
@@ -97,39 +80,57 @@ thead th { border-bottom: 2px solid var(--line-strong); }
 .why { color: var(--fg); }
 .limits ul { padding-left: 1.2em; }
 
-.sim, .switch { padding: var(--s4); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); margin: 0 0 var(--s5); }
+.switch { padding: var(--s4); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); margin: 0 0 var(--s5); }
 .assume { font-size: var(--f-xs); color: var(--muted); }
-.sim-in { display: grid; gap: var(--s3); margin-bottom: var(--s4); }
-.knob { display: grid; grid-template-columns: minmax(7rem, 35%) 1fr 4.5rem auto; gap: var(--s3); align-items: center; font-size: var(--f-s); }
 .knob input { width: 100%; accent-color: var(--accent); }
 .knob output { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
 .unit { color: var(--muted); font-size: var(--f-xs); min-width: 2em; }
-.sim-out { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: var(--s3); margin: 0 0 var(--s3); }
-.sim-out div { padding: var(--s2) var(--s3); border: 1px solid var(--line); border-radius: var(--radius); }
-.sim-out dt { font-size: var(--f-xs); color: var(--muted); }
-.sim-out dd { margin: 0; font-size: var(--f-l); font-weight: 700; font-variant-numeric: tabular-nums; }
-.share { display: flex; height: 18px; border-radius: 3px; overflow: hidden; background: var(--line); }
-.seg { display: block; height: 100%; transition: width .15s; }
-.s0 { background: var(--c0); } .s1 { background: var(--c1); } .s2 { background: var(--c2); } .s3 { background: var(--c3); } .s4 { background: var(--c4); }
-.legend { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s3); font-size: var(--f-xs); margin-top: var(--s2); }
-.sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: var(--s1); }
 .note { font-size: var(--f-s); padding: var(--s2) var(--s3); background: var(--accent-weak); border-radius: var(--radius); margin: var(--s3) 0 0; }
 .switch .q { font-weight: 600; }
 .choices { display: flex; flex-wrap: wrap; gap: var(--s2); margin: var(--s2) 0 var(--s3); }
 .choice { display: inline-flex; align-items: center; gap: var(--s1); padding: var(--s1) var(--s3); border: 1px solid var(--line-strong); border-radius: 999px; cursor: pointer; font-size: var(--f-s); }
 .choice:has(input:checked) { border-color: var(--accent); background: var(--accent-weak); }
 
+.model { margin-bottom: var(--s5); }
+.val { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--accent); }
+tspan.val { fill: var(--accent); }
+
+.story { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: var(--s5); align-items: start; }
+.stage { order: 2; position: sticky; top: var(--s4); }
+.stage .fig { margin: 0; }
+.steps { order: 1; list-style: none; padding: 0; margin: 0; counter-reset: st; }
+.step { counter-increment: st; min-height: 52vh; padding: var(--s4) 0 var(--s4) var(--s4); border-left: 3px solid var(--line); transition: border-color .2s; }
+.step:last-child { min-height: 0; }
+.step h3::before { content: counter(st) ". "; color: var(--muted); }
+.story[data-js] .step:not(.active) { color: var(--muted); }
+.story[data-js] .step.active { border-left-color: var(--accent); }
+.assume { order: 3; grid-column: 1 / -1; font-size: var(--f-xs); color: var(--muted); }
+.story[data-js] [data-el] { transition: opacity .35s; }
+.story[data-js] [data-el]:not(.on) { opacity: 0; }
+.focus rect { stroke: var(--accent); stroke-width: 2; }
+.edge-g.focus .edge { stroke: var(--accent); stroke-width: 2.2; }
+.edge-g.focus text { font-weight: 700; }
+.knob { display: grid; grid-template-columns: minmax(6rem, 38%) 1fr auto auto; gap: var(--s2); align-items: center; font-size: var(--f-s); margin: var(--s2) 0; padding: var(--s2) var(--s3); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+
+@media (max-width: 760px) {
+  .story { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .stage { order: 0; top: 0; z-index: 2; background: var(--bg); padding: var(--s2) 0; border-bottom: 1px solid var(--line); }
+  .stage .svg-wrap { max-height: 46vh; overflow: auto; }
+  .stage .svg-wrap svg { min-width: var(--minw); }
+  .stage figcaption { font-size: var(--f-xs); }
+  .step { min-height: 48vh; }
+}
 @media (max-width: 640px) {
   body { font-size: 16px; }
   main { padding-top: var(--s5); }
   .head h1 { font-size: 24px; }
   .thesis { font-size: 18px; }
-  .knob { grid-template-columns: 1fr 4rem auto; }
+  .knob { grid-template-columns: 1fr auto auto; }
   .knob-label { grid-column: 1 / -1; }
-  .bar-row { grid-template-columns: 1fr auto; }
-  .bar-track { grid-column: 1 / -1; grid-row: 2; }
-}
-@media (prefers-reduced-motion: reduce) { .seg { transition: none; } }
+    }
+.head, .sec:not(#story) { max-width: var(--measure); }
+.seq .seq-head { position: sticky; top: 0; z-index: 1; background: var(--bg); }
+.svg-wrap.seq svg { margin-bottom: 0; }
 
 </style>
 </head>
@@ -138,9 +139,9 @@ thead th { border-bottom: 2px solid var(--line-strong); }
   <header class="head">
     <p class="brand">UNDERSTAND</p>
     <h1>운영 플랫폼 통합 기획서</h1>
-    <p class="thesis">이 기획서는 운영 도구 셋을 하나로 합쳐 처리 시간과 불일치와 유지비를 함께 줄이려 하지만, 그 효과는 가맹점 데이터를 내부 코드 하나로 이을 수 있다는 미확인 전제와 3명짜리 파일럿에 기댄다.</p><p class="primer">지금 가맹점 업무는 정산 어드민(재무운영팀 22명), CS 툴(고객센터 60명, 외부 SaaS), 가맹점 관리(영업지원팀 15명)로 나뉜다.</p><p class="primer">세 도구는 같은 가맹점을 각각 사업자등록번호, 문의자 이메일, 내부 가맹점 코드로 찾는다.</p><p class="primer">승인 요청은 9개월 계획 가운데 1단계(2027년 1~3월) 착수와 개발 인력 5명 배정이다.</p>
+    <p class="thesis">이 기획서는 운영 도구 셋을 하나로 합쳐 처리 시간과 불일치와 유지비를 함께 줄이려 하지만, 효과의 근거는 3명짜리 파일럿과 아직 확인하지 않은 가맹점 코드 연결에 기댄다.</p>
   </header>
-<section class="sec" id="structure" aria-labelledby="structure-h"><h2 id="structure-h"><span class="num">01</span>전체 구조</h2><p>기획서는 세 문제의 공통 원인을 도구가 셋으로 나뉜 것으로 보고, 하나로 합쳐 셋을 함께 없애려 한다.</p><p>목표는 문의 1건 처리 18분을 7분으로, 수수료율 불일치를 0건으로 만들고, 연 운영비를 약 1억 원 줄이는 것이다.</p><p>세 효과는 모두 세 도구의 가맹점 데이터를 내부 가맹점 코드로 이어 붙일 수 있다는 전제 위에 있다.</p><figure class="fig fig-graph"><figcaption>세 문제를 한 해결책으로 묶고 세 결과를 약속하는 구조</figcaption><div class="svg-wrap"><svg viewBox="0 0 736 268" width="736" style="min-width:626px" role="img" aria-labelledby="g1t" preserveAspectRatio="xMidYMin meet"><title id="g1t">세 문제를 한 해결책으로 묶고 세 결과를 약속하는 구조</title><defs><marker id="g1a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow"/></marker></defs><path d="M91.0,52.0 C91.0,84.0 368.0,84.0 368.0,114.0" class="edge" marker-end="url(#g1a)"/><path d="M276.0,52.0 C276.0,84.0 368.0,84.0 368.0,114.0" class="edge" marker-end="url(#g1a)"/><path d="M461.0,52.0 C461.0,84.0 368.0,84.0 368.0,114.0" class="edge" marker-end="url(#g1a)"/><path d="M642.0,52.0 C642.0,84.0 368.0,84.0 368.0,114.0" class="edge" marker-end="url(#g1a)"/><path d="M368.0,152.0 C368.0,184.0 186.0,184.0 186.0,214.0" class="edge" marker-end="url(#g1a)"/><path d="M368.0,152.0 C368.0,184.0 369.0,184.0 369.0,214.0" class="edge" marker-end="url(#g1a)"/><path d="M368.0,152.0 C368.0,184.0 551.0,184.0 551.0,214.0" class="edge" marker-end="url(#g1a)"/><g class="edge-label"><rect x="185.1" y="74.0" width="88.8" height="20" rx="3"/><text x="229.5" y="88.0" text-anchor="middle">기준 셋→하나</text></g><g class="edge-label"><rect x="280.3" y="74.0" width="83.4" height="20" rx="3"/><text x="322.0" y="88.0" text-anchor="middle">두 곳→한 곳</text></g><g class="edge-label"><rect x="385.3" y="74.0" width="58.4" height="20" rx="3"/><text x="414.5" y="88.0" text-anchor="middle">4명→3명</text></g><g class="edge-label"><rect x="464.2" y="74.0" width="81.6" height="20" rx="3"/><text x="505.0" y="88.0" text-anchor="middle">미확인 전제</text></g><g class="edge-label"><rect x="222.8" y="174.0" width="108.4" height="20" rx="3"/><text x="277.0" y="188.0" text-anchor="middle">파일럿 3명 근거</text></g><g class="edge-label"><rect x="378.5" y="174.0" width="69.1" height="20" rx="3"/><text x="413.1" y="188.0" text-anchor="middle">원천 하나</text></g><g class="edge-label"><rect x="469.5" y="174.0" width="78.1" height="20" rx="3"/><text x="508.5" y="188.0" text-anchor="middle">CS 툴 해지</text></g><g class="node"><rect x="16.0" y="16.0" width="150.0" height="36" rx="4"/><text x="91.0" y="39.0" text-anchor="middle">가맹점 세 번 검색</text></g><g class="node"><rect x="194.0" y="16.0" width="164.0" height="36" rx="4"/><text x="276.0" y="39.0" text-anchor="middle">수수료율 두 번 입력</text></g><g class="node"><rect x="386.0" y="16.0" width="150.0" height="36" rx="4"/><text x="461.0" y="39.0" text-anchor="middle">개발 4명+라이선스</text></g><g class="node"><rect x="564.0" y="16.0" width="156.0" height="36" rx="4"/><text x="642.0" y="39.0" text-anchor="middle">코드로 이어 붙이기</text></g><g class="node"><rect x="275.0" y="116.0" width="186.0" height="36" rx="4"/><text x="368.0" y="139.0" text-anchor="middle">플랫폼 하나, 코드 하나</text></g><g class="node"><rect x="106.0" y="216.0" width="160.0" height="36" rx="4"/><text x="186.0" y="239.0" text-anchor="middle">문의 처리 18분→7분</text></g><g class="node"><rect x="294.0" y="216.0" width="150.0" height="36" rx="4"/><text x="369.0" y="239.0" text-anchor="middle">수수료율 불일치 0</text></g><g class="node"><rect x="472.0" y="216.0" width="158.0" height="36" rx="4"/><text x="551.0" y="239.0" text-anchor="middle">운영비 연 1억 절감</text></g></svg></div><ul class="sr"><li>가맹점 세 번 검색 → 플랫폼 하나, 코드 하나: 기준 셋→하나</li><li>수수료율 두 번 입력 → 플랫폼 하나, 코드 하나: 두 곳→한 곳</li><li>개발 4명+라이선스 → 플랫폼 하나, 코드 하나: 4명→3명</li><li>코드로 이어 붙이기 → 플랫폼 하나, 코드 하나: 미확인 전제</li><li>플랫폼 하나, 코드 하나 → 문의 처리 18분→7분: 파일럿 3명 근거</li><li>플랫폼 하나, 코드 하나 → 수수료율 불일치 0: 원천 하나</li><li>플랫폼 하나, 코드 하나 → 운영비 연 1억 절감: CS 툴 해지</li></ul></figure></section><section class="sec" id="mechanism" aria-labelledby="mechanism-h"><h2 id="mechanism-h"><span class="num">02</span>작동 원리</h2><div class="case"><p class="k">대표 사례</p><h3>가맹점 문의 한 건</h3><p>상담원은 CS 툴에서 문의자 이메일로 문의를 연 뒤, 정산 어드민과 가맹점 관리에서 같은 가맹점을 다른 기준으로 다시 찾는다.</p><p>지난 분기 가맹점 문의 1건의 평균 처리 시간은 18분이다. 기획서는 이 18분 가운데 검색에 드는 시간을 따로 재지 않았다.</p></div><ol class="chain"><li><h3>1단계: 가맹점 기준을 코드 하나로</h3><p>2027년 1~3월에 세 도구의 가맹점 데이터를 내부 가맹점 코드로 이어 붙이고 새 플랫폼으로 옮긴다.</p><p>사업자등록번호 하나에 내부 코드가 여럿인 가맹점은 어느 코드로 묶을지 정해야 하는데, 그 수는 아직 세지 않았다.</p></li><li><h3>2단계: 정산과 가맹점 화면을 합친다</h3><p>2027년 4~6월에 정산 화면과 가맹점 화면을 합치면 수수료율을 넣는 곳이 하나가 된다.</p><p>입력처가 하나면 한쪽만 고쳐져 두 값이 갈라지는 일이 생기지 않는다.</p></li><li><h3>3단계: 문의 기능을 만들고 CS 툴을 끊는다</h3><p>2027년 7~9월에 문의 기능을 새로 만들면 계약, 정산, 문의 이력이 한 화면에 모여 가맹점을 한 번만 찾는다.</p><p>CS 툴 라이선스 연 1억 2천만 원은 이 단계에서 해지해야 비로소 빠진다.</p></li><li><h3>유지 인력이 4명에서 3명으로</h3><p>자체 도구 둘을 2명씩 맡던 4명이 새 플랫폼 하나를 3명이 맡는 구조로 바뀐다.</p><p>새 문의 기능은 외부 SaaS 가 아니라 자체 개발이라 그 유지도 3명 안에 들어간다.</p></li><li><h3>기획서가 예상하는 결과</h3><p>검색이 세 번에서 한 번으로 줄어 문의 1건이 7분 안팎에 끝난다고 본다.</p><p>근거는 파일럿 상담원 3명이 시제품 화면으로 처리한 문의 40건의 평균 7분이다.</p></li></ol></section><section class="sec" id="relations" aria-labelledby="relations-h"><h2 id="relations-h"><span class="num">03</span>핵심 관계</h2><article class="model"><h3>단일 진실 공급원</h3><p class="claim">같은 가맹점 사실을 여러 도구에 따로 두면 값이 어긋나고 찾는 일이 늘며, 원천을 하나로 하면 둘이 함께 준다.</p><p><span class="k">작동</span>입력처마다 갱신이 따로 일어나 한쪽만 바뀐 순간 불일치가 생기고, 식별자가 다르면 사람이 같은 대상을 손으로 짝지어야 한다.</p><p class="k">이 모델로 설명되는 현상</p><ul><li>수수료율을 가맹점 관리와 정산 어드민에 따로 넣어서 두 도구에 다른 값이 기록된 가맹점이 생겼다.</li><li>식별자가 이메일, 사업자등록번호, 내부 코드로 셋이라 상담원이 같은 가맹점을 세 번 찾는다.</li><li>사업자등록번호 하나에 내부 코드가 여럿이면 원천이 될 코드를 먼저 정해야 해서 1단계 작업량이 그 수에 따라 커진다.</li></ul><p class="boundary"><span class="k">설명하지 못하는 것</span>원천을 하나로 해도 이미 어긋난 수수료율은 저절로 고쳐지지 않고, 잘못 짝지은 가맹점은 한 화면에 남의 이력을 모아 보여 준다.</p></article><article class="model"><h3>의존관계</h3><p class="claim">기획서의 효과는 1단계 기준 통일, 2단계 화면 통합, 3단계 CS 툴 해지 순서에 묶여 있어 앞 단계가 늦으면 뒤 효과가 모두 늦는다.</p><p><span class="k">작동</span>뒤 단계가 앞 단계의 산출물인 통일된 가맹점 코드와 이전된 데이터를 입력으로 쓰기 때문이다.</p><p class="k">이 모델로 설명되는 현상</p><ul><li>라이선스 1억 2천만 원은 3단계 CS 툴 해지 전까지 계속 나가므로 절감은 계획대로 가도 2027년 9월 뒤에 시작된다.</li><li>이전 기간에 세 도구와 새 플랫폼을 함께 돌리면 수수료율을 넣는 곳이 줄지 않고 하나 더 늘 수 있다(추론).</li><li>1단계에서 가맹점을 코드로 잇지 못하면 한 화면 조회도, 수수료율 원천 통일도 함께 막힌다.</li></ul><p class="boundary"><span class="k">설명하지 못하는 것</span>기획서에 단계별 완료 기준과 지연 때의 대안이 없어 이 의존이 얼마나 큰 위험인지는 이 자료로 잴 수 없다.</p></article><article class="model"><h3>선택 편향</h3><p class="claim">파일럿 결과는 적은 사람과 다른 조건에서 잰 값이라, 고객센터 60명의 실제 운영에서 같은 효과가 난다고 말하지 못한다.</p><p><span class="k">작동</span>표본이 작고 측정 조건이 기준값과 다르면 차이가 해결책 때문인지 사람과 문의의 차이 때문인지 가를 수 없다.</p><p class="k">이 모델로 설명되는 현상</p><ul><li>7분은 상담원 3명이 시제품으로 처리한 40건의 평균이고, 18분은 지난 분기 실제 가맹점 문의 전체의 평균이다.</li><li>만족도 근거는 파일럿 참여자 3명이 모두 「훨씬 편하다」고 답한 것뿐이라 60명의 반응을 대표하지 않는다.</li></ul><p class="boundary"><span class="k">설명하지 못하는 것</span>파일럿 상담원을 어떻게 골랐는지와 40건이 어떤 문의였는지 기획서에 없어, 편향의 방향과 크기는 알 수 없다.</p></article></section><section class="sec" id="application" aria-labelledby="application-h"><h2 id="application-h"><span class="num">04</span>적용과 한계</h2><div class="judge"><p class="sit">기획서는 파일럿 평균 7분을 근거로 가맹점 문의 처리 시간이 18분에서 7분으로 준다고 주장한다.</p><p class="res">이 근거로는 처리 시간이 준다는 방향만 받아들일 수 있고, 11분이 준다는 크기는 확인되지 않았다.</p><p class="why">비교한 두 값의 상담원, 문의, 화면이 다르고, 18분 가운데 가맹점을 찾는 데 드는 시간이 얼마인지 재지 않았다.</p></div><div class="judge"><p class="sit">기획서는 라이선스 1억 2천만 원이 빠지고 유지 인력이 4명에서 3명이 되어 연 운영비가 약 1억 원 준다고 쓴다.</p><p class="res">적힌 두 근거를 더하면 절감액은 1억 2천만 원에 1명분 인건비를 더한 값이어야 해서 1억 원과 맞지 않는다.</p><p class="why">절감액에서 뺀 비용 항목이 기획서에 없고, 개발 5명, 기획 1명, 디자인 1명이 9개월 동안 드는 구축 비용과도 견주지 않았다.</p></div><div class="judge"><p class="sit">기획서는 원천 데이터가 하나가 되므로 수수료율 불일치가 없어진다고 본다.</p><p class="res">새로 생기는 불일치는 막히지만, 이미 어긋난 가맹점은 이전할 때 두 값 가운데 맞는 쪽을 정해야 없어진다.</p><p class="why">원천을 하나로 하는 것은 값이 갈라지는 원인을 없앨 뿐 이미 갈라진 값을 바로잡지 않는다.</p></div><div class="judge"><p class="sit">승인 요청은 전체 계획이 아니라 1단계 착수와 개발 인력 5명 배정이다.</p><p class="res">1단계의 가맹점 기준 통일은 통합안과, 기획서가 제외한 연동안 모두에 필요하므로 1단계 결과를 보고 2단계 이후를 다시 정할 수 있다(추론).</p><p class="why">세 도구를 연동만 하더라도 같은 가맹점을 서로 짝지을 코드 대응표가 있어야 하고, 1단계 가운데 새 플랫폼으로의 데이터 이전만 통합안 전용이다.</p></div><div class="sim" data-sim><h3>통합 뒤 연간 절감액과 구축 비용 회수 기간</h3><p class="assume">가정 모델: 1인 연간 인건비와 새로 생기는 연간 비용은 기획서에 없어 넣은 값이다. 라이선스 1억 2천만 원, 현재 유지 인력 4명, 구축 인원 7명은 기획서 숫자다.</p><div class="sim-in"><label class="knob" for="in2"><span class="knob-label">1인 연간 인건비</span><input type="range" id="in2" data-in="pay" min="0.4" max="2" step="0.1" value="1"><output data-show="pay" for="in2">1.00</output><span class="unit">억 원</span></label><label class="knob" for="in3"><span class="knob-label">새 플랫폼 유지 인력</span><input type="range" id="in3" data-in="keep" min="2" max="6" step="1" value="3"><output data-show="keep" for="in3">3</output><span class="unit">명</span></label><label class="knob" for="in4"><span class="knob-label">구축 기간</span><input type="range" id="in4" data-in="months" min="6" max="24" step="1" value="9"><output data-show="months" for="in4">9</output><span class="unit">개월</span></label><label class="knob" for="in5"><span class="knob-label">새로 생기는 연간 비용</span><input type="range" id="in5" data-in="extra" min="0" max="2" step="0.1" value="0"><output data-show="extra" for="in5">0.00</output><span class="unit">억 원</span></label></div><dl class="sim-out" aria-live="polite"><div><dt>연간 절감액</dt><dd><span data-out="saving" data-digits="2" data-rpn="[[&quot;n&quot;, 1.2], [&quot;n&quot;, 4.0], [&quot;v&quot;, &quot;keep&quot;], [&quot;o&quot;, &quot;-&quot;], [&quot;v&quot;, &quot;pay&quot;], [&quot;o&quot;, &quot;*&quot;], [&quot;o&quot;, &quot;+&quot;], [&quot;v&quot;, &quot;extra&quot;], [&quot;o&quot;, &quot;-&quot;]]">2.20</span> 억 원</dd></div><div><dt>기획서 1억 원과의 차이</dt><dd><span data-out="gap" data-digits="2" data-rpn="[[&quot;v&quot;, &quot;saving&quot;], [&quot;n&quot;, 1.0], [&quot;o&quot;, &quot;-&quot;]]">1.20</span> 억 원</dd></div><div><dt>구축 비용 (7명)</dt><dd><span data-out="build" data-digits="2" data-rpn="[[&quot;n&quot;, 7.0], [&quot;v&quot;, &quot;months&quot;], [&quot;o&quot;, &quot;*&quot;], [&quot;n&quot;, 12.0], [&quot;o&quot;, &quot;/&quot;], [&quot;v&quot;, &quot;pay&quot;], [&quot;o&quot;, &quot;*&quot;]]">5.25</span> 억 원</dd></div><div><dt>CS 툴 해지 뒤 회수 기간</dt><dd><span data-out="payback" data-digits="1" data-rpn="[[&quot;v&quot;, &quot;build&quot;], [&quot;v&quot;, &quot;saving&quot;], [&quot;n&quot;, 0.01], [&quot;f&quot;, &quot;max&quot;], [&quot;o&quot;, &quot;/&quot;], [&quot;n&quot;, 99.0], [&quot;f&quot;, &quot;min&quot;]]">2.4</span> 년</dd></div></dl><p class="note" data-when="[[&quot;v&quot;, &quot;saving&quot;], [&quot;n&quot;, 0.0], [&quot;o&quot;, &quot;&lt;=&quot;]]" hidden>이 조건에서는 통합 뒤에도 운영비가 줄지 않아 구축 비용을 회수하지 못한다. 회수 기간 99년은 회수하지 못함을 뜻한다.</p><p class="note" data-when="[[&quot;v&quot;, &quot;gap&quot;], [&quot;n&quot;, 0.05], [&quot;o&quot;, &quot;&gt;&quot;]]">이 조건의 절감액은 기획서의 약 1억 원보다 크다. 그 차이만큼 기획서가 적지 않은 비용이 있다는 뜻이다.</p><p class="note" data-when="[[&quot;v&quot;, &quot;keep&quot;], [&quot;n&quot;, 4.0], [&quot;o&quot;, &quot;&gt;=&quot;], [&quot;v&quot;, &quot;saving&quot;], [&quot;n&quot;, 0.0], [&quot;o&quot;, &quot;&gt;&quot;], [&quot;o&quot;, &quot;&amp;&amp;&quot;]]" hidden>유지 인력이 4명 이상이면 인력 절감은 없고 라이선스 해지만 남는다.</p><p class="note" data-when="[[&quot;v&quot;, &quot;months&quot;], [&quot;n&quot;, 9.0], [&quot;o&quot;, &quot;&gt;&quot;], [&quot;v&quot;, &quot;saving&quot;], [&quot;n&quot;, 0.0], [&quot;o&quot;, &quot;&gt;&quot;], [&quot;o&quot;, &quot;&amp;&amp;&quot;]]" hidden>구축이 9개월을 넘기면 구축 비용이 늘고, CS 툴 해지와 절감 시작도 그만큼 늦어진다.</p></div><div class="limits"><h3>트레이드오프</h3><ul><li>연동안은 화면이 셋으로 남지만 CS 툴 기능을 다시 만들 필요가 없다. 기획서는 이를 재지 않고 효과가 작다는 판단만으로 제외했다.</li></ul></div><div class="limits"><h3>확인되지 않은 전제</h3><ul><li>사업자등록번호 하나에 내부 코드가 여럿인 가맹점 수를 세지 않았다. 이 수가 1단계 범위와 기간을 정한다.</li><li>새 문의 기능이 CS 툴에서 실제로 쓰는 기능을 모두 대신한다는 전제가 있지만, 그 기능 목록이 기획서에 없다.</li></ul></div><div class="limits"><h3>아직 모르는 것</h3><ul><li>세 도구와 새 플랫폼을 함께 돌리는 이전 기간의 길이와 그동안의 데이터 입력 규칙이 적혀 있지 않다.</li><li>새 플랫폼의 권한을 역할별로 나눈다고만 쓰여 있어, 세 팀 97명의 기존 권한이 어떻게 옮겨지는지 알 수 없다.</li></ul></div></section><section class="sec" id="principles" aria-labelledby="principles-h"><h2 id="principles-h"><span class="num">05</span>재사용할 원리</h2><article class="principle"><h3>기준값과 같은 조건에서 잰 효과만 믿기</h3><p>개선 전후를 견줄 때 사람, 대상, 기간, 환경을 맞춘 측정만 효과의 크기로 받고, 조건이 다른 비교는 방향의 단서로만 쓴다.</p><p><span class="k">적용 조건</span>새 방식의 효과를 시범 운영이나 시제품 결과로 주장할 때 쓴다.</p><ul class="cases"><li><span class="field">성능 측정</span>새 서버에서 빈 캐시로 잰 응답 시간을 운영 서버의 하루 평균과 견주면 개선 폭을 부풀린다.</li><li><span class="field">임상 시험</span>지원자만 받은 신약 집단을 일반 환자 기록과 견주면 약효와 지원자 특성이 섞인다.</li></ul></article><article class="principle"><h3>대안 사이의 공통 단계부터 맡기기</h3><p>여러 대안이 모두 거쳐야 하는 단계를 먼저 승인하면, 그 결과로 불확실성을 줄인 뒤 대안을 고를 수 있어 되돌리기 어려운 지출이 뒤로 밀린다.</p><p><span class="k">적용 조건</span>대안의 효과가 아직 불확실하고 단계가 나뉘어 있으며 앞 단계의 산출물이 여러 대안에 쓰일 때 쓴다.</p><ul class="cases"><li><span class="field">건설</span>건물 용도를 정하기 전에 어느 용도에도 필요한 지반 조사와 기초 공사부터 발주한다.</li><li><span class="field">제품 개발</span>자체 개발과 외부 구매를 정하기 전에 두 경우 모두 쓰는 요구사항 명세부터 만든다.</li></ul></article></section>
+<section class="sec" id="story" aria-labelledby="story-h"><h2 id="story-h"><span class="num">01</span>작동 원리</h2><div class="story" data-story><div class="stage"><figure class="fig"><figcaption>가맹점 문의 한 건에서 출발해 세 문제가 한 해결책과 결과로 묶이는 구조</figcaption><div class="svg-wrap"><svg viewBox="0 0 818 468" width="818" style="--minw:695px" role="img" aria-labelledby="g1t" preserveAspectRatio="xMidYMin meet"><title id="g1t">가맹점 문의 한 건에서 출발해 세 문제가 한 해결책과 결과로 묶이는 구조</title><defs><marker id="g1a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow"/></marker></defs><g class="edge-g" data-el="tools&gt;search"><path d="M409.0,52.0 C409.0,84.0 107.0,84.0 107.0,114.0" class="edge" marker-end="url(#g1a)"/><rect class="lab" x="210.9" y="74.0" width="94.1" height="20" rx="3"/><text x="258.0" y="88.0" text-anchor="middle">기준마다 찾기</text></g><g class="edge-g" data-el="tools&gt;dup"><path d="M409.0,52.0 C409.0,84.0 308.0,84.0 308.0,114.0" class="edge" marker-end="url(#g1a)"/><rect class="lab" x="323.9" y="74.0" width="69.1" height="20" rx="3"/><text x="358.5" y="88.0" text-anchor="middle">따로 입력</text></g><g class="edge-g" data-el="tools&gt;upkeep"><path d="M409.0,52.0 C409.0,84.0 514.0,84.0 514.0,114.0" class="edge" marker-end="url(#g1a)"/><rect class="lab" x="426.9" y="74.0" width="69.1" height="20" rx="3"/><text x="461.5" y="88.0" text-anchor="middle">따로 유지</text></g><g class="edge-g" data-el="search&gt;plan"><path d="M107.0,152.0 C107.0,184.0 409.0,184.0 409.0,214.0" class="edge" marker-end="url(#g1a)"/><rect class="lab" x="213.6" y="174.0" width="88.8" height="20" rx="3"/><text x="258.0" y="188.0" text-anchor="middle">기준 셋→하나</text></g><g class="edge-g" data-el="dup&gt;plan"><path d="M308.0,152.0 C308.0,184.0 409.0,184.0 409.0,214.0" class="edge" marker-end="url(#g1a)"/><rect class="lab" x="317.7" y="174.0" width="81.6" height="20" rx="3"/><text x="358.5" y="188.0" text-anchor="middle">입력처 하나</text></g><g class="edge-g" data-el="upkeep&gt;plan"><path d="M514.0,152.0 C514.0,184.0 409.0,184.0 409.0,214.0" class="edge" marker-end="url(#g1a)"/><rect class="lab" x="410.9" y="174.0" width="101.3" height="20" rx="3"/><text x="461.5" y="188.0" text-anchor="middle">4명→<tspan class="val" data-out="keep">3</tspan>명</text></g><g class="edge-g" data-el="premise&gt;plan"><path d="M720.0,152.0 C720.0,184.0 409.0,184.0 409.0,214.0" class="edge" marker-end="url(#g1a)"/><rect class="lab" x="523.7" y="174.0" width="81.6" height="20" rx="3"/><text x="564.5" y="188.0" text-anchor="middle">미확인 전제</text></g><g class="edge-g" data-el="plan&gt;fast"><path d="M409.0,252.0 C409.0,284.0 217.0,284.0 217.0,314.0" class="edge" marker-end="url(#g1a)"/><rect class="lab" x="258.8" y="274.0" width="108.4" height="20" rx="3"/><text x="313.0" y="288.0" text-anchor="middle">파일럿 3명 근거</text></g><g class="edge-g" data-el="plan&gt;match"><path d="M409.0,252.0 C409.0,284.0 381.0,284.0 381.0,314.0" class="edge" marker-end="url(#g1a)"/><rect class="lab" x="405.0" y="274.0" width="69.1" height="20" rx="3"/><text x="439.6" y="288.0" text-anchor="middle">원천 하나</text></g><g class="edge-g" data-el="plan&gt;save"><path d="M409.0,252.0 C409.0,284.0 573.0,284.0 573.0,314.0" class="edge" marker-end="url(#g1a)"/><rect class="lab" x="501.0" y="274.0" width="78.1" height="20" rx="3"/><text x="540.0" y="288.0" text-anchor="middle">CS 툴 해지</text></g><g class="edge-g" data-el="save&gt;build"><path d="M573.0,352.0 C573.0,384.0 409.0,384.0 409.0,414.0" class="edge" marker-end="url(#g1a)"/><rect class="lab" x="431.4" y="374.0" width="119.1" height="20" rx="3"/><text x="491.0" y="388.0" text-anchor="middle"><tspan class="val" data-out="payback">2.4</tspan>년에 회수</text></g><g class="node" data-el="tools"><rect x="312.0" y="16.0" width="194.0" height="36" rx="4"/><text x="409.0" y="39.0" text-anchor="middle">도구 셋, 가맹점 기준 셋</text></g><g class="node" data-el="search"><rect x="16.0" y="116.0" width="182.0" height="36" rx="4"/><text x="107.0" y="139.0" text-anchor="middle">세 번 검색, 문의 18분</text></g><g class="node" data-el="dup"><rect x="226.0" y="116.0" width="164.0" height="36" rx="4"/><text x="308.0" y="139.0" text-anchor="middle">수수료율 두 곳 입력</text></g><g class="node" data-el="upkeep"><rect x="418.0" y="116.0" width="192.0" height="36" rx="4"/><text x="514.0" y="139.0" text-anchor="middle">유지비 연 <tspan class="val" data-out="nowcost">5.2</tspan>억 원</text></g><g class="node" data-el="plan"><rect x="316.0" y="216.0" width="186.0" height="36" rx="4"/><text x="409.0" y="239.0" text-anchor="middle">플랫폼 하나, 코드 하나</text></g><g class="node" data-el="premise"><rect x="638.0" y="116.0" width="164.0" height="36" rx="4"/><text x="720.0" y="139.0" text-anchor="middle">코드로 이을 수 있다</text></g><g class="node" data-el="fast"><rect x="156.0" y="316.0" width="122.0" height="36" rx="4"/><text x="217.0" y="339.0" text-anchor="middle">문의 처리 7분</text></g><g class="node" data-el="match"><rect x="306.0" y="316.0" width="150.0" height="36" rx="4"/><text x="381.0" y="339.0" text-anchor="middle">수수료율 불일치 0</text></g><g class="node" data-el="save"><rect x="484.0" y="316.0" width="178.0" height="36" rx="4"/><text x="573.0" y="339.0" text-anchor="middle">연 절감 <tspan class="val" data-out="saving">2.2</tspan>억 원</text></g><g class="node" data-el="build"><rect x="331.0" y="416.0" width="156.0" height="36" rx="4"/><text x="409.0" y="439.0" text-anchor="middle">구축 <tspan class="val" data-out="build">5.25</tspan>억 원</text></g></svg></div></figure></div><div data-vars="[[&quot;nowcost&quot;, 1, [[&quot;n&quot;, 1.2], [&quot;n&quot;, 4.0], [&quot;v&quot;, &quot;pay&quot;], [&quot;o&quot;, &quot;*&quot;], [&quot;o&quot;, &quot;+&quot;]]], [&quot;saving&quot;, 1, [[&quot;n&quot;, 1.2], [&quot;n&quot;, 4.0], [&quot;v&quot;, &quot;keep&quot;], [&quot;o&quot;, &quot;-&quot;], [&quot;v&quot;, &quot;pay&quot;], [&quot;o&quot;, &quot;*&quot;], [&quot;o&quot;, &quot;+&quot;]]], [&quot;gap&quot;, 1, [[&quot;v&quot;, &quot;saving&quot;], [&quot;n&quot;, 1.0], [&quot;o&quot;, &quot;-&quot;]]], [&quot;build&quot;, 2, [[&quot;n&quot;, 7.0], [&quot;v&quot;, &quot;months&quot;], [&quot;o&quot;, &quot;*&quot;], [&quot;n&quot;, 12.0], [&quot;o&quot;, &quot;/&quot;], [&quot;v&quot;, &quot;pay&quot;], [&quot;o&quot;, &quot;*&quot;]]], [&quot;payback&quot;, 1, [[&quot;v&quot;, &quot;build&quot;], [&quot;v&quot;, &quot;saving&quot;], [&quot;n&quot;, 0.01], [&quot;f&quot;, &quot;max&quot;], [&quot;o&quot;, &quot;/&quot;], [&quot;n&quot;, 99.0], [&quot;f&quot;, &quot;min&quot;]]]]" hidden></div><ol class="steps"><li class="step" data-step="0" data-show="[&quot;tools&quot;, &quot;search&quot;, &quot;tools&gt;search&quot;]"><h3>가맹점 문의 한 건</h3><p>상담원은 CS 툴에서 문의자 이메일로 문의를 연 뒤, 정산 어드민에서는 사업자등록번호로, 가맹점 관리에서는 내부 가맹점 코드로 같은 가맹점을 다시 찾는다.</p><p>지난 분기 가맹점 문의 1건의 평균 처리 시간은 18분이다. 이 18분 가운데 검색에 든 시간은 따로 재지 않았다.</p></li><li class="step" data-step="1" data-show="[&quot;dup&quot;, &quot;tools&gt;dup&quot;]"><h3>같은 가맹점의 수수료율이 둘이다</h3><p>수수료율은 가맹점 관리와 정산 어드민에 따로 입력한다.</p><p>한쪽만 고쳐지면 두 값이 갈라져, 두 도구의 수수료율이 다르게 기록된 가맹점이 이미 있다.</p></li><li class="step" data-step="2" data-show="[&quot;upkeep&quot;, &quot;tools&gt;upkeep&quot;]"><h3>도구 셋을 따로 유지하는 비용</h3><p>자체 개발 도구 둘을 개발자 2명씩, 모두 4명이 맡고, 외부 SaaS 인 CS 툴 라이선스로 연 1억 2천만 원이 나간다.</p><p>1인 연간 인건비를 <span class="val" data-out="pay">1.0</span>억 원으로 두면 기획서에 적힌 유지비는 연 <span class="val" data-out="nowcost">5.2</span>억 원이다.</p><label class="knob" for="in2"><span class="knob-label">1인 연간 인건비</span><input type="range" id="in2" data-in="pay" min="0.4" max="2" step="0.1" value="1"><output for="in2"><span class="val" data-out="pay">1.0</span></output><span class="unit">억 원</span></label></li><li class="step" data-step="3" data-show="[&quot;plan&quot;, &quot;search&gt;plan&quot;, &quot;dup&gt;plan&quot;, &quot;upkeep&gt;plan&quot;]"><h3>해결책: 플랫폼 하나, 가맹점 코드 하나</h3><p>기획서는 세 문제의 공통 원인을 도구가 셋으로 나뉜 것으로 보고, 세 도구를 「운영 플랫폼」 하나로 합친다.</p><p>가맹점 기준을 내부 가맹점 코드 하나로 통일하고, CS 툴은 해지한 뒤 문의 기능을 새로 만든다. 가맹점 하나를 열면 계약, 정산, 문의 이력이 한 화면에 보인다.</p></li><li class="step" data-step="4" data-show="[&quot;premise&quot;, &quot;premise&gt;plan&quot;]"><h3>해결책이 서는 전제</h3><p>합치려면 세 도구의 가맹점 데이터를 내부 가맹점 코드로 이어 붙일 수 있어야 한다.</p><p>사업자등록번호 하나에 내부 코드가 여럿인 가맹점은 어느 코드로 묶을지 정해야 하는데, 기획서는 그 수를 아직 세지 않았다.</p></li><li class="step" data-step="5" data-show="[&quot;fast&quot;, &quot;plan&gt;fast&quot;, &quot;match&quot;, &quot;plan&gt;match&quot;]"><h3>기획서가 약속하는 결과와 그 근거</h3><p>처리 시간 7분의 근거는 파일럿 상담원 3명이 시제품 화면으로 처리한 문의 40건의 평균이다.</p><p>18분은 지난 분기 실제 문의 전체의 평균이라, 두 값은 사람, 문의, 화면이 모두 다른 조건에서 잰 것이다.</p><p>수수료율 불일치가 없어진다는 근거는 원천 데이터가 하나가 된다는 것뿐이다.</p></li><li class="step" data-step="6" data-show="[&quot;save&quot;, &quot;plan&gt;save&quot;]"><h3>절감액을 적힌 근거로 다시 셈한다</h3><p>기획서의 절감 근거는 라이선스 1억 2천만 원 해지와 유지 인력 4명에서 3명으로의 감소다.</p><p>유지 인력을 <span class="val" data-out="keep">3</span>명으로 두고 두 근거를 더하면 연 절감액은 <span class="val" data-out="saving">2.2</span>억 원이다. 기획서는 약 1억 원이라고 쓴다.</p><label class="knob" for="in3"><span class="knob-label">새 플랫폼 유지 인력</span><input type="range" id="in3" data-in="keep" min="2" max="6" step="1" value="3"><output for="in3"><span class="val" data-out="keep">3</span></output><span class="unit">명</span></label><p class="note" data-when="[[&quot;v&quot;, &quot;gap&quot;], [&quot;n&quot;, 0.05], [&quot;o&quot;, &quot;&gt;&quot;]]">적힌 근거로 셈한 값이 기획서의 1억 원보다 <span class="val" data-out="gap">1.2</span>억 원 크다. 라이선스만 빠져도 1억 2천만 원이므로, 1억 원이 맞으려면 기획서에 적히지 않은 새 연간 비용이 그만큼 있어야 한다.</p><p class="note" data-when="[[&quot;v&quot;, &quot;gap&quot;], [&quot;n&quot;, 0.05], [&quot;o&quot;, &quot;neg&quot;], [&quot;o&quot;, &quot;&lt;&quot;], [&quot;v&quot;, &quot;saving&quot;], [&quot;n&quot;, 0.0], [&quot;o&quot;, &quot;&gt;&quot;], [&quot;o&quot;, &quot;&amp;&amp;&quot;]]" hidden>유지 인력이 4명보다 많아져 절감액이 기획서의 1억 원보다 작다.</p><p class="note" data-when="[[&quot;v&quot;, &quot;saving&quot;], [&quot;n&quot;, 0.0], [&quot;o&quot;, &quot;&lt;=&quot;]]" hidden>늘어난 유지 인력의 인건비가 라이선스 해지분보다 커서 통합 뒤 운영비가 오히려 는다.</p></li><li class="step" data-step="7" data-show="[&quot;build&quot;, &quot;save&gt;build&quot;]"><h3>구축 비용과 회수</h3><p>구축에는 개발 5명, 기획 1명, 디자인 1명이 들어간다. <span class="val" data-out="months">9</span>개월이면 같은 인건비로 <span class="val" data-out="build">5.25</span>억 원이고, 기획서는 이 비용을 절감액과 견주지 않았다.</p><p>절감은 CS 툴을 끊는 3단계(2027년 7~9월) 뒤에 시작되고, 연 <span class="val" data-out="saving">2.2</span>억 원씩이면 구축 비용을 <span class="val" data-out="payback">2.4</span>년에 회수한다.</p><label class="knob" for="in4"><span class="knob-label">구축 기간</span><input type="range" id="in4" data-in="months" min="6" max="24" step="1" value="9"><output for="in4"><span class="val" data-out="months">9</span></output><span class="unit">개월</span></label><p class="note" data-when="[[&quot;v&quot;, &quot;months&quot;], [&quot;n&quot;, 9.0], [&quot;o&quot;, &quot;&gt;&quot;], [&quot;v&quot;, &quot;saving&quot;], [&quot;n&quot;, 0.0], [&quot;o&quot;, &quot;&gt;&quot;], [&quot;o&quot;, &quot;&amp;&amp;&quot;]]" hidden>구축이 9개월을 넘기면 CS 툴 해지도 늦어져, 그동안 라이선스가 계속 나가고 회수도 늦어진다.</p><p class="note" data-when="[[&quot;v&quot;, &quot;saving&quot;], [&quot;n&quot;, 0.0], [&quot;o&quot;, &quot;&lt;=&quot;]]" hidden>절감액이 0 이하라 구축 비용을 회수하지 못한다. 99년은 회수하지 못함을 뜻한다.</p></li></ol><p class="assume">가정 모델: 1인 연간 인건비는 기획서에 없어 넣은 값이다. 라이선스 1억 2천만 원, 지금 유지 인력 4명, 구축 7명은 기획서 숫자이고, 이전 기간에 함께 돌리는 비용은 빠져 있다.</p></div></section><section class="sec" id="relations" aria-labelledby="relations-h"><h2 id="relations-h"><span class="num">02</span>핵심 관계</h2><article class="model"><h3>단일 진실 공급원</h3><p><strong>같은 가맹점 사실을 여러 도구에 따로 두면 값이 어긋나고 찾는 일이 늘며, 원천을 하나로 하면 둘이 함께 준다.</strong> 입력처마다 갱신이 따로 일어나 한쪽만 바뀐 순간 불일치가 생기고, 식별자가 다르면 사람이 같은 대상을 손으로 짝지어야 한다.</p><p>수수료율이 갈라진 것과 상담원이 같은 가맹점을 세 번 찾는 것은 다른 문제로 보이지만, 같은 사실이 세 곳에 따로 있다는 한 원인에서 나온다. 원천이 될 코드를 정하는 일이 1단계의 본체라, 한 사업자에 코드가 여럿인 가맹점이 많을수록 1단계가 길어진다.</p><p class="boundary">원천을 하나로 해도 이미 어긋난 값은 저절로 고쳐지지 않고, 잘못 짝지은 가맹점은 한 화면에 남의 이력을 모아 보여 준다.</p></article><article class="model"><h3>의존관계</h3><p><strong>기획서의 효과는 기준 통일, 화면 통합, CS 툴 해지의 순서에 묶여 있어 앞 단계가 늦으면 뒤 효과가 모두 늦는다.</strong> 뒤 단계가 앞 단계의 산출물인 통일된 가맹점 코드와 이전된 데이터를 입력으로 쓰기 때문이다.</p><p>1단계에서 가맹점을 코드로 잇지 못하면 한 화면 조회도, 수수료율 원천 통일도 함께 막힌다. 이전 기간에 세 도구와 새 플랫폼을 함께 돌리면 수수료율을 넣는 곳이 줄지 않고 하나 더 늘 수 있다(추론). 앞 단계가 한 달 늦을 때마다 라이선스 해지도 한 달 늦어져 첫해 절감액이 그만큼 준다.</p><p class="boundary">기획서에 단계별 완료 기준과 지연 때의 대안이 없어, 이 의존이 얼마나 큰 위험인지는 이 자료로 잴 수 없다.</p></article><article class="model"><h3>선택 편향</h3><p><strong>파일럿 결과는 적은 사람이 다른 조건에서 잰 값이라, 고객센터 60명의 실제 운영에서 같은 효과가 난다고 말하지 못한다.</strong> 표본이 작고 측정 조건이 기준값과 다르면 차이가 해결책 때문인지 사람과 문의의 차이 때문인지 가를 수 없다.</p><p>처리 시간이 준다는 방향은 받아들일 수 있어도, 11분이 준다는 크기는 이 비교로 확인되지 않는다. 만족도 근거는 파일럿 참여자 3명이 모두 「훨씬 편하다」고 답한 것뿐이라 60명의 반응을 대표하지 않는다.</p><p class="boundary">파일럿 상담원을 어떻게 골랐는지와 40건이 어떤 문의였는지 기획서에 없어, 편향의 방향과 크기는 알 수 없다.</p></article></section><section class="sec" id="application" aria-labelledby="application-h"><h2 id="application-h"><span class="num">03</span>적용과 한계</h2><div class="judge"><p class="sit">승인 요청은 전체 계획이 아니라 1단계 착수와 개발 인력 5명 배정이다.</p><p class="res">1단계의 가맹점 기준 통일은 통합안과, 기획서가 제외한 연동안 모두에 필요하므로 1단계 결과를 보고 2단계 이후를 다시 정할 수 있다(추론).</p><p class="why">세 도구를 연동만 하더라도 같은 가맹점을 서로 짝지을 코드 대응표가 있어야 하고, 1단계 가운데 새 플랫폼으로의 데이터 이전만 통합안 전용이다.</p></div><div class="judge"><p class="sit">기획서는 원천 데이터가 하나가 되므로 수수료율 불일치가 없어진다고 본다.</p><p class="res">새로 생기는 불일치는 막히지만, 이미 어긋난 가맹점은 이전할 때 두 값 가운데 맞는 쪽을 정해야 없어진다.</p><p class="why">원천을 하나로 하는 것은 값이 갈라지는 원인을 없앨 뿐 이미 갈라진 값을 바로잡지 않는다.</p></div><div class="switch"><p class="q" id="sw5q">1단계에서 세 도구의 가맹점을 내부 가맹점 코드로 이어 보았을 때 어떤 결과가 나오는가?</p><div class="choices" role="radiogroup" aria-labelledby="sw5q"><label class="choice"><input type="radio" name="sw5" value="0" data-switch="sw5" checked><span>모두 하나씩 이어진다</span></label><label class="choice"><input type="radio" name="sw5" value="1" data-switch="sw5"><span>한 사업자에 코드가 여럿</span></label><label class="choice"><input type="radio" name="sw5" value="2" data-switch="sw5"><span>짝을 못 찾는 가맹점이 남는다</span></label></div><div class="outcome" aria-live="polite" data-outcome="sw5"><div data-option="0"><p class="res">기획서의 전제가 서고, 2단계 화면 통합이 계획대로 시작된다.</p><p class="why">가맹점마다 원천 코드가 하나로 정해져 정산, 계약, 문의 이력을 한 코드 아래 모을 수 있다.</p></div><div data-option="1" hidden><p class="res">어느 코드로 묶을지 가맹점마다 정해야 해서 1단계 기간이 그 수에 비례해 는다(추론).</p><p class="why">정산 어드민은 사업자등록번호로 찾으므로, 그 아래 코드가 여럿이면 정산 이력을 어느 코드에 붙일지 사람이 정해야 한다.</p></div><div data-option="2" hidden><p class="res">그 가맹점은 한 화면에 모이지 않아, 통합 뒤에도 상담원이 따로 찾아야 한다(추론).</p><p class="why">CS 툴은 문의자 이메일로 가맹점을 찾아서, 이메일과 내부 코드를 잇는 근거가 없으면 문의 이력을 붙일 곳이 없다.</p></div></div></div><div class="limits"><h3>트레이드오프</h3><ul><li>연동안은 화면이 셋으로 남지만 CS 툴 기능을 다시 만들 필요가 없다. 기획서는 이를 재지 않고 효과가 작다는 판단만으로 제외했다.</li></ul></div><div class="limits"><h3>확인되지 않은 전제</h3><ul><li>새 문의 기능이 CS 툴에서 실제로 쓰는 기능을 모두 대신한다는 전제가 있지만, 그 기능 목록이 기획서에 없다.</li></ul></div><div class="limits"><h3>아직 모르는 것</h3><ul><li>세 도구와 새 플랫폼을 함께 돌리는 이전 기간의 길이와, 그동안의 데이터 입력 규칙과 비용이 적혀 있지 않다.</li><li>새 플랫폼의 권한을 역할별로 나눈다고만 쓰여 있어, 세 팀 97명의 기존 권한이 어떻게 옮겨지는지 알 수 없다.</li></ul></div></section>
 </main>
 <script>
 (function () {
@@ -184,26 +185,64 @@ thead th { border-bottom: 2px solid var(--line-strong); }
     return /^-0(\.0+)?$/.test(s) ? "0" : s;
   }
 
-  all("[data-sim]").forEach(function (sim) {
-    var inputs = all("[data-in]", sim);
-    function update() {
-      var env = {};
-      inputs.forEach(function (i) {
-        env[i.getAttribute("data-in")] = Number(i.value);
-        var show = sim.querySelector('[data-show="' + i.getAttribute("data-in") + '"]');
-        show.textContent = fmt(Number(i.value), Number(i.step) % 1 === 0 ? 0 : 2);
+  var spec = document.querySelector("[data-vars]");
+  var env = {};
+  function recompute() {
+    all("[data-in]").forEach(function (i) { env[i.getAttribute("data-in")] = Number(i.value); });
+    var digits = {};
+    all("[data-in]").forEach(function (i) { var f = String(i.step).split(".")[1]; digits[i.getAttribute("data-in")] = f ? Math.min(2, f.length) : 0; });
+    if (spec) JSON.parse(spec.getAttribute("data-vars")).forEach(function (o) {
+      env[o[0]] = evaluate(o[2], env);
+      digits[o[0]] = o[1];
+    });
+    all("[data-out]").forEach(function (s) {
+      var k = s.getAttribute("data-out");
+      if (k in env) s.textContent = fmt(env[k], digits[k] || 0);
+    });
+    all("[data-when]").forEach(function (n) { n.hidden = !evaluate(JSON.parse(n.getAttribute("data-when")), env); });
+  }
+  all("[data-in]").forEach(function (i) { i.addEventListener("input", recompute); });
+
+  all("[data-story]").forEach(function (story) {
+    var steps = all("[data-step]", story);
+    var shows = steps.map(function (s) { return JSON.parse(s.getAttribute("data-show")); });
+    var els = all("[data-el]", story);
+    story.setAttribute("data-js", "");
+    var current = -1;
+    function show(k) {
+      if (k === current) return;
+      current = k;
+      var on = {};
+      for (var i = 0; i <= k; i++) shows[i].forEach(function (id) { on[id] = true; });
+      var focus = {};
+      shows[k].forEach(function (id) { focus[id] = true; });
+      els.forEach(function (el) {
+        var id = el.getAttribute("data-el");
+        el.classList.toggle("on", !!on[id]);
+        el.classList.toggle("focus", !!focus[id]);
       });
-      all("[data-out]", sim).forEach(function (o) {
-        var v = evaluate(JSON.parse(o.getAttribute("data-rpn")), env);
-        env[o.getAttribute("data-out")] = v;
-        o.textContent = fmt(v, Number(o.getAttribute("data-digits")));
-      });
-      var segs = all("[data-part]", sim);
-      var total = segs.reduce(function (s, g) { return s + Math.max(0, env[g.getAttribute("data-part")]); }, 0) || 1;
-      segs.forEach(function (g) { g.style.width = (Math.max(0, env[g.getAttribute("data-part")]) / total * 100).toFixed(1) + "%"; });
-      all("[data-when]", sim).forEach(function (n) { n.hidden = !evaluate(JSON.parse(n.getAttribute("data-when")), env); });
+      steps.forEach(function (s, i) { s.classList.toggle("active", i === k); });
+      var wrap = story.querySelector(".svg-wrap");
+      var hits = all("[data-el].focus", story);
+      if (wrap && hits.length && (wrap.scrollWidth > wrap.clientWidth || wrap.scrollHeight > wrap.clientHeight)) {
+        var w = wrap.getBoundingClientRect(), box = null;
+        hits.forEach(function (h) {
+          var r = h.getBoundingClientRect();
+          box = box ? { l: Math.min(box.l, r.left), t: Math.min(box.t, r.top), r: Math.max(box.r, r.right), b: Math.max(box.b, r.bottom) } : { l: r.left, t: r.top, r: r.right, b: r.bottom };
+        });
+        wrap.scrollLeft += (box.l + box.r) / 2 - (w.left + w.right) / 2;
+        wrap.scrollTop += (box.t + box.b) / 2 - (w.top + w.bottom) / 2;
+      }
+      story.setAttribute("data-at", String(k));
     }
-    inputs.forEach(function (i) { i.addEventListener("input", update); });
+    function pick() {
+      var mid = window.innerHeight * 0.5, best = 0;
+      steps.forEach(function (s, i) { if (s.getBoundingClientRect().top < mid) best = i; });
+      show(best);
+    }
+    window.addEventListener("scroll", pick, { passive: true });
+    window.addEventListener("resize", pick);
+    pick();
   });
 
   all("[data-switch]").forEach(function (r) {
