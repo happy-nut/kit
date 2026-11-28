@@ -3,355 +3,215 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'sha256-+r7cGWV/QF0uiwDw6OvXw3/AA4hvWKcj8pdJVpf7FyU='; img-src data:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'sha256-6gjm7oN4VWcGp9OZxyMWGuHnlhMO7Sw9T5bDCvVMHrI='; img-src data:; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>기회비용</title>
 <style>
 :root {
-  --bg: #fbfbfa; --surface: #ffffff; --fg: #1c1d1f; --muted: #5d6168; --line: #dcdee2; --line-strong: #b9bdc4;
-  --accent: #1f5fbf; --accent-fg: #ffffff; --accent-weak: #e8eff9; --focus: #1f5fbf;
-  --tag-bg: #f0f1f3; --warn-bg: #fbf3e4; --warn-fg: #7a4b00;
-  --f-xs: 13px; --f-s: 15px; --f-m: 17px; --f-l: 22px;
-  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px;
-  --measure: 46rem; --radius: 6px;
+  --bg: #fbfbfa; --surface: #ffffff; --fg: #1b1c1e; --muted: #5a5e65; --line: #dfe1e4; --line-strong: #b5b9c0;
+  --accent: #1f5fbf; --accent-weak: #e9f0fa; --focus: #1f5fbf;
+  --c0: #1f5fbf; --c1: #c2702a; --c2: #3e8a5a; --c3: #8a5cb8; --c4: #8a8f98;
+  --f-xs: 13px; --f-s: 15px; --f-m: 17px; --f-l: 20px; --f-xl: 28px;
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 40px; --s7: 64px;
+  --measure: 44rem; --radius: 6px;
   color-scheme: light dark;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #15171a; --surface: #1d2024; --fg: #e8e9eb; --muted: #a3a8b0; --line: #33373d; --line-strong: #4a5058;
-    --accent: #7fb0ff; --accent-fg: #0d1420; --accent-weak: #1f2b3d; --focus: #7fb0ff;
-    --tag-bg: #2a2e34; --warn-bg: #3a2f1b; --warn-fg: #f1c57a;
+    --bg: #15171a; --surface: #1c1f23; --fg: #e8e9eb; --muted: #a5aab2; --line: #31353b; --line-strong: #4b5159;
+    --accent: #82b2ff; --accent-weak: #1e2a3c; --focus: #82b2ff;
+    --c0: #82b2ff; --c1: #e3a56b; --c2: #7cc395; --c3: #b996e0; --c4: #8d939c;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #15171a; --surface: #1d2024; --fg: #e8e9eb; --muted: #a3a8b0; --line: #33373d; --line-strong: #4a5058;
-  --accent: #7fb0ff; --accent-fg: #0d1420; --accent-weak: #1f2b3d; --focus: #7fb0ff;
-  --tag-bg: #2a2e34; --warn-bg: #3a2f1b; --warn-fg: #f1c57a;
+  --bg: #15171a; --surface: #1c1f23; --fg: #e8e9eb; --muted: #a5aab2; --line: #31353b; --line-strong: #4b5159;
+  --accent: #82b2ff; --accent-weak: #1e2a3c; --focus: #82b2ff;
+  --c0: #82b2ff; --c1: #e3a56b; --c2: #7cc395; --c3: #b996e0; --c4: #8d939c;
 }
 * { box-sizing: border-box; }
-html { scroll-padding-top: 120px; }
-body { margin: 0; background: var(--bg); color: var(--fg); font: var(--f-s)/1.65 -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", system-ui, sans-serif; word-break: keep-all; overflow-wrap: anywhere; }
-p { margin: 0 0 var(--s2); }
+body { margin: 0; background: var(--bg); color: var(--fg); font: var(--f-m)/1.7 -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", system-ui, sans-serif; word-break: keep-all; overflow-wrap: anywhere; }
+main { max-width: var(--measure); margin: 0 auto; padding: var(--s6) var(--s4) var(--s7); }
+p { margin: 0 0 var(--s3); }
 h1, h2, h3 { margin: 0; line-height: 1.35; }
-h3 { font-size: var(--f-s); margin: var(--s4) 0 var(--s2); }
-a { color: var(--accent); }
+h3 { font-size: var(--f-m); margin: 0 0 var(--s2); }
+ul, ol { margin: 0 0 var(--s3); padding-left: 1.2em; }
+li { margin-bottom: var(--s1); }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-.skip { position: absolute; left: -999px; }
-.skip:focus { left: var(--s4); top: var(--s2); z-index: 10; background: var(--surface); padding: var(--s2); }
 [hidden] { display: none !important; }
+.k { display: block; font-size: var(--f-xs); font-weight: 600; color: var(--muted); letter-spacing: .02em; margin: 0 0 2px; }
 
-.top { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); }
-.top-in { max-width: 72rem; margin: 0 auto; padding: var(--s3) var(--s4); display: grid; grid-template-columns: 1fr auto; grid-template-areas: "brand zoom" "title zoom"; column-gap: var(--s4); align-items: center; }
-.brand { grid-area: brand; font-size: var(--f-xs); letter-spacing: .12em; color: var(--muted); font-weight: 600; }
-.top h1 { grid-area: title; font-size: var(--f-l); }
-.zoom { grid-area: zoom; display: inline-flex; border: 1px solid var(--line-strong); border-radius: var(--radius); overflow: hidden; }
-.seg { font: inherit; font-size: var(--f-xs); padding: var(--s2) var(--s3); min-height: 36px; border: 0; background: var(--surface); color: var(--fg); cursor: pointer; }
-.seg + .seg { border-left: 1px solid var(--line-strong); }
-.seg[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); font-weight: 600; }
+.head { padding-bottom: var(--s5); border-bottom: 1px solid var(--line); }
+.brand { font-size: var(--f-xs); letter-spacing: .14em; color: var(--muted); font-weight: 600; margin-bottom: var(--s2); }
+.head h1 { font-size: var(--f-xl); margin-bottom: var(--s4); }
+.thesis { font-size: var(--f-l); font-weight: 600; line-height: 1.55; border-left: 3px solid var(--accent); padding-left: var(--s4); }
+.primer { color: var(--fg); }
 
-.frame { max-width: 72rem; margin: 0 auto; padding: 0 var(--s4); display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: var(--s6); }
-.toc { position: sticky; top: 104px; align-self: start; padding-top: var(--s6); }
-.toc ol { list-style: none; margin: 0; padding: 0; }
-.toc a { display: flex; gap: var(--s2); padding: var(--s1) 0; color: var(--muted); text-decoration: none; font-size: var(--f-xs); }
-.toc a:hover, .toc a[aria-current="true"] { color: var(--fg); }
-.toc-toggle { display: none; }
-main { max-width: var(--measure); padding: var(--s5) 0 var(--s7); min-width: 0; }
+.sec { padding: var(--s6) 0 var(--s2); border-bottom: 1px solid var(--line); }
+.sec:last-child { border-bottom: 0; }
+.sec h2 { font-size: var(--f-l); margin-bottom: var(--s4); display: flex; gap: var(--s3); align-items: baseline; }
+.num { font-size: var(--f-s); color: var(--muted); font-variant-numeric: tabular-nums; }
 
-.sec { padding: var(--s5) 0; border-bottom: 1px solid var(--line); }
-.sec-head { display: flex; align-items: center; gap: var(--s3); margin-bottom: var(--s3); }
-.sec-head h2 { font-size: var(--f-m); flex: 1; }
-.sec-num { font-variant-numeric: tabular-nums; color: var(--muted); font-size: var(--f-xs); font-weight: 600; min-width: 1.6em; }
-.sec.folded .sec-body { display: none; }
-.lead { font-size: var(--f-m); font-weight: 600; }
-.hint, .basis, .muted { color: var(--muted); font-size: var(--f-xs); }
+.fig { margin: var(--s4) 0 var(--s5); }
+.fig figcaption { font-size: var(--f-s); font-weight: 600; margin-bottom: var(--s2); }
+.svg-wrap { overflow-x: auto; }
+.svg-wrap svg { display: block; max-width: 100%; height: auto; margin: 0 auto; font: 14px -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif; }
+.edge { fill: none; stroke: var(--muted); stroke-width: 1.6; }
+.arrow { fill: var(--muted); }
+.edge-label rect { fill: var(--bg); }
+.edge-label text, .msg { fill: var(--fg); font-size: 12.5px; }
+.node rect { fill: var(--surface); stroke: var(--line-strong); }
+.node text { fill: var(--fg); font-weight: 600; }
+.life { stroke: var(--line-strong); stroke-dasharray: 4 4; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-.btn { font: inherit; font-size: var(--f-xs); min-height: 32px; padding: var(--s1) var(--s3); border: 1px solid var(--line-strong); border-radius: var(--radius); background: var(--surface); color: var(--fg); cursor: pointer; }
-.btn:hover { border-color: var(--accent); }
-.btn[aria-expanded="true"]:not([data-fold]) { background: var(--accent-weak); }
+.bars { display: grid; gap: var(--s2); }
+.bar-row { display: grid; grid-template-columns: minmax(6rem, 30%) 1fr auto; gap: var(--s3); align-items: center; font-size: var(--f-s); }
+.bar-track { height: 14px; background: var(--accent-weak); border-radius: 3px; overflow: hidden; }
+.bar { display: block; height: 100%; background: var(--c0); }
+.bar-val { font-variant-numeric: tabular-nums; font-weight: 600; }
+.basis { font-size: var(--f-xs); color: var(--muted); margin-top: var(--s2); }
 
-.tag { display: inline-block; font-size: 12px; line-height: 1.4; padding: 0 var(--s1); margin-left: var(--s1); border-radius: 3px; background: var(--tag-bg); color: var(--muted); font-weight: 600; vertical-align: 1px; white-space: nowrap; }
-.tag-unknown, .tag-assumption { background: var(--warn-bg); color: var(--warn-fg); }
-.ref { font-size: 11px; margin-left: 2px; }
-.ref a { text-decoration: none; }
-
-.ladder { display: grid; gap: var(--s3); }
-.rung { display: grid; grid-template-columns: 2.2rem minmax(0, 1fr); gap: var(--s2); }
-.rung-name { font-size: 12px; color: var(--muted); font-weight: 600; padding-top: 3px; }
-.rung-1 > div { border-left: 3px solid var(--accent); padding-left: var(--s3); }
-.rung-1 p { margin: 0; color: var(--muted); }
-.rel { display: block; font-size: var(--f-xs); color: var(--muted); margin-bottom: var(--s2); }
-.picks { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: var(--s2); }
-.pick { font: inherit; text-align: left; padding: var(--s3); border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--fg); cursor: pointer; display: grid; gap: var(--s1); align-content: start; }
-.pick:hover { border-color: var(--line-strong); }
-.pick[aria-expanded="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
-.pick-label { font-weight: 600; }
-.pick-sum { font-size: var(--f-xs); color: var(--muted); }
-.panel { margin-top: var(--s3); padding: var(--s3) var(--s4); border-left: 3px solid var(--accent); background: var(--surface); }
-.panel-title { font-weight: 600; }
-.l3 { list-style: none; margin: var(--s3) 0 0; padding: 0; display: grid; gap: var(--s2); }
-.l3 li { display: grid; grid-template-columns: 2.2rem minmax(0, 1fr); gap: var(--s2); }
-.more-detail { margin-top: var(--s1); }
-summary { cursor: pointer; color: var(--accent); font-size: var(--f-xs); }
-
-.diagram { margin: var(--s4) 0 0; overflow-x: auto; }
-.diagram svg { display: block; max-width: 100%; height: auto; margin: 0 auto; font: 14px -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif; }
-.diagram .edge { fill: none; stroke: var(--line-strong); stroke-width: 1.5; }
-.diagram .arrow { fill: var(--line-strong); }
-.diagram .edge-label rect { fill: var(--bg); }
-.diagram .edge-label text { fill: var(--muted); font-size: 12px; }
-.diagram .node rect { fill: var(--surface); stroke: var(--line-strong); }
-.diagram .node text { fill: var(--fg); }
-.diagram .node { cursor: pointer; }
-.diagram .node:hover rect, .diagram .node[aria-pressed="true"] rect { stroke: var(--accent); stroke-width: 2; }
-.diagram .node:focus-visible { outline: none; }
-.diagram .node:focus-visible rect { stroke: var(--focus); stroke-width: 3; }
-
-.block { margin-bottom: var(--s4); }
-.block > h3:first-child { margin-top: 0; }
-.steps { margin: 0; padding-left: 1.4em; display: grid; gap: var(--s2); }
-.steps strong { margin-right: var(--s2); }
-.example { padding: var(--s3) var(--s4); border: 1px dashed var(--line-strong); border-radius: var(--radius); }
 .table-wrap { overflow-x: auto; }
-table { border-collapse: collapse; width: 100%; font-size: var(--f-xs); }
-th, td { text-align: left; vertical-align: top; padding: var(--s2); border-bottom: 1px solid var(--line); }
-thead th { color: var(--muted); font-weight: 600; }
-tbody th { font-weight: 600; white-space: nowrap; }
+table { border-collapse: collapse; width: 100%; font-size: var(--f-s); }
+th, td { text-align: left; vertical-align: top; padding: var(--s2) var(--s3); border-bottom: 1px solid var(--line); }
+thead th { border-bottom: 2px solid var(--line-strong); }
 
-.limit-group h3 { margin-top: var(--s3); color: var(--muted); font-size: var(--f-xs); }
-.limit-group ul, .principles { margin: 0; padding-left: 1.2em; }
-.limit-group li { margin-bottom: var(--s1); }
-.scenario { margin: var(--s4) 0 0; border: 1px solid var(--line); border-radius: var(--radius); padding: var(--s3) var(--s4); }
-.scenario legend { font-weight: 600; padding: 0 var(--s1); }
+.case { padding: var(--s4); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: var(--s5); }
+.case p:last-child { margin-bottom: 0; }
+.chain { list-style: none; padding: 0; counter-reset: c; }
+.chain li { counter-increment: c; position: relative; padding: 0 0 var(--s4) 2.6rem; margin: 0; }
+.chain li::before { content: counter(c); position: absolute; left: 0; top: 0; width: 1.8rem; height: 1.8rem; border-radius: 50%; background: var(--accent-weak); color: var(--accent); font-size: var(--f-s); font-weight: 700; display: grid; place-items: center; }
+.chain li:not(:last-child)::after { content: ""; position: absolute; left: .86rem; top: 2rem; bottom: .2rem; border-left: 2px solid var(--line); }
+.chain p:last-child { margin-bottom: 0; }
+
+.model, .principle { margin-bottom: var(--s5); }
+.claim { font-weight: 600; }
+.boundary { color: var(--muted); }
+.cases { list-style: none; padding: 0; }
+.field { display: inline-block; font-size: var(--f-xs); font-weight: 600; color: var(--accent); margin-right: var(--s2); }
+
+.judge { padding: var(--s3) 0 var(--s3) var(--s4); border-left: 3px solid var(--line-strong); margin-bottom: var(--s4); }
+.judge p { margin-bottom: var(--s1); }
+.sit { color: var(--muted); }
+.res { font-weight: 600; }
+.why { color: var(--fg); }
+.limits ul { padding-left: 1.2em; }
+
+.sim, .switch { padding: var(--s4); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); margin: 0 0 var(--s5); }
+.assume { font-size: var(--f-xs); color: var(--muted); }
+.sim-in { display: grid; gap: var(--s3); margin-bottom: var(--s4); }
+.knob { display: grid; grid-template-columns: minmax(7rem, 35%) 1fr 4.5rem auto; gap: var(--s3); align-items: center; font-size: var(--f-s); }
+.knob input { width: 100%; accent-color: var(--accent); }
+.knob output { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+.unit { color: var(--muted); font-size: var(--f-xs); min-width: 2em; }
+.sim-out { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: var(--s3); margin: 0 0 var(--s3); }
+.sim-out div { padding: var(--s2) var(--s3); border: 1px solid var(--line); border-radius: var(--radius); }
+.sim-out dt { font-size: var(--f-xs); color: var(--muted); }
+.sim-out dd { margin: 0; font-size: var(--f-l); font-weight: 700; font-variant-numeric: tabular-nums; }
+.share { display: flex; height: 18px; border-radius: 3px; overflow: hidden; background: var(--line); }
+.seg { display: block; height: 100%; transition: width .15s; }
+.s0 { background: var(--c0); } .s1 { background: var(--c1); } .s2 { background: var(--c2); } .s3 { background: var(--c3); } .s4 { background: var(--c4); }
+.legend { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s3); font-size: var(--f-xs); margin-top: var(--s2); }
+.sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: var(--s1); }
+.note { font-size: var(--f-s); padding: var(--s2) var(--s3); background: var(--accent-weak); border-radius: var(--radius); margin: var(--s3) 0 0; }
+.switch .q { font-weight: 600; }
 .choices { display: flex; flex-wrap: wrap; gap: var(--s2); margin: var(--s2) 0 var(--s3); }
-.choice { display: inline-flex; align-items: center; gap: var(--s1); padding: var(--s1) var(--s3); min-height: 36px; border: 1px solid var(--line-strong); border-radius: var(--radius); cursor: pointer; font-size: var(--f-xs); }
+.choice { display: inline-flex; align-items: center; gap: var(--s1); padding: var(--s1) var(--s3); border: 1px solid var(--line-strong); border-radius: 999px; cursor: pointer; font-size: var(--f-s); }
 .choice:has(input:checked) { border-color: var(--accent); background: var(--accent-weak); }
-.choice input { margin: 0; accent-color: var(--accent); }
-.outcome { border-top: 1px solid var(--line); padding-top: var(--s3); }
 
-.principles li { margin-bottom: var(--s4); }
-.statement { font-weight: 600; }
-.k { font-size: var(--f-xs); color: var(--muted); font-weight: 600; margin-right: var(--s1); }
-.checks { margin-top: var(--s5); padding: var(--s3) var(--s4); border: 1px solid var(--line); border-radius: var(--radius); }
-.checks > summary { font-size: var(--f-s); font-weight: 600; }
-.check { margin-top: var(--s3); padding-top: var(--s3); border-top: 1px solid var(--line); }
-.q { font-weight: 600; }
-.answer { margin-top: var(--s2); }
-.na summary { color: var(--muted); }
-
-.foot { padding: var(--s5) 0; display: grid; gap: var(--s4); justify-items: start; }
-.foot h2 { font-size: var(--f-s); margin-bottom: var(--s2); }
-.sources { margin: 0; padding-left: 1.4em; font-size: var(--f-xs); }
-
-.sec[data-level="overview"] [data-depth="standard"],
-.sec[data-level="overview"] [data-depth="deep"],
-.sec[data-level="standard"] [data-depth="deep"] { display: none !important; }
-
-@media (max-width: 760px) {
-  .top-in { grid-template-columns: 1fr; grid-template-areas: "brand" "title" "zoom"; row-gap: var(--s2); padding: var(--s2) var(--s4); }
-  .top h1 { font-size: var(--f-m); }
-  .zoom { justify-self: stretch; }
-  .seg { flex: 1; }
-  .frame { grid-template-columns: minmax(0, 1fr); gap: 0; }
-  .toc { position: static; padding-top: var(--s3); }
-  .toc-toggle { display: inline-block; }
-  .toc ol { display: none; margin-top: var(--s2); }
-  .toc.open ol { display: block; }
-  main { padding-top: var(--s2); }
-  html { scroll-padding-top: 150px; }
-  .picks { grid-template-columns: minmax(0, 1fr); }
-  .sec-head { flex-wrap: wrap; }
+@media (max-width: 640px) {
+  body { font-size: 16px; }
+  main { padding-top: var(--s5); }
+  .head h1 { font-size: 24px; }
+  .thesis { font-size: 18px; }
+  .knob { grid-template-columns: 1fr 4rem auto; }
+  .knob-label { grid-column: 1 / -1; }
+  .bar-row { grid-template-columns: 1fr auto; }
+  .bar-track { grid-column: 1 / -1; grid-row: 2; }
 }
-@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
-@media print { .top, .toc, .btn, [data-reset] { display: none; } .sec[data-level] [data-depth] { display: block !important; } }
+@media (prefers-reduced-motion: reduce) { .seg { transition: none; } }
 
 </style>
 </head>
-<body data-zoom="overview">
-<a class="skip" href="#s1">본문으로</a>
-<header class="top">
-  <div class="top-in">
-    <div class="brand">UNDERSTAND</div>
+<body>
+<main>
+  <header class="head">
+    <p class="brand">UNDERSTAND</p>
     <h1>기회비용</h1>
-    <div class="zoom" role="group" aria-label="탐색 깊이">
-      <button type="button" class="seg" data-zoom="overview" aria-pressed="true">개요</button>
-      <button type="button" class="seg" data-zoom="standard" aria-pressed="false">표준</button>
-      <button type="button" class="seg" data-zoom="deep" aria-pressed="false">심층</button>
-    </div>
-  </div>
-</header>
-<div class="frame">
-  <nav class="toc" aria-label="목차">
-    <button type="button" class="btn toc-toggle" aria-expanded="false" aria-controls="toc-list">목차</button>
-    <ol id="toc-list"><li><a href="#s1"><span class="sec-num">01</span>본질</a></li><li><a href="#s2"><span class="sec-num">02</span>전체 구조</a></li><li><a href="#s3"><span class="sec-num">03</span>작동 원리</a></li><li><a href="#s4"><span class="sec-num">04</span>조건과 한계</a></li><li><a href="#s5"><span class="sec-num">05</span>기억할 원리</a></li></ol>
-  </nav>
-  <main>
-<section class="sec" id="s1" data-level="overview" aria-labelledby="s1-h"><div class="sec-head"><span class="sec-num">01</span><h2 id="s1-h">본질</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s1-b" aria-label="본질 접기">접기</button></div><div class="sec-body" id="s1-b"><p class="lead">기회비용은 하나를 고를 때 포기한 대안 가운데 가장 가치가 큰 것의 가치다.</p><p>시간, 돈, 사람 같은 자원은 한 번에 한 곳에만 쓸 수 있어서 모든 선택에는 포기가 따른다.</p><p>그래서 선택의 실제 비용은 낸 돈만이 아니라 그 자원으로 할 수 있었던 다음으로 좋은 일까지 포함한다.</p><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section><section class="sec" id="s2" data-level="overview" aria-labelledby="s2-h"><div class="sec-head"><span class="sec-num">02</span><h2 id="s2-h">전체 구조</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s2-b" aria-label="전체 구조 접기">접기</button></div><div class="sec-body" id="s2-b"><div class="ladder"><div class="rung rung-1"><span class="rung-name">L1</span><div><strong>포기한 최선의 가치</strong><p>선택의 비용은 고른 것이 아니라 고르지 않은 것으로 잰다.</p></div></div><div class="rung rung-2"><span class="rung-name">L2</span><div><span class="rel">기회비용을 계산하는 데 드는 세 요소</span><div class="picks" role="group" aria-label="주요 구조"><button type="button" class="pick" data-pick="scarce" aria-expanded="false" aria-controls="panel-scarce"><span class="pick-label">희소한 자원</span><span class="pick-sum">자원을 한 곳에 쓰면 다른 곳에 쓸 수 없다.</span></button><button type="button" class="pick" data-pick="alts" aria-expanded="false" aria-controls="panel-alts"><span class="pick-label">대안들</span><span class="pick-sum">같은 자원으로 할 수 있었던 다른 선택들이다.</span></button><button type="button" class="pick" data-pick="value" aria-expanded="false" aria-controls="panel-value"><span class="pick-label">가치의 단위</span><span class="pick-sum">대안끼리 견주려면 같은 단위로 바꿔야 한다.</span></button></div><div class="panel" id="panel-scarce" data-panel="scarce" hidden><p class="panel-title">희소한 자원</p><p>자원이 넉넉해서 둘 다 할 수 있으면 포기가 없고 기회비용도 0 에 가깝다.</p></div><div class="panel" id="panel-alts" data-panel="alts" hidden><p class="panel-title">대안들</p><p>기회비용은 대안 전부의 합이 아니다. 실제로 둘 이상을 동시에 할 수 없으니 가장 큰 하나만 센다.</p></div><div class="panel" id="panel-value" data-panel="value" hidden><p class="panel-title">가치의 단위</p><p>돈으로 바꾸기 쉬운 것도 있고 휴식이나 관계처럼 바꾸기 어려운 것도 있다.</p><ul class="l3"><li data-depth="standard"><span class="rung-name">L3</span><div><strong>명시적 비용</strong> <span>실제로 나가는 돈이다. 예: 학원비.</span></div></li><li data-depth="standard"><span class="rung-name">L3</span><div><strong>암묵적 비용</strong> <span>나가지는 않지만 포기한 수입이나 쓸모다. 예: 그 시간에 벌 수 있던 아르바이트 수입.</span></div></li></ul></div></div></div></div><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section><section class="sec" id="s3" data-level="overview" aria-labelledby="s3-h"><div class="sec-head"><span class="sec-num">03</span><h2 id="s3-h">작동 원리</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s3-b" aria-label="작동 원리 접기">접기</button></div><div class="sec-body" id="s3-b"><div class="block example" data-depth="standard"><h3>토요일 오후 네 시간 <span class="tag tag-example">지어낸 예시</span></h3><p>선택지는 셋이다. 아르바이트(4만 원), 자격증 공부, 휴식.</p><p>공부를 고르면 기회비용은 남은 둘 중 더 가치가 큰 쪽이다. 아르바이트가 더 크다고 보면 기회비용은 4만 원이다.</p><p>공부의 실제 비용은 교재비에 그 4만 원을 더한 값이다. 공부로 얻는 가치가 이보다 커야 이득이다.</p></div><div class="block" data-depth="deep"><h3>회계 비용과의 차이</h3><p>회계 비용은 실제로 나간 돈만 기록한다.</p><p>기회비용은 나가지 않은 포기분까지 센다. 그래서 장부상 이익이 나도 경제적으로는 손해일 수 있다.</p></div><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section><section class="sec" id="s4" data-level="overview" aria-labelledby="s4-h"><div class="sec-head"><span class="sec-num">04</span><h2 id="s4-h">조건과 한계</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s4-b" aria-label="조건과 한계 접기">접기</button></div><div class="sec-body" id="s4-b"><div class="limit-group" data-kind="condition" data-depth="standard"><h3>성립 조건</h3><ul><li data-depth="standard">대안이 실제로 실행 가능해야 한다. 할 수 없었던 일은 포기한 대안이 아니다.</li></ul></div><div class="limit-group" data-kind="exception" data-depth="standard"><h3>예외</h3><ul><li data-depth="standard">이미 써서 되돌릴 수 없는 돈(매몰비용)은 어느 쪽을 골라도 같으므로 지금 선택의 기회비용에 넣지 않는다.</li></ul></div><div class="limit-group" data-kind="boundary" data-depth="deep"><h3>적용 한계</h3><ul><li data-depth="deep">가치를 같은 단위로 바꾸기 어려우면 값은 추정이 된다. 이때 기회비용은 정확한 숫자보다 비교의 틀로 쓴다.</li></ul></div><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section><section class="sec" id="s5" data-level="overview" aria-labelledby="s5-h"><div class="sec-head"><span class="sec-num">05</span><h2 id="s5-h">기억할 원리</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s5-b" aria-label="기억할 원리 접기">접기</button></div><div class="sec-body" id="s5-b"><ol class="principles"><li><p class="statement">어떤 선택의 비용을 볼 때는 가장 좋은 다음 대안을 먼저 적는다.</p><p><span class="k">성립 조건</span> 자원이 희소하고 대안이 실제로 가능할 때 성립한다.</p><p><span class="k">적용 예</span> 개발자가 기능 A 를 만들면, 같은 시간에 만들 수 있던 기능 B 의 가치가 A 의 비용에 들어간다.</p></li></ol><details class="checks" data-reset-close><summary>이해 확인</summary><p class="basis">먼저 답을 떠올린 뒤 연다.</p><div class="check"><p class="q">아르바이트 시급이 두 배가 되면 토요일 공부의 기회비용은 어떻게 되는가?</p><button type="button" class="btn" data-answer="ans-1" aria-expanded="false" aria-controls="ans-1">답 보기</button><div class="answer" id="ans-1" hidden><p><strong>답</strong> 8만 원으로 커진다. 공부로 얻는 가치가 그대로면 공부를 고를 이유가 약해진다.</p><p>기회비용은 포기한 최선의 대안 가치다. 그 대안의 가치가 오르면 기회비용도 같이 오른다.</p></div></div><div class="check" data-depth="deep"><p class="q">「이미 낸 헬스장 1년 회비가 아까우니 오늘도 가야 한다」는 판단의 틀린 점은?</p><button type="button" class="btn" data-answer="ans-2" aria-expanded="false" aria-controls="ans-2">답 보기</button><div class="answer" id="ans-2" hidden><p><strong>답</strong> 낸 회비는 매몰비용이라 가든 안 가든 돌아오지 않는다. 오늘 판단에는 오늘 가는 대신 포기하는 것만 들어간다.</p><p>되돌릴 수 없는 비용은 대안 사이의 차이를 만들지 않는다.</p></div></div></details><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section>
-    <footer class="foot">
-      <section class="sources-box" id="sources" aria-labelledby="sources-h">
-        <h2 id="sources-h">출처</h2>
-        <p class="basis">따로 든 출처가 없다. 일반적으로 알려진 내용으로 설명했다.</p>
-      </section>
-      <button type="button" class="btn" data-reset>초기화</button>
-    </footer>
-  </main>
-</div>
+    <p class="thesis">어떤 선택의 실제 비용은 낸 돈에, 같은 자원으로 할 수 있었던 다음 최선 선택의 가치를 더한 값이다.</p><p class="primer">기회비용은 고르지 않은 대안 가운데 가치가 가장 큰 하나의 가치다.</p><p class="primer">시간, 돈, 설비처럼 한 번에 한 곳에만 쓸 수 있는 자원을 쓸 때 생긴다.</p>
+  </header>
+<section class="sec" id="structure" aria-labelledby="structure-h"><h2 id="structure-h"><span class="num">01</span>전체 구조</h2><p>같은 자원에서 갈라진 대안 가운데 가장 큰 하나만 비용에 더한다. 나머지 대안은 더하지 않는다.</p><figure class="fig fig-graph"><figcaption>토요일 오후 네 시간이 공부에 쓰일 때 비용이 생기는 경로</figcaption><div class="svg-wrap"><svg viewBox="0 0 440 368" width="440" style="min-width:374px" role="img" aria-labelledby="g1t" preserveAspectRatio="xMidYMin meet"><title id="g1t">토요일 오후 네 시간이 공부에 쓰일 때 비용이 생기는 경로</title><defs><marker id="g1a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow"/></marker></defs><path d="M220.0,52.0 C220.0,84.0 81.0,84.0 81.0,114.0" class="edge" marker-end="url(#g1a)"/><path d="M220.0,52.0 C220.0,84.0 249.0,84.0 249.0,114.0" class="edge" marker-end="url(#g1a)"/><path d="M220.0,52.0 C220.0,84.0 388.0,84.0 388.0,114.0" class="edge" marker-end="url(#g1a)"/><path d="M249.0,152.0 C249.0,184.0 295.0,184.0 295.0,214.0" class="edge" marker-end="url(#g1a)"/><path d="M81.0,152.0 C81.0,184.0 138.0,184.0 138.0,214.0" class="edge" marker-end="url(#g1a)"/><path d="M138.0,252.0 C138.0,284.0 220.0,284.0 220.0,314.0" class="edge" marker-end="url(#g1a)"/><path d="M295.0,252.0 C295.0,284.0 220.0,284.0 220.0,314.0" class="edge" marker-end="url(#g1a)"/><g class="edge-label"><rect x="132.0" y="74.0" width="37.0" height="20" rx="3"/><text x="150.5" y="88.0" text-anchor="middle">쓰임</text></g><g class="edge-label"><rect x="216.0" y="74.0" width="37.0" height="20" rx="3"/><text x="234.5" y="88.0" text-anchor="middle">포기</text></g><g class="edge-label"><rect x="285.5" y="74.0" width="37.0" height="20" rx="3"/><text x="304.0" y="88.0" text-anchor="middle">포기</text></g><g class="edge-label"><rect x="227.6" y="174.0" width="88.8" height="20" rx="3"/><text x="272.0" y="188.0" text-anchor="middle">가장 큰 대안</text></g><g class="edge-label"><rect x="91.0" y="174.0" width="37.0" height="20" rx="3"/><text x="109.5" y="188.0" text-anchor="middle">지출</text></g><g class="edge-label"><rect x="160.5" y="274.0" width="37.0" height="20" rx="3"/><text x="179.0" y="288.0" text-anchor="middle">더함</text></g><g class="edge-label"><rect x="239.0" y="274.0" width="37.0" height="20" rx="3"/><text x="257.5" y="288.0" text-anchor="middle">더함</text></g><g class="node"><rect x="163.0" y="16.0" width="114.0" height="36" rx="4"/><text x="220.0" y="39.0" text-anchor="middle">오후 네 시간</text></g><g class="node"><rect x="16.0" y="116.0" width="130.0" height="36" rx="4"/><text x="81.0" y="139.0" text-anchor="middle">공부 (고른 것)</text></g><g class="node"><rect x="174.0" y="116.0" width="150.0" height="36" rx="4"/><text x="249.0" y="139.0" text-anchor="middle">아르바이트 4만 원</text></g><g class="node"><rect x="352.0" y="116.0" width="72.0" height="36" rx="4"/><text x="388.0" y="139.0" text-anchor="middle">휴식</text></g><g class="node"><rect x="77.0" y="216.0" width="122.0" height="36" rx="4"/><text x="138.0" y="239.0" text-anchor="middle">교재비 2만 원</text></g><g class="node"><rect x="227.0" y="216.0" width="136.0" height="36" rx="4"/><text x="295.0" y="239.0" text-anchor="middle">기회비용 4만 원</text></g><g class="node"><rect x="148.0" y="316.0" width="144.0" height="36" rx="4"/><text x="220.0" y="339.0" text-anchor="middle">실제 비용 6만 원</text></g></svg></div><ul class="sr"><li>오후 네 시간 → 공부 (고른 것): 쓰임</li><li>오후 네 시간 → 아르바이트 4만 원: 포기</li><li>오후 네 시간 → 휴식: 포기</li><li>아르바이트 4만 원 → 기회비용 4만 원: 가장 큰 대안</li><li>공부 (고른 것) → 교재비 2만 원: 지출</li><li>교재비 2만 원 → 실제 비용 6만 원: 더함</li><li>기회비용 4만 원 → 실제 비용 6만 원: 더함</li></ul></figure></section><section class="sec" id="mechanism" aria-labelledby="mechanism-h"><h2 id="mechanism-h"><span class="num">02</span>작동 원리</h2><div class="case"><p class="k">대표 사례</p><h3>토요일 오후 네 시간</h3><p>예를 들어 한 사람이 토요일 오후 네 시간에 자격증 공부, 아르바이트, 휴식 가운데 하나를 고른다.</p><p>아르바이트는 시급 1만 원으로 4만 원을 받고, 공부는 교재비 2만 원이 든다. 이 사람은 공부를 고른다.</p></div><ol class="chain"><li><h3>자원이 한 곳에 묶인다</h3><p>네 시간을 공부에 쓰면 같은 네 시간에 아르바이트와 휴식은 할 수 없다.</p></li><li><h3>포기한 대안 가운데 가장 큰 하나만 센다</h3><p>공부를 하지 않았더라도 아르바이트와 휴식을 동시에 하지는 못한다.</p><p>그래서 둘 중 가치가 큰 아르바이트 4만 원이 공부의 기회비용이다.</p></li><li><h3>낸 돈과 기회비용을 더한다</h3><p>교재비 2만 원은 실제로 나간 돈이라 명시적 비용이라 부른다. 기회비용 4만 원은 돈이 나가지 않아 장부에 남지 않는다.</p><p>공부의 실제 비용은 2만 원에 4만 원을 더한 6만 원이다.</p></li><li><h3>얻는 가치와 견준다</h3><p>공부로 얻는 가치가 6만 원보다 크면 공부가 낫고, 작으면 아르바이트가 낫다.</p><p>교재비 2만 원만 보고 판단하면 공부의 비용을 3분의 1로 잘못 본다.</p></li></ol></section><section class="sec" id="relations" aria-labelledby="relations-h"><h2 id="relations-h"><span class="num">03</span>핵심 관계</h2><article class="model"><h3>기회비용</h3><p class="claim">같은 자원을 두고 겨루는 대안이 있으면, 고른 것의 비용에 포기한 최선 대안의 가치가 들어간다.</p><p><span class="k">작동</span>자원은 한 번에 한 곳에만 쓰이므로 하나를 고르는 행위가 곧 다른 하나를 잃는 행위가 된다.</p><p class="k">이 모델로 설명되는 현상</p><ul><li>아르바이트 시급이 오르면 공부 자체는 그대로여도 공부의 비용이 오른다.</li><li>무료 공연에 두 시간 줄을 서는 사람도 그 두 시간에 벌 수 있던 돈만큼 값을 낸다.</li><li>회사가 개발자에게 기능 A 를 맡기면 같은 기간 만들 수 있던 기능 B 의 가치가 A 의 비용이 된다.</li></ul><p class="boundary"><span class="k">설명하지 못하는 것</span>대안의 가치를 같은 단위로 바꾸기 어려우면 기회비용은 정확한 값이 아니라 비교의 틀로만 쓰인다.</p></article><article class="model"><h3>매몰비용</h3><p class="claim">이미 써서 돌려받을 수 없는 돈은 지금 고를 수 있는 모든 대안에서 같으므로 판단에서 뺀다.</p><p><span class="k">작동</span>판단은 대안마다 앞으로 달라지는 결과만 비교하는데, 되돌릴 수 없는 지출은 어느 대안에서도 달라지지 않는다.</p><p class="k">이 모델로 설명되는 현상</p><ul><li>이미 낸 헬스장 1년 회비는 오늘 운동을 갈지 정하는 데 들어가지 않는다.</li><li>다음 주 토요일에 같은 공부를 고를 때는 이미 산 교재비가 빠져 비용이 4만 원이 된다.</li></ul><p class="boundary"><span class="k">설명하지 못하는 것</span>되팔 수 있는 물건은 매몰비용이 아니다. 되팔아 받을 수 있는 값이 계속 쓰는 쪽의 기회비용이 된다.</p></article></section><section class="sec" id="application" aria-labelledby="application-h"><h2 id="application-h"><span class="num">04</span>적용과 한계</h2><div class="judge"><p class="sit">예를 들어 혼자 가게를 하는 사람이 월 매출에서 재료비와 임대료를 빼고 300만 원이 남았다고 본다.</p><p class="res">같은 시간에 회사에서 월 350만 원을 받을 수 있었다면 이 가게는 경제적으로 월 50만 원 손해다.</p><p class="why">자기 노동의 기회비용 350만 원이 장부에 비용으로 잡히지 않았기 때문이다.</p></div><div class="sim" data-sim><h3>토요일 공부의 실제 비용</h3><p class="assume">가정 모델: 휴식의 가치는 아르바이트 수입보다 작다고 두고, 공부로 얻는 가치는 원 단위 추정값으로 넣는다.</p><div class="sim-in"><label class="knob" for="in2"><span class="knob-label">아르바이트 시급</span><input type="range" id="in2" data-in="wage" min="0" max="30000" step="1000" value="10000"><output data-show="wage" for="in2">10,000</output><span class="unit">원</span></label><label class="knob" for="in3"><span class="knob-label">쓸 수 있는 시간</span><input type="range" id="in3" data-in="hours" min="1" max="8" step="1" value="4"><output data-show="hours" for="in3">4</output><span class="unit">시간</span></label><label class="knob" for="in4"><span class="knob-label">교재비</span><input type="range" id="in4" data-in="book" min="0" max="60000" step="5000" value="20000"><output data-show="book" for="in4">20,000</output><span class="unit">원</span></label><label class="knob" for="in5"><span class="knob-label">공부로 얻는 가치</span><input type="range" id="in5" data-in="gain" min="0" max="200000" step="5000" value="70000"><output data-show="gain" for="in5">70,000</output><span class="unit">원</span></label></div><dl class="sim-out" aria-live="polite"><div><dt>명시적 비용</dt><dd><span data-out="paid" data-digits="0" data-rpn="[[&quot;v&quot;, &quot;book&quot;]]">20,000</span> 원</dd></div><div><dt>기회비용</dt><dd><span data-out="oc" data-digits="0" data-rpn="[[&quot;v&quot;, &quot;wage&quot;], [&quot;v&quot;, &quot;hours&quot;], [&quot;o&quot;, &quot;*&quot;]]">40,000</span> 원</dd></div><div><dt>실제 비용</dt><dd><span data-out="cost" data-digits="0" data-rpn="[[&quot;v&quot;, &quot;paid&quot;], [&quot;v&quot;, &quot;oc&quot;], [&quot;o&quot;, &quot;+&quot;]]">60,000</span> 원</dd></div><div><dt>공부를 고른 순이익</dt><dd><span data-out="net" data-digits="0" data-rpn="[[&quot;v&quot;, &quot;gain&quot;], [&quot;v&quot;, &quot;cost&quot;], [&quot;o&quot;, &quot;-&quot;]]">10,000</span> 원</dd></div></dl><div class="share" aria-hidden="true"><span class="seg s0" data-part="paid" style="width:33.3%"></span><span class="seg s1" data-part="oc" style="width:66.7%"></span></div><ul class="legend"><li><span class="sw s0"></span>명시적 비용</li><li><span class="sw s1"></span>기회비용</li></ul><p class="note" data-when="[[&quot;v&quot;, &quot;net&quot;], [&quot;n&quot;, 0.0], [&quot;o&quot;, &quot;&gt;=&quot;]]">이 조건에서는 공부가 아르바이트보다 낫다.</p><p class="note" data-when="[[&quot;v&quot;, &quot;net&quot;], [&quot;n&quot;, 0.0], [&quot;o&quot;, &quot;&lt;&quot;]]" hidden>이 조건에서는 아르바이트가 공부보다 낫다.</p></div><div class="limits"><h3>성립 조건</h3><ul><li>대안이 실제로 실행 가능해야 한다. 할 수 없었던 일은 포기한 대안이 아니다.</li></ul></div><div class="limits"><h3>트레이드오프</h3><ul><li>휴식이나 관계처럼 돈으로 바꾸기 어려운 가치를 시급으로 재면 그 가치가 작게 잡힌다.</li></ul></div></section><section class="sec" id="principles" aria-labelledby="principles-h"><h2 id="principles-h"><span class="num">05</span>재사용할 원리</h2><article class="principle"><h3>다음 최선 대안과 비교하기</h3><p>선택을 평가할 때 아무것도 하지 않는 경우가 아니라, 같은 자원으로 할 수 있었던 다음 최선과 비교한다.</p><p><span class="k">적용 조건</span>자원이 한정되고 대안이 실제로 가능할 때 쓴다.</p><ul class="cases"><li><span class="field">투자</span>연 3% 예금 대신 연 4% 를 기대하는 사업에 돈을 넣으면 그 선택이 더하는 수익은 4% 가 아니라 1%p 다.</li><li><span class="field">채용</span>팀에 한 자리가 남았을 때 지원자 A 를 뽑는 비용에는 그 자리에 올 수 있던 다음 지원자의 기여가 들어간다.</li></ul></article></section>
+</main>
 <script>
 (function () {
   "use strict";
-  var LEVELS = ["overview", "standard", "deep"];
-  var LABEL = { overview: "개요", standard: "표준", deep: "심층" };
-  var body = document.body;
-  var sections = Array.prototype.slice.call(document.querySelectorAll(".sec"));
-  var global = 0;
-  var local = {};
   var all = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
-  var idx = function (d) { return Math.max(0, LEVELS.indexOf(d)); };
 
-  function anchor() {
-    var top = document.querySelector(".top").getBoundingClientRect().bottom + 8;
-    var candidates = all(".sec-head, .block, .rung, .limit-group, .principles > li, .lead");
-    for (var i = 0; i < candidates.length; i++) {
-      var r = candidates[i].getBoundingClientRect();
-      if (r.bottom > top && r.height > 0) return { el: candidates[i], y: r.top };
-    }
-    return null;
+  function evaluate(rpn, env) {
+    var st = [];
+    rpn.forEach(function (t) {
+      if (t[0] === "n") st.push(t[1]);
+      else if (t[0] === "v") st.push(env[t[1]]);
+      else if (t[0] === "f") {
+        if (t[1] === "round") st.push(Math.floor(st.pop() + 0.5));
+        else if (t[1] === "abs") st.push(Math.abs(st.pop()));
+        else { var b = st.pop(), a = st.pop(); st.push(t[1] === "min" ? Math.min(a, b) : Math.max(a, b)); }
+      } else if (t[1] === "neg") st.push(-st.pop());
+      else {
+        var y = st.pop(), x = st.pop();
+        switch (t[1]) {
+          case "+": st.push(x + y); break;
+          case "-": st.push(x - y); break;
+          case "*": st.push(x * y); break;
+          case "/": st.push(y ? x / y : NaN); break;
+          case "<": st.push(+(x < y)); break;
+          case "<=": st.push(+(x <= y)); break;
+          case ">": st.push(+(x > y)); break;
+          case ">=": st.push(+(x >= y)); break;
+          case "==": st.push(+(x === y)); break;
+          case "!=": st.push(+(x !== y)); break;
+          case "&&": st.push(+(!!x && !!y)); break;
+          default: st.push(+(!!x || !!y));
+        }
+      }
+    });
+    return st[0];
   }
 
-  function apply(keep) {
-    var a = keep ? anchor() : null;
-    body.setAttribute("data-zoom", LEVELS[global]);
-    all(".seg").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-zoom") === LEVELS[global])); });
-    sections.forEach(function (sec) {
-      var lv = Math.max(global, local[sec.id] || 0);
-      sec.setAttribute("data-level", LEVELS[lv]);
-      var hidden = all("[data-depth]", sec).filter(function (el) { return idx(el.getAttribute("data-depth")) > lv; });
-      var more = sec.querySelector("[data-more]");
-      var next = Math.min.apply(null, hidden.map(function (el) { return idx(el.getAttribute("data-depth")); }).concat([3]));
-      more.hidden = next > 2;
-      more.setAttribute("data-next", String(next));
-      if (next <= 2) more.textContent = LABEL[LEVELS[next]] + "까지 더 보기";
-      var b = sec.querySelector(".sec-body");
-      var hint = b.querySelector(".empty-hint");
-      var shown = all(":scope > *", b).filter(function (el) {
-        return el !== hint && !(el.hasAttribute("data-depth") && idx(el.getAttribute("data-depth")) > lv);
+  function fmt(v, digits) {
+    if (!isFinite(v)) return "계산 불가";
+    var s = v.toLocaleString("en-US", { minimumFractionDigits: digits, maximumFractionDigits: digits });
+    return /^-0(\.0+)?$/.test(s) ? "0" : s;
+  }
+
+  all("[data-sim]").forEach(function (sim) {
+    var inputs = all("[data-in]", sim);
+    function update() {
+      var env = {};
+      inputs.forEach(function (i) {
+        env[i.getAttribute("data-in")] = Number(i.value);
+        var show = sim.querySelector('[data-show="' + i.getAttribute("data-in") + '"]');
+        show.textContent = fmt(Number(i.value), Number(i.step) % 1 === 0 ? 0 : 2);
       });
-      hint.hidden = shown.length > 0;
-    });
-    if (a && a.el.getBoundingClientRect().height > 0) window.scrollBy({ top: a.el.getBoundingClientRect().top - a.y, behavior: "instant" });
-  }
-
-  all(".seg").forEach(function (b) {
-    b.addEventListener("click", function () {
-      global = idx(b.getAttribute("data-zoom"));
-      local = {};
-      apply(true);
-    });
-  });
-
-  sections.forEach(function (sec) {
-    sec.querySelector("[data-more]").addEventListener("click", function () {
-      local[sec.id] = Number(sec.querySelector("[data-more]").getAttribute("data-next"));
-      apply(false);
-      var more = sec.querySelector("[data-more]");
-      (more.hidden ? sec.querySelector("[data-fold]") : more).focus();
-    });
-    var fold = sec.querySelector("[data-fold]");
-    var name = sec.querySelector("h2").textContent;
-    fold.addEventListener("click", function () {
-      var folded = sec.classList.toggle("folded");
-      fold.setAttribute("aria-expanded", String(!folded));
-      fold.textContent = folded ? "펼치기" : "접기";
-      fold.setAttribute("aria-label", name + (folded ? " 펼치기" : " 접기"));
-    });
-  });
-
-  function pick(trigger) {
-    var scope = trigger.closest(".ladder, .block");
-    var id = trigger.getAttribute("data-pick");
-    var panel = scope.querySelector('[data-panel="' + id + '"]');
-    var open = panel && panel.hidden;
-    all("[data-panel]", scope).forEach(function (p) { p.hidden = true; });
-    all("[data-pick]", scope).forEach(function (t) {
-      var on = open && t.getAttribute("data-pick") === id;
-      t.setAttribute(t.tagName === "BUTTON" ? "aria-expanded" : "aria-pressed", String(on));
-    });
-    if (panel) panel.hidden = !open;
-    if (document.activeElement !== trigger) trigger.focus({ preventScroll: true });
-  }
-  all("[data-pick]").forEach(function (t) {
-    t.addEventListener("click", function () { pick(t); });
-    if (t.tagName !== "BUTTON") {
-      t.addEventListener("keydown", function (ev) {
-        if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); pick(t); }
+      all("[data-out]", sim).forEach(function (o) {
+        var v = evaluate(JSON.parse(o.getAttribute("data-rpn")), env);
+        env[o.getAttribute("data-out")] = v;
+        o.textContent = fmt(v, Number(o.getAttribute("data-digits")));
       });
+      var segs = all("[data-part]", sim);
+      var total = segs.reduce(function (s, g) { return s + Math.max(0, env[g.getAttribute("data-part")]); }, 0) || 1;
+      segs.forEach(function (g) { g.style.width = (Math.max(0, env[g.getAttribute("data-part")]) / total * 100).toFixed(1) + "%"; });
+      all("[data-when]", sim).forEach(function (n) { n.hidden = !evaluate(JSON.parse(n.getAttribute("data-when")), env); });
     }
+    inputs.forEach(function (i) { i.addEventListener("input", update); });
   });
 
-  all("[data-answer]").forEach(function (b) {
-    b.addEventListener("click", function () {
-      var a = document.getElementById(b.getAttribute("data-answer"));
-      a.hidden = !a.hidden;
-      b.setAttribute("aria-expanded", String(!a.hidden));
-      b.textContent = a.hidden ? "답 보기" : "답 숨기기";
-    });
-  });
-
-  all("[data-scenario]").forEach(function (r) {
+  all("[data-switch]").forEach(function (r) {
     r.addEventListener("change", function () {
-      var out = document.querySelector('[data-outcome="' + r.getAttribute("data-scenario") + '"]');
-      out.querySelector(".hint").hidden = true;
+      var out = document.querySelector('[data-outcome="' + r.getAttribute("data-switch") + '"]');
       all("[data-option]", out).forEach(function (o) { o.hidden = o.getAttribute("data-option") !== r.value; });
     });
   });
-
-  var toc = document.querySelector(".toc");
-  var tocBtn = toc.querySelector(".toc-toggle");
-  function setToc(open) {
-    toc.classList.toggle("open", open);
-    tocBtn.setAttribute("aria-expanded", String(open));
-  }
-  tocBtn.addEventListener("click", function () { setToc(!toc.classList.contains("open")); });
-  all(".toc a").forEach(function (a) {
-    a.addEventListener("click", function () {
-      var sec = document.querySelector(a.getAttribute("href"));
-      if (sec && sec.classList.contains("folded")) sec.querySelector("[data-fold]").click();
-      setToc(false);
-    });
-  });
-  if ("IntersectionObserver" in window) {
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) {
-        if (!en.isIntersecting) return;
-        all(".toc a").forEach(function (a) { a.setAttribute("aria-current", String(a.getAttribute("href") === "#" + en.target.id)); });
-      });
-    }, { rootMargin: "-30% 0px -60% 0px" });
-    sections.forEach(function (s) { io.observe(s); });
-  }
-
-  document.querySelector("[data-reset]").addEventListener("click", function () {
-    global = 0;
-    local = {};
-    all(".sec.folded [data-fold]").forEach(function (f) { f.click(); });
-    all("[data-panel]").forEach(function (p) { p.hidden = true; });
-    all("[data-pick]").forEach(function (t) { t.setAttribute(t.tagName === "BUTTON" ? "aria-expanded" : "aria-pressed", "false"); });
-    all("[data-answer]").forEach(function (b) {
-      document.getElementById(b.getAttribute("data-answer")).hidden = true;
-      b.setAttribute("aria-expanded", "false");
-      b.textContent = "답 보기";
-    });
-    all("[data-scenario]").forEach(function (r) { r.checked = false; });
-    all("[data-outcome]").forEach(function (o) {
-      o.querySelector(".hint").hidden = false;
-      all("[data-option]", o).forEach(function (x) { x.hidden = true; });
-    });
-    all("details").forEach(function (d) { d.open = false; });
-    setToc(false);
-    apply(false);
-    window.scrollTo({ top: 0, behavior: "instant" });
-    document.querySelector('.seg[data-zoom="overview"]').focus({ preventScroll: true });
-  });
-
-  apply(false);
 })();
 
 </script>

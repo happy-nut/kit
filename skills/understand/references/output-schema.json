@@ -1,269 +1,248 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "understand/1",
-  "title": "UNDERSTAND 출력 데이터",
-  "description": "분석 결과 중 사용자에게 보일 것만 담는다. 내부 분류·평가·사고도구 이름은 넣지 않는다. scripts/validate.py 가 이 파일을 읽어 검사하고 scripts/render.py 가 assets/template.html 에 넣는다.",
+  "$id": "understand/2",
+  "title": "UNDERSTAND 설명 데이터",
+  "description": "화면에 나갈 정신 모델과 설명만 담는다. 내부 분류·평가·분석 과정은 넣지 않는다. sources 와 src 는 사실 검증용으로 남기고 화면에 내보내지 않는다. 내용이 없는 영역은 키를 빼면 렌더되지 않는다.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema", "title", "essence", "structure", "mechanism", "limits", "principles", "checks", "sources"],
+  "required": ["schema", "title", "thesis", "sources"],
   "properties": {
-    "schema": {"const": "understand/1"},
+    "schema": {"const": "understand/2"},
     "title": {"type": "string", "minLength": 1, "maxLength": 60},
-    "essence": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["definition"],
-      "properties": {
-        "definition": {"$ref": "#/$defs/sentence"},
-        "support": {"type": "array", "maxItems": 3, "items": {"$ref": "#/$defs/sentence"}},
-        "status": {"$ref": "#/$defs/status"},
-        "sources": {"$ref": "#/$defs/sourceRefs"}
-      }
-    },
+    "thesis": {"$ref": "#/$defs/sentence", "description": "핵심 명제. 한 문장"},
+    "primer": {"type": "array", "maxItems": 3, "items": {"$ref": "#/$defs/sentence"}, "description": "핵심 명제를 읽는 데 꼭 필요한 최소 설명. 새 용어는 여기서 정의한다"},
     "structure": {
-      "oneOf": [
-        {"$ref": "#/$defs/na"},
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["nodes"],
-          "properties": {
-            "relation": {"type": "string", "maxLength": 40, "description": "L2 항목들이 L1 과 맺는 실제 관계. 예: 구성 요소, 주장과 근거, 목적과 수단"},
-            "nodes": {"type": "array", "minItems": 1, "maxItems": 24, "items": {"$ref": "#/$defs/node"}},
-            "edges": {"type": "array", "maxItems": 20, "items": {"$ref": "#/$defs/edge"}, "description": "계층으로 담기지 않는 L2 사이의 관계. 있으면 같은 영역에 관계도로 그린다"}
-          }
-        }
-      ]
+      "type": "object", "additionalProperties": false, "required": ["figure"],
+      "description": "01 전체 구조. 주요 요소와 그 관계를 한눈에",
+      "properties": {
+        "text": {"type": "array", "maxItems": 3, "items": {"$ref": "#/$defs/sentence"}},
+        "figure": {"$ref": "#/$defs/figure"},
+        "src": {"$ref": "#/$defs/src"}
+      }
     },
     "mechanism": {
-      "oneOf": [
-        {"$ref": "#/$defs/na"},
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["blocks"],
-          "properties": {"blocks": {"type": "array", "minItems": 1, "maxItems": 8, "items": {"$ref": "#/$defs/block"}}}
-        }
-      ]
-    },
-    "limits": {
-      "oneOf": [
-        {"$ref": "#/$defs/na"},
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["items"],
+      "type": "object", "additionalProperties": false, "required": ["steps"],
+      "description": "02 작동 원리. 왜 있고 어떻게 도는지. 대표 사례 하나로 원인에서 결과까지 중간을 빼지 않는다",
+      "properties": {
+        "case": {
+          "type": "object", "additionalProperties": false, "required": ["title", "body"],
           "properties": {
-            "items": {"type": "array", "minItems": 1, "maxItems": 12, "items": {"$ref": "#/$defs/limit"}},
-            "scenario": {"$ref": "#/$defs/scenario"}
+            "title": {"type": "string", "minLength": 1, "maxLength": 40},
+            "body": {"type": "array", "minItems": 1, "maxItems": 4, "items": {"$ref": "#/$defs/sentence"}}
+          }
+        },
+        "steps": {
+          "type": "array", "minItems": 2, "maxItems": 8,
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["title", "body"],
+            "properties": {
+              "title": {"type": "string", "minLength": 1, "maxLength": 40},
+              "body": {"type": "array", "minItems": 1, "maxItems": 3, "items": {"$ref": "#/$defs/sentence"}},
+              "src": {"$ref": "#/$defs/src"}
+            }
+          }
+        },
+        "figure": {"$ref": "#/$defs/figure"}
+      }
+    },
+    "relations": {
+      "type": "object", "additionalProperties": false, "required": ["models"],
+      "description": "03 핵심 관계. 주요 현상을 설명하는 정신 모델과 그 모델이 실제로 설명하는 현상",
+      "properties": {
+        "models": {
+          "type": "array", "minItems": 1, "maxItems": 3,
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["name", "claim", "cause", "explains", "boundary"],
+            "properties": {
+              "name": {"type": "string", "minLength": 2, "maxLength": 30, "description": "검증된 표준 개념 이름. 예: 주인-대리인 문제"},
+              "claim": {"$ref": "#/$defs/sentence", "description": "이 대상에서 모델이 말하는 것"},
+              "cause": {"$ref": "#/$defs/sentence", "description": "모델의 인과 메커니즘"},
+              "explains": {"type": "array", "minItems": 2, "maxItems": 4, "items": {"$ref": "#/$defs/sentence"}, "description": "이 모델 하나로 설명되는 서로 다른 현상"},
+              "boundary": {"$ref": "#/$defs/sentence", "description": "모델이 설명하지 못하는 것, 성립 조건"},
+              "src": {"$ref": "#/$defs/src"}
+            }
+          }
+        },
+        "figure": {"$ref": "#/$defs/figure"}
+      }
+    },
+    "application": {
+      "type": "object", "additionalProperties": false,
+      "description": "04 적용과 한계. 모델로 실제 상황을 판단하고, 조건이 바뀌면 무엇이 바뀌는지, 반례·트레이드오프·미확인 전제",
+      "properties": {
+        "judgments": {
+          "type": "array", "maxItems": 4,
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["situation", "result", "reason"],
+            "properties": {"situation": {"$ref": "#/$defs/sentence"}, "result": {"$ref": "#/$defs/sentence"}, "reason": {"$ref": "#/$defs/sentence"}, "src": {"$ref": "#/$defs/src"}}
+          }
+        },
+        "sim": {"$ref": "#/$defs/sim"},
+        "switch": {"$ref": "#/$defs/switch"},
+        "limits": {
+          "type": "array", "maxItems": 6,
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["kind", "text"],
+            "properties": {
+              "kind": {"enum": ["counterexample", "tradeoff", "assumption", "unknown", "condition"]},
+              "text": {"$ref": "#/$defs/sentence"},
+              "src": {"$ref": "#/$defs/src"}
+            }
           }
         }
-      ]
+      }
     },
     "principles": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["kind", "items"],
-      "properties": {
-        "kind": {"enum": ["principle", "fact"], "description": "principle: 다른 상황에 옮겨 쓸 원리. fact: 옮길 원리가 없어 이번에 기억할 사실만 남긴다"},
-        "items": {"type": "array", "minItems": 1, "maxItems": 3, "items": {"$ref": "#/$defs/principle"}}
+      "type": "array", "maxItems": 3,
+      "description": "05 재사용할 원리. 없으면 키를 뺀다",
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["name", "how", "when", "examples"],
+        "properties": {
+          "name": {"type": "string", "minLength": 2, "maxLength": 40},
+          "how": {"$ref": "#/$defs/sentence", "description": "작동 방식"},
+          "when": {"$ref": "#/$defs/sentence", "description": "적용 조건"},
+          "examples": {
+            "type": "array", "minItems": 1, "maxItems": 3,
+            "items": {
+              "type": "object", "additionalProperties": false, "required": ["field", "text"],
+              "properties": {"field": {"type": "string", "minLength": 1, "maxLength": 20}, "text": {"$ref": "#/$defs/sentence"}}
+            }
+          }
+        }
       }
     },
-    "checks": {"type": "array", "minItems": 1, "maxItems": 4, "items": {"$ref": "#/$defs/check"}},
-    "sources": {"type": "array", "maxItems": 20, "items": {"$ref": "#/$defs/source"}}
+    "sources": {
+      "type": "array", "maxItems": 30,
+      "description": "내부 검증 자료. 화면에 내보내지 않는다",
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["id", "label"],
+        "properties": {
+          "id": {"$ref": "#/$defs/id"},
+          "label": {"type": "string", "minLength": 1, "maxLength": 200},
+          "url": {"type": "string", "pattern": "^https?://"},
+          "note": {"type": "string", "maxLength": 200}
+        }
+      }
+    }
   },
   "$defs": {
-    "sentence": {"type": "string", "minLength": 2, "maxLength": 220},
+    "sentence": {"type": "string", "minLength": 2, "maxLength": 200},
     "label": {"type": "string", "minLength": 1, "maxLength": 18},
     "id": {"type": "string", "pattern": "^[a-z][a-z0-9-]{0,30}$"},
-    "depth": {"enum": ["overview", "standard", "deep"], "description": "이 항목이 처음 보이는 탐색 깊이. 없으면 overview"},
-    "status": {"enum": ["fact", "inference", "assumption", "example", "unknown"], "description": "fact 는 표시하지 않는다. 나머지는 항목 옆에 추론·가정·예시·미확인으로 표시한다"},
-    "sourceRefs": {"type": "array", "maxItems": 6, "items": {"$ref": "#/$defs/id"}},
-    "na": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["na"],
-      "properties": {"na": {"$ref": "#/$defs/sentence"}}
-    },
-    "node": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["id", "level", "label", "summary"],
-      "properties": {
-        "id": {"$ref": "#/$defs/id"},
-        "level": {"enum": [1, 2, 3]},
-        "parent": {"$ref": "#/$defs/id"},
-        "label": {"$ref": "#/$defs/label"},
-        "summary": {"$ref": "#/$defs/sentence"},
-        "detail": {"type": "array", "maxItems": 4, "items": {"$ref": "#/$defs/sentence"}},
-        "depth": {"$ref": "#/$defs/depth"},
-        "status": {"$ref": "#/$defs/status"},
-        "sources": {"$ref": "#/$defs/sourceRefs"}
-      }
-    },
-    "edge": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["from", "to", "label"],
-      "properties": {
-        "from": {"$ref": "#/$defs/id"},
-        "to": {"$ref": "#/$defs/id"},
-        "label": {"type": "string", "minLength": 1, "maxLength": 12}
-      }
-    },
-    "block": {
+    "varid": {"type": "string", "pattern": "^[a-z][a-z0-9]{0,20}$", "description": "식에 쓰는 이름. 하이픈은 빼기와 헷갈려 쓰지 않는다"},
+    "src": {"type": "array", "maxItems": 6, "items": {"$ref": "#/$defs/id"}},
+    "expr": {"type": "string", "minLength": 1, "maxLength": 160, "description": "숫자, 입력·앞 출력 id, + - * / ( ), < <= > >= ==, && ||, min max round abs"},
+    "figure": {
       "oneOf": [
         {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["type", "body"],
+          "type": "object", "additionalProperties": false, "required": ["type", "kind", "title", "nodes", "edges"],
+          "description": "관계도. kind: causal 인과, flow 돈·정보·자원의 이동, stakeholder 이해관계자, dependency 의존, state 상태 전이, argument 주장과 근거",
           "properties": {
-            "type": {"const": "text"},
-            "title": {"type": "string", "maxLength": 40},
-            "body": {"type": "array", "minItems": 1, "maxItems": 6, "items": {"$ref": "#/$defs/sentence"}},
-            "depth": {"$ref": "#/$defs/depth"},
-            "status": {"$ref": "#/$defs/status"},
-            "sources": {"$ref": "#/$defs/sourceRefs"}
-          }
-        },
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["type", "title", "steps"],
-          "properties": {
-            "type": {"const": "steps"},
-            "title": {"type": "string", "maxLength": 40},
-            "steps": {
-              "type": "array", "minItems": 2, "maxItems": 8,
-              "items": {
-                "type": "object", "additionalProperties": false, "required": ["label", "body"],
-                "properties": {"label": {"$ref": "#/$defs/label"}, "body": {"$ref": "#/$defs/sentence"}, "status": {"$ref": "#/$defs/status"}}
-              }
-            },
-            "depth": {"$ref": "#/$defs/depth"},
-            "sources": {"$ref": "#/$defs/sourceRefs"}
-          }
-        },
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["type", "title", "nodes", "edges"],
-          "properties": {
-            "type": {"const": "diagram"},
-            "title": {"type": "string", "maxLength": 40},
+            "type": {"const": "graph"},
+            "kind": {"enum": ["causal", "flow", "stakeholder", "dependency", "state", "argument"]},
+            "title": {"type": "string", "minLength": 1, "maxLength": 50},
             "nodes": {
               "type": "array", "minItems": 2, "maxItems": 10,
-              "items": {
-                "type": "object", "additionalProperties": false, "required": ["id", "label", "detail"],
-                "properties": {"id": {"$ref": "#/$defs/id"}, "label": {"$ref": "#/$defs/label"}, "detail": {"$ref": "#/$defs/sentence"}, "status": {"$ref": "#/$defs/status"}}
-              }
+              "items": {"type": "object", "additionalProperties": false, "required": ["id", "label"], "properties": {"id": {"$ref": "#/$defs/id"}, "label": {"$ref": "#/$defs/label"}}}
             },
-            "edges": {"type": "array", "minItems": 1, "maxItems": 14, "items": {"$ref": "#/$defs/edge"}},
-            "depth": {"$ref": "#/$defs/depth"},
-            "sources": {"$ref": "#/$defs/sourceRefs"}
+            "edges": {
+              "type": "array", "minItems": 1, "maxItems": 16,
+              "items": {"type": "object", "additionalProperties": false, "required": ["from", "to", "label"], "properties": {"from": {"$ref": "#/$defs/id"}, "to": {"$ref": "#/$defs/id"}, "label": {"type": "string", "minLength": 1, "maxLength": 14}}}
+            }
           }
         },
         {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["type", "title", "columns", "rows"],
+          "type": "object", "additionalProperties": false, "required": ["type", "title", "actors", "messages"],
+          "description": "시퀀스. 시간 순서로 주고받는 것",
           "properties": {
-            "type": {"const": "compare"},
-            "title": {"type": "string", "maxLength": 40},
-            "basis": {"type": "string", "maxLength": 80, "description": "비교 기준"},
-            "columns": {"type": "array", "minItems": 2, "maxItems": 4, "items": {"type": "string", "minLength": 1, "maxLength": 18}},
+            "type": {"const": "sequence"},
+            "title": {"type": "string", "minLength": 1, "maxLength": 50},
+            "actors": {
+              "type": "array", "minItems": 2, "maxItems": 5,
+              "items": {"type": "object", "additionalProperties": false, "required": ["id", "label"], "properties": {"id": {"$ref": "#/$defs/id"}, "label": {"type": "string", "minLength": 1, "maxLength": 12}}}
+            },
+            "messages": {
+              "type": "array", "minItems": 2, "maxItems": 12,
+              "items": {"type": "object", "additionalProperties": false, "required": ["from", "to", "label"], "properties": {"from": {"$ref": "#/$defs/id"}, "to": {"$ref": "#/$defs/id"}, "label": {"type": "string", "minLength": 1, "maxLength": 28}}}
+            }
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false, "required": ["type", "title", "unit", "basis", "items"],
+          "description": "크기와 비율. basis 에 표본과 범위를 쓴다",
+          "properties": {
+            "type": {"const": "bars"},
+            "title": {"type": "string", "minLength": 1, "maxLength": 50},
+            "unit": {"type": "string", "minLength": 1, "maxLength": 10},
+            "basis": {"type": "string", "minLength": 4, "maxLength": 120},
+            "items": {
+              "type": "array", "minItems": 2, "maxItems": 10,
+              "items": {"type": "object", "additionalProperties": false, "required": ["label", "value"], "properties": {"label": {"type": "string", "minLength": 1, "maxLength": 24}, "value": {"type": "number", "minimum": 0}}}
+            }
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false, "required": ["type", "title", "columns", "rows"],
+          "description": "실제 대안 사이의 비교",
+          "properties": {
+            "type": {"const": "table"},
+            "title": {"type": "string", "minLength": 1, "maxLength": 50},
+            "basis": {"type": "string", "maxLength": 120},
+            "columns": {"type": "array", "minItems": 2, "maxItems": 4, "items": {"type": "string", "minLength": 1, "maxLength": 20}},
             "rows": {
               "type": "array", "minItems": 1, "maxItems": 8,
-              "items": {
-                "type": "object", "additionalProperties": false, "required": ["label", "cells"],
-                "properties": {"label": {"type": "string", "minLength": 1, "maxLength": 24}, "status": {"$ref": "#/$defs/status"}, "sources": {"$ref": "#/$defs/sourceRefs"}, "cells": {"type": "array", "minItems": 2, "maxItems": 4, "items": {"type": "string", "minLength": 1, "maxLength": 80}}}
-              }
-            },
-            "depth": {"$ref": "#/$defs/depth"},
-            "sources": {"$ref": "#/$defs/sourceRefs"}
-          }
-        },
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["type", "title", "body"],
-          "properties": {
-            "type": {"const": "example"},
-            "title": {"type": "string", "maxLength": 40},
-            "body": {"type": "array", "minItems": 1, "maxItems": 6, "items": {"$ref": "#/$defs/sentence"}},
-            "real": {"type": "boolean", "description": "true 면 실제 사례. 없거나 false 면 지어낸 예시로 표시한다"},
-            "depth": {"$ref": "#/$defs/depth"},
-            "sources": {"$ref": "#/$defs/sourceRefs"}
+              "items": {"type": "object", "additionalProperties": false, "required": ["label", "cells"], "properties": {"label": {"type": "string", "minLength": 1, "maxLength": 24}, "cells": {"type": "array", "minItems": 2, "maxItems": 4, "items": {"type": "string", "minLength": 1, "maxLength": 90}}}}
+            }
           }
         }
       ]
     },
-    "limit": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["kind", "text"],
+    "sim": {
+      "type": "object", "additionalProperties": false, "required": ["title", "assumption", "inputs", "outputs"],
+      "description": "변수를 바꾸면 실제 계산으로 결과가 바뀐다. assumption 에 가정 모델임과 그 가정을 짧게 쓴다",
       "properties": {
-        "kind": {"enum": ["condition", "premise", "change", "counterexample", "exception", "tradeoff", "boundary", "unknown"]},
-        "text": {"$ref": "#/$defs/sentence"},
-        "depth": {"$ref": "#/$defs/depth"},
-        "status": {"$ref": "#/$defs/status"},
-        "sources": {"$ref": "#/$defs/sourceRefs"}
+        "title": {"type": "string", "minLength": 1, "maxLength": 50},
+        "assumption": {"$ref": "#/$defs/sentence"},
+        "inputs": {
+          "type": "array", "minItems": 1, "maxItems": 5,
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["id", "label", "unit", "min", "max", "step", "value"],
+            "properties": {
+              "id": {"$ref": "#/$defs/varid"}, "label": {"type": "string", "minLength": 1, "maxLength": 24}, "unit": {"type": "string", "maxLength": 8},
+              "min": {"type": "number"}, "max": {"type": "number"}, "step": {"type": "number", "minimum": 0.0001}, "value": {"type": "number"}
+            }
+          }
+        },
+        "outputs": {
+          "type": "array", "minItems": 1, "maxItems": 6,
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["id", "label", "unit", "expr"],
+            "properties": {
+              "id": {"$ref": "#/$defs/varid"}, "label": {"type": "string", "minLength": 1, "maxLength": 24}, "unit": {"type": "string", "maxLength": 8},
+              "expr": {"$ref": "#/$defs/expr"}, "digits": {"type": "number", "minimum": 0, "maximum": 2}
+            }
+          }
+        },
+        "share": {
+          "type": "object", "additionalProperties": false, "required": ["parts"],
+          "description": "합이 전체가 되는 출력 몇 개를 한 막대의 비율로 함께 그린다",
+          "properties": {"parts": {"type": "array", "minItems": 2, "maxItems": 5, "items": {"$ref": "#/$defs/varid"}}}
+        },
+        "notes": {
+          "type": "array", "maxItems": 6, "description": "조건식이 참일 때만 보이는 정성적 결과",
+          "items": {"type": "object", "additionalProperties": false, "required": ["when", "text"], "properties": {"when": {"$ref": "#/$defs/expr"}, "text": {"$ref": "#/$defs/sentence"}}}
+        }
       }
     },
-    "scenario": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["question", "options"],
+    "switch": {
+      "type": "object", "additionalProperties": false, "required": ["question", "options"],
+      "description": "수치로 못 나타내는 조건 변화. 조건을 바꾸면 결과와 이유가 바뀐다",
       "properties": {
         "question": {"$ref": "#/$defs/sentence"},
         "options": {
           "type": "array", "minItems": 2, "maxItems": 5,
-          "items": {
-            "type": "object", "additionalProperties": false, "required": ["label", "result", "reason"],
-            "properties": {
-              "label": {"type": "string", "minLength": 1, "maxLength": 30},
-              "result": {"$ref": "#/$defs/sentence"},
-              "reason": {"$ref": "#/$defs/sentence"},
-              "status": {"$ref": "#/$defs/status"}
-            }
-          }
-        },
-        "depth": {"$ref": "#/$defs/depth"}
-      }
-    },
-    "principle": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["statement"],
-      "properties": {
-        "statement": {"$ref": "#/$defs/sentence"},
-        "condition": {"$ref": "#/$defs/sentence"},
-        "example": {"$ref": "#/$defs/sentence"},
-        "depth": {"$ref": "#/$defs/depth"},
-        "sources": {"$ref": "#/$defs/sourceRefs"}
-      }
-    },
-    "check": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["question", "answer", "explanation"],
-      "properties": {
-        "kind": {"enum": ["rebuild", "cause", "predict", "transfer", "spot-error"]},
-        "question": {"$ref": "#/$defs/sentence"},
-        "answer": {"$ref": "#/$defs/sentence"},
-        "explanation": {"type": "array", "minItems": 1, "maxItems": 4, "items": {"$ref": "#/$defs/sentence"}},
-        "depth": {"$ref": "#/$defs/depth"}
-      }
-    },
-    "source": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["id", "label"],
-      "properties": {
-        "id": {"$ref": "#/$defs/id"},
-        "label": {"type": "string", "minLength": 1, "maxLength": 160},
-        "url": {"type": "string", "pattern": "^https?://"},
-        "note": {"type": "string", "maxLength": 160}
+          "items": {"type": "object", "additionalProperties": false, "required": ["label", "result", "reason"], "properties": {"label": {"type": "string", "minLength": 1, "maxLength": 30}, "result": {"$ref": "#/$defs/sentence"}, "reason": {"$ref": "#/$defs/sentence"}}}
+        }
       }
     }
   }
