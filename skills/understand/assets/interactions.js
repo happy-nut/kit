@@ -39,26 +39,64 @@
     return /^-0(\.0+)?$/.test(s) ? "0" : s;
   }
 
-  all("[data-sim]").forEach(function (sim) {
-    var inputs = all("[data-in]", sim);
-    function update() {
-      var env = {};
-      inputs.forEach(function (i) {
-        env[i.getAttribute("data-in")] = Number(i.value);
-        var show = sim.querySelector('[data-show="' + i.getAttribute("data-in") + '"]');
-        show.textContent = fmt(Number(i.value), Number(i.step) % 1 === 0 ? 0 : 2);
+  var spec = document.querySelector("[data-vars]");
+  var env = {};
+  function recompute() {
+    all("[data-in]").forEach(function (i) { env[i.getAttribute("data-in")] = Number(i.value); });
+    var digits = {};
+    all("[data-in]").forEach(function (i) { var f = String(i.step).split(".")[1]; digits[i.getAttribute("data-in")] = f ? Math.min(2, f.length) : 0; });
+    if (spec) JSON.parse(spec.getAttribute("data-vars")).forEach(function (o) {
+      env[o[0]] = evaluate(o[2], env);
+      digits[o[0]] = o[1];
+    });
+    all("[data-out]").forEach(function (s) {
+      var k = s.getAttribute("data-out");
+      if (k in env) s.textContent = fmt(env[k], digits[k] || 0);
+    });
+    all("[data-when]").forEach(function (n) { n.hidden = !evaluate(JSON.parse(n.getAttribute("data-when")), env); });
+  }
+  all("[data-in]").forEach(function (i) { i.addEventListener("input", recompute); });
+
+  all("[data-story]").forEach(function (story) {
+    var steps = all("[data-step]", story);
+    var shows = steps.map(function (s) { return JSON.parse(s.getAttribute("data-show")); });
+    var els = all("[data-el]", story);
+    story.setAttribute("data-js", "");
+    var current = -1;
+    function show(k) {
+      if (k === current) return;
+      current = k;
+      var on = {};
+      for (var i = 0; i <= k; i++) shows[i].forEach(function (id) { on[id] = true; });
+      var focus = {};
+      shows[k].forEach(function (id) { focus[id] = true; });
+      els.forEach(function (el) {
+        var id = el.getAttribute("data-el");
+        el.classList.toggle("on", !!on[id]);
+        el.classList.toggle("focus", !!focus[id]);
       });
-      all("[data-out]", sim).forEach(function (o) {
-        var v = evaluate(JSON.parse(o.getAttribute("data-rpn")), env);
-        env[o.getAttribute("data-out")] = v;
-        o.textContent = fmt(v, Number(o.getAttribute("data-digits")));
-      });
-      var segs = all("[data-part]", sim);
-      var total = segs.reduce(function (s, g) { return s + Math.max(0, env[g.getAttribute("data-part")]); }, 0) || 1;
-      segs.forEach(function (g) { g.style.width = (Math.max(0, env[g.getAttribute("data-part")]) / total * 100).toFixed(1) + "%"; });
-      all("[data-when]", sim).forEach(function (n) { n.hidden = !evaluate(JSON.parse(n.getAttribute("data-when")), env); });
+      steps.forEach(function (s, i) { s.classList.toggle("active", i === k); });
+      var wrap = story.querySelector(".svg-wrap");
+      var hits = all("[data-el].focus", story);
+      if (wrap && hits.length && (wrap.scrollWidth > wrap.clientWidth || wrap.scrollHeight > wrap.clientHeight)) {
+        var w = wrap.getBoundingClientRect(), box = null;
+        hits.forEach(function (h) {
+          var r = h.getBoundingClientRect();
+          box = box ? { l: Math.min(box.l, r.left), t: Math.min(box.t, r.top), r: Math.max(box.r, r.right), b: Math.max(box.b, r.bottom) } : { l: r.left, t: r.top, r: r.right, b: r.bottom };
+        });
+        wrap.scrollLeft += (box.l + box.r) / 2 - (w.left + w.right) / 2;
+        wrap.scrollTop += (box.t + box.b) / 2 - (w.top + w.bottom) / 2;
+      }
+      story.setAttribute("data-at", String(k));
     }
-    inputs.forEach(function (i) { i.addEventListener("input", update); });
+    function pick() {
+      var mid = window.innerHeight * 0.5, best = 0;
+      steps.forEach(function (s, i) { if (s.getBoundingClientRect().top < mid) best = i; });
+      show(best);
+    }
+    window.addEventListener("scroll", pick, { passive: true });
+    window.addEventListener("resize", pick);
+    pick();
   });
 
   all("[data-switch]").forEach(function (r) {
