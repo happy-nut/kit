@@ -1,401 +1,69 @@
 {
-  "schema": "understand/4",
+  "schema": "understand/5",
   "title": "트랜잭션 격리 수준",
-  "thesis": "같은 행을 읽고 판단하고 쓰는 요청이 겹치면 DB 는 격리 수준과 읽는 방식에 따라 그 끼어듦을 덮어쓰게 두거나 기다리게 하거나 중단시키고, 기다림과 재시도 가운데 어느 쪽이 싼지는 쓰는 요청의 비율과 재시도 비용이 정한다.",
+  "thesis": "트랜잭션이 같은 행을 읽고 판단하고 쓰는 사이에 다른 커밋이 끼어들면, DB 는 격리 수준과 읽는 방식에 따라 늦은 쪽이 덮어쓰게 두거나 기다리게 하거나 중단시키고, 중단된 쪽은 앱이 읽기부터 다시 돌린다.",
+  "skeleton": {
+    "parts": [
+      {"id": "read", "name": "읽기"},
+      {"id": "decide", "name": "앱의 판단"},
+      {"id": "write", "name": "쓰기"},
+      {"id": "retry", "name": "재시도"},
+      {"id": "rival", "name": "끼어든 커밋"},
+      {"id": "rule", "name": "DB 의 충돌 규칙"}
+    ],
+    "links": [
+      {"from": "read", "to": "decide", "label": "읽은 값을 준다"},
+      {"from": "decide", "to": "write", "label": "쓸 값을 정한다"},
+      {"from": "rival", "to": "read", "label": "읽은 값을 낡게 한다"},
+      {"from": "rule", "to": "read", "label": "잠가 기다리게 한다"},
+      {"from": "rule", "to": "write", "label": "덮어쓸지 중단할지 정한다"},
+      {"from": "write", "to": "retry", "label": "40001 로 알린다"},
+      {"from": "retry", "to": "read", "label": "처음부터 다시 읽는다"}
+    ]
+  },
   "bridge": {
     "known": "여러 스레드가 공유 변수를 읽고 계산하고 쓰는(read-modify-write) 사이에 다른 스레드가 끼면 갱신을 잃는 경쟁 조건은 이미 안다.",
-    "same": [
-      "트랜잭션이 SELECT 로 읽고 앱에서 판단한 뒤 UPDATE 로 쓰는 사이에 다른 트랜잭션이 같은 행을 고치고 커밋하면, 스레드 경쟁 조건과 같이 앞 갱신이 사라진다.",
-      "막는 길도 같은 둘이다. mutex 처럼 상대를 기다리게 하거나, CAS 루프처럼 쓰는 순간 값이 바뀌었으면 실패시키고 다시 읽게 한다."
-    ],
+    "map": {"read": "변수 읽기", "decide": "계산", "write": "변수 쓰기", "rival": "다른 스레드"},
+    "at": ["rule", "retry"],
     "differs": [
-      "어느 길로 갈지는 코드의 잠금이 아니라 격리 수준과 읽는 방식이 정한다. READ COMMITTED 의 일반 UPDATE 는 덮어쓰고, SELECT ... FOR UPDATE 는 기다리게 하고, REPEATABLE READ 는 40001 로 중단시킨다.",
-      "CAS 실패는 값 하나를 다시 읽는 일이지만 40001 은 트랜잭션 전체의 롤백이다. 재시도 한 번마다 트랜잭션 길이와 앱 왕복이 다시 들어, 기다림과 재시도의 비용이 달라진다.",
-      "MVCC 에서는 읽기가 쓰기를 기다리지 않고 읽기만 한 트랜잭션은 중단되지 않는다. 그래서 충돌은 요청 수가 아니라 실제로 쓰는 요청 수로 정해진다."
+      "스레드 코드는 mutex 나 CAS 를 직접 써야 막힌다. DB 에서는 코드의 잠금이 아니라 격리 수준과 읽는 방식이 덮어쓰기, 기다리기, 중단 가운데 하나를 고른다.",
+      "CAS 실패는 값 하나를 다시 읽는 일이지만 40001 은 트랜잭션 전체의 롤백이다. 트랜잭션 안에서 한 판단과 쓰기를 모두 다시 해야 한다."
     ],
-    "src": [
-      "pg-iso",
-      "pg-mvcc"
-    ]
+    "src": ["pg-iso"]
   },
-  "model": {
-    "calc": {
-      "assumption": "가정 모델: 요청 n 건이 한 행에 동시에 와서 길이 d 의 트랜잭션으로 읽고 그 가운데 비율 q 만 쓴다. 잠금 방식은 쓸지 정하기 전에 읽으므로 모든 요청이 FOR UPDATE 로 줄을 서고, 재시도 방식에서 40001 을 받은 요청은 r 뒤에 함께 다시 시작한다.",
-      "inputs": [
-        {
-          "id": "n",
-          "label": "같은 행 동시 요청",
-          "unit": "건",
-          "min": 1,
-          "max": 20,
-          "step": 1,
-          "value": 10
-        },
-        {
-          "id": "q",
-          "label": "읽은 뒤 쓰는 비율",
-          "unit": "%",
-          "min": 0,
-          "max": 100,
-          "step": 5,
-          "value": 50
-        },
-        {
-          "id": "d",
-          "label": "트랜잭션 길이",
-          "unit": "ms",
-          "min": 1,
-          "max": 200,
-          "step": 1,
-          "value": 20
-        },
-        {
-          "id": "r",
-          "label": "재시도 한 번 비용",
-          "unit": "ms",
-          "min": 0,
-          "max": 200,
-          "step": 5,
-          "value": 20
-        }
-      ],
-      "outputs": [
-        {
-          "id": "w",
-          "label": "쓰는 요청",
-          "unit": "건",
-          "expr": "n * q / 100",
-          "digits": 1
-        },
-        {
-          "id": "lost",
-          "label": "RC 에서 잃는 갱신",
-          "unit": "건",
-          "expr": "max(w - 1, 0)",
-          "digits": 1
-        },
-        {
-          "id": "fails",
-          "label": "RR 에서 버린 실행",
-          "unit": "회",
-          "expr": "max(w * (w - 1) / 2, 0)",
-          "digits": 1
-        },
-        {
-          "id": "optlat",
-          "label": "재시도 방식 평균 응답",
-          "unit": "ms",
-          "expr": "d + (d + r) * fails / n"
-        },
-        {
-          "id": "pesslat",
-          "label": "잠금 방식 평균 응답",
-          "unit": "ms",
-          "expr": "d * (n + 1) / 2"
-        }
-      ]
-    },
-    "models": [
-      {
-        "name": "직렬화 가능성",
-        "claim": "같은 행을 읽고 쓰는 요청 w 건이 겹치면 차례 실행과 같은 결과는 한 번에 하나씩 커밋하는 것뿐이라, 나머지 w-1 건은 덮어쓰거나 기다리거나 중단돼야 한다.",
-        "links": [
-          {
-            "from": "n",
-            "to": "w",
-            "sign": "+",
-            "label": "동시 요청"
-          },
-          {
-            "from": "q",
-            "to": "w",
-            "sign": "+",
-            "label": "쓰는 비율"
-          },
-          {
-            "from": "w",
-            "to": "lost",
-            "sign": "+",
-            "label": "RC 덮어씀"
-          },
-          {
-            "from": "w",
-            "to": "fails",
-            "sign": "+",
-            "label": "RR 중단"
-          }
-        ],
-        "boundary": "직렬화 가능성은 결과가 어떤 차례 순서와 같다는 것만 보장하고, 어느 요청이 먼저 성공할지는 정하지 않는다.",
-        "src": [
-          "pg-iso",
-          "berenson"
-        ]
-      },
-      {
-        "name": "낙관적·비관적 동시성 제어",
-        "claim": "잠금은 충돌을 미리 가정해 같은 행의 모든 요청을 줄 세우고, 스냅샷과 재시도는 충돌이 없다고 가정해 진행한 뒤 겹친 쓰기만 다시 돌린다.",
-        "links": [
-          {
-            "from": "fails",
-            "to": "optlat",
-            "sign": "+",
-            "label": "버린 실행"
-          },
-          {
-            "from": "r",
-            "to": "optlat",
-            "sign": "+",
-            "label": "재시도마다"
-          },
-          {
-            "from": "d",
-            "to": "optlat",
-            "sign": "+",
-            "label": "실행마다"
-          },
-          {
-            "from": "d",
-            "to": "pesslat",
-            "sign": "+",
-            "label": "잠금 보유"
-          },
-          {
-            "from": "n",
-            "to": "pesslat",
-            "sign": "+",
-            "label": "줄 길이"
-          }
-        ],
-        "boundary": "이 비교는 한 행의 경합만 본다. 여러 행을 다른 순서로 잠그는 교착이나, 실제 부하에서의 대기와 재시도 비용은 재야 알 수 있다.",
-        "src": [
-          "pg-iso",
-          "pg-mvcc",
-          "mysql-locking-reads"
-        ]
-      }
-    ],
-    "plots": [
-      {
-        "title": "쓰는 비율이 오를 때 두 방식의 평균 응답",
-        "x": "q",
-        "ys": [
-          "optlat",
-          "pesslat"
-        ],
-        "marks": [
-          {
-            "when": "w >= 2",
-            "label": "쓰기 둘부터 충돌"
-          },
-          {
-            "when": "optlat > pesslat",
-            "label": "잠금이 더 빠름"
-          }
-        ],
-        "finding": "쓰는 요청이 둘이 되기 전까지 재시도 방식은 트랜잭션 하나 길이로 끝나고, 그 뒤로는 제곱으로 늘어 잠금 방식의 평평한 선을 넘는다. 그 교차가 재시도 방식이 성립하는 쓰기 비율의 상한이다."
-      },
-      {
-        "title": "같은 행 요청이 늘 때 잃는 갱신과 버린 실행",
-        "x": "n",
-        "ys": [
-          "lost",
-          "fails"
-        ],
-        "marks": [
-          {
-            "when": "fails > n",
-            "label": "버린 실행 > 요청"
-          }
-        ],
-        "finding": "READ COMMITTED 가 잃는 갱신은 쓰는 요청 하나에 한 건씩 늘지만 REPEATABLE READ 가 버리는 실행은 제곱으로 늘어, 경합이 일정 크기를 넘으면 버린 실행이 요청 수보다 많아진다."
-      }
-    ]
-  },
+  "build": [
+    {"add": ["read", "decide"], "title": "재고 10 을 읽고 1 을 뺄지 판단한다", "body": ["주문 트랜잭션이 SELECT 로 재고 10 을 읽는다.", "앱은 재고가 남았으니 9 를 새 값으로 정한다."]},
+    {"add": ["write"], "title": "판단한 값을 UPDATE 로 쓴다", "body": ["UPDATE 가 재고를 9 로 바꾸고 커밋한다. SELECT 와 UPDATE 사이에는 앱이 판단하는 시간만큼 틈이 있다."]},
+    {"add": ["rival"], "title": "그 틈에 다른 주문이 먼저 커밋한다", "body": ["두 번째 주문도 같은 순간에 재고 10 을 읽고 9 로 정한다. 한쪽이 먼저 9 를 커밋하면 다른 쪽이 읽은 10 은 낡은 값이 된다.", "늦은 쪽도 그대로 9 를 쓰면 두 개가 팔렸는데 재고는 9 인 lost update 가 된다."], "src": ["berenson"]},
+    {"add": ["rule"], "title": "늦은 쪽이 가는 길은 DB 가 정한다", "body": ["PostgreSQL 기본값 READ COMMITTED 의 일반 UPDATE 는 오류 없이 덮어쓴다.", "SELECT ... FOR UPDATE 로 읽으면 앞 주문의 커밋을 기다렸다가 9 를 읽는다.", "REPEATABLE READ 에서는 늦은 쪽의 UPDATE 가 SQLSTATE 40001 로 중단된다."], "src": ["pg-iso"]},
+    {"add": ["retry"], "title": "중단된 쪽은 앱이 처음부터 다시 돌린다", "body": ["40001 을 받은 트랜잭션은 통째로 롤백된다. 앱이 SELECT 부터 다시 돌리면 9 를 읽고 8 을 쓴다."], "src": ["pg-iso"]}
+  ],
   "phenomena": [
-    {
-      "text": "PostgreSQL 기본값 READ COMMITTED 에서 재고 10 인 행에 주문 둘이 동시에 읽고 쓰면 두 주문이 모두 성공하고 재고는 9 다. 이 lost update 는 오류 없이 일어난다.",
-      "via": [
-        "w",
-        "lost"
-      ],
-      "src": [
-        "pg-iso",
-        "berenson"
-      ]
-    },
-    {
-      "text": "같은 두 주문을 REPEATABLE READ 로 돌리면 늦게 쓴 쪽이 SQLSTATE 40001 로 롤백되고, 앱이 SELECT 부터 다시 돌려야 9 를 읽고 8 을 쓴다.",
-      "via": [
-        "w",
-        "fails"
-      ],
-      "src": [
-        "pg-iso"
-      ]
-    },
-    {
-      "text": "격리 수준을 올려도 재시도 코드가 없으면 잃던 갱신만큼 40001 오류가 사용자에게 간다. 높은 등급은 틀린 결과를 오류로 바꿀 뿐이다.",
-      "via": [
-        "lost",
-        "fails"
-      ],
-      "src": [
-        "pg-iso"
-      ]
-    },
-    {
-      "text": "SELECT ... FOR UPDATE 로 읽으면 오류 없이 앞 요청의 커밋을 기다렸다가 새 값을 받는다. 인기 상품 한 행에 요청이 몰리면 뒤 요청은 앞 요청 수만큼 기다린다.",
-      "via": [
-        "n",
-        "pesslat"
-      ],
-      "src": [
-        "pg-iso",
-        "mysql-locking-reads"
-      ]
-    },
-    {
-      "text": "몇 분 걸리는 정산 조회가 REPEATABLE READ 로 도는 동안에도 주문 쓰기는 기다리지 않고, 정산은 중단되지 않는다. 읽기만 하는 트랜잭션은 쓰는 요청 수에 들지 않는다.",
-      "via": [
-        "q",
-        "w"
-      ],
-      "src": [
-        "pg-mvcc",
-        "pg-iso"
-      ]
-    }
+    {"text": "MySQL InnoDB 의 REPEATABLE READ 는 이름이 같아도 lost update 를 막지 않는다. 일반 SELECT 는 스냅샷을 읽지만 UPDATE 는 최신 커밋 행에 써서, 늦은 쪽이 낡은 판단의 값을 오류 없이 쓴다.", "path": ["rival", "read", "decide", "write", "rule"], "src": ["mysql-consistent"]},
+    {"text": "UPDATE ... SET stock = stock - 1 WHERE id = 7 AND stock >= 1 은 읽기와 판단과 쓰기를 한 문장에서 한다. READ COMMITTED 에서도 늦은 쪽은 앞 커밋을 기다린 뒤 갱신된 행으로 조건을 다시 보고 8 을 쓴다.", "path": ["read", "decide", "write", "rule"], "src": ["pg-iso"]},
+    {"text": "인기 상품 한 행에 FOR UPDATE 주문이 몰리면 뒤 주문은 앞 주문들이 모두 커밋할 때까지 줄을 선다. 오류는 나지 않고 응답만 길어진다.", "path": ["rule", "read", "rival"], "src": ["pg-iso", "mysql-locking-reads"]},
+    {"text": "격리 수준을 REPEATABLE READ 로 올려도 재시도 코드가 없으면 잃던 갱신만큼 40001 오류가 사용자에게 간다. 틀린 결과가 오류로 바뀔 뿐이다.", "path": ["rule", "write", "retry"], "src": ["pg-iso"]},
+    {"text": "몇 분 걸리는 정산 조회가 REPEATABLE READ 로 도는 동안에도 주문 쓰기는 기다리지 않고 정산도 중단되지 않는다. 일반 읽기는 잠그지 않고, 쓰기가 없는 트랜잭션에는 충돌이 걸릴 자리가 없다.", "path": ["read", "rule", "write"], "src": ["pg-mvcc", "pg-iso"]}
   ],
   "inferences": [
-    {
-      "question": "콘서트 좌석 예매처럼 인기 좌석 한 행에 수백 명이 동시에 몰리면 무엇을 쓰는가?",
-      "answer": "잠금 읽기나 한 문장의 조건부 UPDATE 를 쓴다. 재시도 방식은 쓰지 않는다.",
-      "reason": "읽은 요청 거의 모두가 쓰므로 쓰는 비율이 100% 에 가깝고, 버린 실행은 쓰는 요청 수의 제곱으로 늘어 재시도 비용이 그만큼 곱해지는 반면 잠금의 대기는 요청 수에 비례한다."
-    },
-    {
-      "question": "상품 상세를 많이 읽고 그 가운데 몇 %만 장바구니에 담아 재고를 고치면 무엇을 쓰는가?",
-      "answer": "REPEATABLE READ 와 재시도를 쓰고, 읽을 때마다 FOR UPDATE 를 걸지 않는다.",
-      "reason": "쓰는 비율이 낮으면 쓰는 요청이 둘이 되지 않아 충돌이 없지만, 잠금 방식은 쓰지 않을 요청까지 같은 줄에 세워 평균 응답이 요청 수에 비례해 는다."
-    },
-    {
-      "question": "트랜잭션을 짧게 줄이면 두 방식 가운데 어느 쪽이 더 이득을 보는가?",
-      "answer": "재시도 비용이 그대로라면 잠금 방식이 더 이득을 보고, 재시도 방식이 성립하는 쓰기 비율의 상한이 낮아진다.",
-      "reason": "트랜잭션 길이는 두 평균 응답에 똑같이 곱해지므로 교차점은 재시도 비용과 트랜잭션 길이의 비율로 정해지고, 길이를 줄이면 그 비율이 커진다."
-    },
-    {
-      "question": "40001 을 받으면 외부 결제 API 를 다시 부르는 구조라면 교차점은 어디로 가는가?",
-      "answer": "더 낮은 쓰기 비율로 옮겨 가 잠금 방식이 일찍 이긴다. 결제가 두 번 일어나지 않게 하는 일도 따로 남는다.",
-      "reason": "재시도 한 번 비용이 커지면 재시도 방식의 평균 응답에서 버린 실행 항이 커지고, DB 의 롤백은 바깥 호출을 되돌리지 않는다."
-    }
+    {"question": "콘서트 좌석처럼 한 행에 수백 명이 동시에 몰리면 무엇을 쓰는가?", "answer": "잠금 읽기나 한 문장의 조건부 UPDATE 를 쓴다. 중단과 재시도에 기대지 않는다.", "reason": "거의 모든 요청이 같은 행에 쓰므로, 중단된 요청이 재시도로 다시 읽는 사이에 또 다른 커밋이 끼어든다. 기다리게 하는 규칙에서는 한 번 줄을 선 요청이 다시 돌지 않는다.", "path": ["rule", "write", "retry", "read", "rival"]},
+    {"question": "상품 상세를 많이 읽고 그 가운데 몇 %만 재고를 고치면 무엇을 쓰는가?", "answer": "REPEATABLE READ 와 재시도를 쓰고, 읽을 때마다 FOR UPDATE 를 걸지 않는다.", "reason": "잠금은 판단 앞의 읽기에 걸려 쓰지 않을 요청까지 줄을 세운다. 중단은 실제로 쓰는 요청이 같은 행에서 겹칠 때만 일어난다.", "path": ["rule", "read", "decide", "write"]},
+    {"question": "판단 단계에서 외부 결제 API 를 부르는 트랜잭션이 40001 을 받으면 어떻게 되는가?", "answer": "재시도가 결제를 한 번 더 부른다. 결제 호출은 커밋이 끝난 뒤로 옮긴다.", "reason": "재시도는 읽기부터 판단까지 다시 돌리는데, 롤백은 DB 안의 쓰기만 되돌리고 판단에서 부른 바깥 호출은 되돌리지 않는다.", "path": ["write", "retry", "read", "decide"]},
+    {"question": "재고를 읽어 화면에 보여 주고 사용자가 몇 분 뒤 확정하는 흐름은 어떻게 짜는가?", "answer": "읽기와 쓰기를 다른 트랜잭션으로 나누고, 쓸 때 조건부 UPDATE 로 읽은 값이 그대로인지 다시 확인한다.", "reason": "판단이 길수록 읽기와 쓰기 사이 틈에 끼어드는 커밋이 늘고, 그 틈을 잠금으로 막으면 몇 분 동안 다른 요청이 기다린다.", "path": ["rival", "read", "decide", "write", "rule"]}
   ],
-  "switch": {
-    "question": "같은 행을 고치는 두 주문을 다른 DB 설정이나 쓰기 방식으로 돌리면 늦은 쪽은 어느 길로 가는가?",
-    "options": [
-      {
-        "label": "PostgreSQL SERIALIZABLE",
-        "result": "중단된다. 늦은 쪽은 REPEATABLE READ 때와 같이 40001 로 롤백되고, 재시도하면 새 값을 읽는다.",
-        "reason": "SERIALIZABLE 은 REPEATABLE READ 의 쓰기 충돌 검사에 읽기와 쓰기의 의존을 보는 SSI 검사를 더한 것이라 같은 행 충돌은 같은 방식으로 잡힌다.",
-        "src": [
-          "pg-iso"
-        ]
-      },
-      {
-        "label": "MySQL InnoDB REPEATABLE READ",
-        "result": "덮어쓴다. 늦은 쪽의 UPDATE 가 오류 없이 낡은 판단의 값을 써서 두 주문이 성공하고 재고는 9 로 남는다.",
-        "reason": "InnoDB 의 일반 SELECT 는 스냅샷을 읽지만 UPDATE 는 최신 커밋 행에 쓰므로, 이름이 같아도 lost update 를 막지 않는다.",
-        "src": [
-          "mysql-consistent"
-        ]
-      },
-      {
-        "label": "MySQL InnoDB SERIALIZABLE",
-        "result": "기다리다 중단된다. 두 SELECT 가 공유 잠금을 잡아 서로의 UPDATE 를 막는 교착이 생기고 InnoDB 가 한쪽을 롤백한다.",
-        "reason": "autocommit 이 꺼져 있으면 InnoDB SERIALIZABLE 은 일반 SELECT 를 공유 잠금 읽기로 바꾼다. 롤백된 쪽을 다시 돌리는 일은 여기서도 앱이 한다.",
-        "src": [
-          "mysql-iso"
-        ]
-      },
-      {
-        "label": "PG READ COMMITTED + 조건부 UPDATE",
-        "result": "기다린다. UPDATE ... SET stock = stock - 1 WHERE id = 7 AND stock >= 1 에서 늦은 쪽은 앞 커밋을 기다린 뒤 9 에서 1 을 빼 8 을 쓴다.",
-        "reason": "READ COMMITTED 의 UPDATE 는 상대 커밋 뒤 갱신된 행으로 식과 WHERE 를 다시 평가하므로, 읽기와 판단과 쓰기가 한 문장에서 일어나 끼어들 틈이 없다.",
-        "src": [
-          "pg-iso"
-        ]
-      }
-    ]
-  },
   "limits": [
-    {
-      "kind": "assumption",
-      "text": "모든 요청이 같은 순간에 오고 실패한 요청이 함께 다시 시작한다고 둔 상한 모델이다. 도착이 흩어지거나 재시도에 무작위 대기를 두면 버린 실행은 이보다 적다."
-    },
-    {
-      "kind": "condition",
-      "text": "격리 수준은 한 DB 안의 트랜잭션 사이 보장이다. 캐시, 메시지 큐, 외부 결제 호출은 그 밖에 있어서 재시도하면 두 번 일어날 수 있다."
-    },
-    {
-      "kind": "counterexample",
-      "text": "FOR UPDATE 는 찾은 행만 잠근다. 같은 시간대 예약이 없는지 확인한 결과가 빈 집합이면 잠글 행이 없어 동시 요청 두 건이 모두 INSERT 되고, SERIALIZABLE 이나 배타 제약(EXCLUDE)이 있어야 막힌다.",
-      "src": [
-        "pg-iso"
-      ]
-    },
-    {
-      "kind": "counterexample",
-      "text": "두 트랜잭션이 같은 조건을 읽고 서로 다른 행을 고치는 write skew 는 겹치는 쓰기가 없어 REPEATABLE READ 를 통과하고, PostgreSQL SERIALIZABLE 만 잡는다.",
-      "src": [
-        "pg-iso",
-        "berenson"
-      ]
-    },
-    {
-      "kind": "counterexample",
-      "text": "PostgreSQL SERIALIZABLE 은 차례 실행이었다면 나지 않았을 직렬화 실패도 내므로, 실제 버린 실행은 이 모델의 같은 행 충돌보다 많을 수 있다.",
-      "src": [
-        "pg-iso"
-      ]
-    },
-    {
-      "kind": "condition",
-      "text": "InnoDB 의 잠금 읽기와 SERIALIZABLE 의 공유 잠금 읽기 변환은 autocommit 이 꺼져 있을 때(START TRANSACTION 이나 autocommit = 0)만 일어난다.",
-      "src": [
-        "mysql-locking-reads",
-        "mysql-iso"
-      ]
-    }
+    {"kind": "counterexample", "text": "FOR UPDATE 는 찾은 행만 잠근다. 같은 시간대 예약이 없는지 확인한 결과가 빈 집합이면 잠글 행이 없어 동시 요청 두 건이 모두 INSERT 되고, SERIALIZABLE 이나 배타 제약(EXCLUDE)이 있어야 막힌다.", "src": ["pg-iso"]},
+    {"kind": "counterexample", "text": "두 트랜잭션이 같은 조건을 읽고 서로 다른 행을 고치는 write skew 는 겹치는 쓰기가 없어 REPEATABLE READ 를 통과하고, PostgreSQL SERIALIZABLE 만 잡는다.", "src": ["pg-iso", "berenson"]},
+    {"kind": "tradeoff", "text": "PostgreSQL SERIALIZABLE 은 차례로 돌렸다면 나지 않았을 직렬화 실패도 낸다. 같은 행 충돌이 없어도 재시도 코드가 필요하다.", "src": ["pg-iso"]},
+    {"kind": "tradeoff", "text": "여러 행을 서로 다른 순서로 잠그는 트랜잭션들은 교착에 빠질 수 있고, 그러면 DB 가 한쪽을 중단시킨다. 기다리게 하는 규칙도 재시도를 완전히 없애지 못한다."},
+    {"kind": "condition", "text": "InnoDB 의 잠금 읽기와 SERIALIZABLE 의 공유 잠금 읽기 변환은 autocommit 이 꺼져 있을 때(START TRANSACTION 이나 autocommit = 0)만 일어난다.", "src": ["mysql-locking-reads", "mysql-iso"]}
   ],
   "sources": [
-    {
-      "id": "pg-iso",
-      "label": "PostgreSQL 문서, 13.2 Transaction Isolation",
-      "url": "https://www.postgresql.org/docs/current/transaction-iso.html"
-    },
-    {
-      "id": "pg-mvcc",
-      "label": "PostgreSQL 문서, 13.1 Introduction (MVCC)",
-      "url": "https://www.postgresql.org/docs/current/mvcc-intro.html"
-    },
-    {
-      "id": "mysql-iso",
-      "label": "MySQL 8.0 Reference Manual, Transaction Isolation Levels",
-      "url": "https://dev.mysql.com/doc/refman/8.0/en/innodb-transaction-isolation-levels.html"
-    },
-    {
-      "id": "mysql-consistent",
-      "label": "MySQL 8.0 Reference Manual, Consistent Nonlocking Reads",
-      "url": "https://dev.mysql.com/doc/refman/8.0/en/innodb-consistent-read.html"
-    },
-    {
-      "id": "mysql-locking-reads",
-      "label": "MySQL 8.0 Reference Manual, Locking Reads",
-      "url": "https://dev.mysql.com/doc/refman/8.0/en/innodb-locking-reads.html"
-    },
-    {
-      "id": "berenson",
-      "label": "Berenson 외, A Critique of ANSI SQL Isolation Levels, ACM SIGMOD 1995",
-      "url": "https://arxiv.org/abs/cs/0701157",
-      "note": "lost update, write skew, 스냅샷 격리를 표준 현상 정의 밖에서 정의한 논문이다."
-    }
+    {"id": "pg-iso", "label": "PostgreSQL 문서, 13.2 Transaction Isolation", "url": "https://www.postgresql.org/docs/current/transaction-iso.html"},
+    {"id": "pg-mvcc", "label": "PostgreSQL 문서, 13.1 Introduction (MVCC)", "url": "https://www.postgresql.org/docs/current/mvcc-intro.html"},
+    {"id": "mysql-iso", "label": "MySQL 8.0 Reference Manual, Transaction Isolation Levels", "url": "https://dev.mysql.com/doc/refman/8.0/en/innodb-transaction-isolation-levels.html"},
+    {"id": "mysql-consistent", "label": "MySQL 8.0 Reference Manual, Consistent Nonlocking Reads", "url": "https://dev.mysql.com/doc/refman/8.0/en/innodb-consistent-read.html"},
+    {"id": "mysql-locking-reads", "label": "MySQL 8.0 Reference Manual, Locking Reads", "url": "https://dev.mysql.com/doc/refman/8.0/en/innodb-locking-reads.html"},
+    {"id": "berenson", "label": "Berenson 외, A Critique of ANSI SQL Isolation Levels, ACM SIGMOD 1995", "url": "https://arxiv.org/abs/cs/0701157", "note": "lost update, write skew, 스냅샷 격리를 표준 현상 정의 밖에서 정의한 논문이다."}
   ]
 }

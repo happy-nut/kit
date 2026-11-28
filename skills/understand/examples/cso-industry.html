@@ -3,310 +3,173 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'sha256-lHzDEXt2Snh73qlk0OmMkXpLgz4LCCoTaa1nvgMsaSs='; img-src data:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'sha256-azvwJCKocV0twZcgWapp4bOpTgHsJQ2vRytKRIcRui0='; img-src data:; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
-<title>CSO(의약품 영업대행) 업계와 페인포인트</title>
+<title>의약품 영업대행(CSO) 업계와 페인포인트</title>
 <style>
 :root {
-  --bg: #fbfbfa; --surface: #ffffff; --fg: #1b1c1e; --muted: #5a5e65; --line: #dfe1e4; --line-strong: #b5b9c0;
-  --accent: #1f5fbf; --accent-weak: #e9f0fa; --focus: #1f5fbf;
-  --warn-fg: #9a5a00; --c0: #1f5fbf; --c1: #c2702a; --c2: #3e8a5a; --c3: #8a5cb8; --c4: #8a8f98;
+  --bg: #fbfbfa; --surface: #ffffff; --fg: #1b1c1e; --muted: #5a5e65; --line: #dfe1e4; --line-strong: #a9aeb6;
+  --accent: #1f5fbf; --accent-weak: #e6eefa; --focus: #1f5fbf; --warn-fg: #9a5a00; --warn-weak: #fbf0dd;
   --f-xs: 13px; --f-s: 15px; --f-m: 17px; --f-l: 20px; --f-xl: 28px;
   --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 40px; --s7: 64px;
-  --measure: 44rem; --radius: 6px;
+  --measure: 36rem; --radius: 6px;
   color-scheme: light dark;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #15171a; --surface: #1c1f23; --fg: #e8e9eb; --muted: #a5aab2; --line: #31353b; --line-strong: #4b5159;
-    --accent: #82b2ff; --accent-weak: #1e2a3c; --focus: #82b2ff;
-    --warn-fg: #f1c57a; --c0: #82b2ff; --c1: #e3a56b; --c2: #7cc395; --c3: #b996e0; --c4: #8d939c;
+    --bg: #15171a; --surface: #1c1f23; --fg: #e8e9eb; --muted: #a5aab2; --line: #31353b; --line-strong: #59606a;
+    --accent: #82b2ff; --accent-weak: #1e2a3c; --focus: #82b2ff; --warn-fg: #f1c57a; --warn-weak: #3a2e1a;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #15171a; --surface: #1c1f23; --fg: #e8e9eb; --muted: #a5aab2; --line: #31353b; --line-strong: #4b5159;
-  --accent: #82b2ff; --accent-weak: #1e2a3c; --focus: #82b2ff;
-  --warn-fg: #f1c57a; --c0: #82b2ff; --c1: #e3a56b; --c2: #7cc395; --c3: #b996e0; --c4: #8d939c;
+  --bg: #15171a; --surface: #1c1f23; --fg: #e8e9eb; --muted: #a5aab2; --line: #31353b; --line-strong: #59606a;
+  --accent: #82b2ff; --accent-weak: #1e2a3c; --focus: #82b2ff; --warn-fg: #f1c57a; --warn-weak: #3a2e1a;
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--fg); font: var(--f-m)/1.7 -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", system-ui, sans-serif; word-break: keep-all; overflow-wrap: anywhere; }
-main { max-width: var(--measure); margin: 0 auto; padding: var(--s6) var(--s4) var(--s7); }
+main { max-width: 76rem; margin: 0 auto; padding: 0 var(--s5); }
 p { margin: 0 0 var(--s3); }
 h1, h2, h3 { margin: 0; line-height: 1.35; }
 h3 { font-size: var(--f-m); margin: 0 0 var(--s2); }
-ul, ol { margin: 0 0 var(--s3); padding-left: 1.2em; }
+ul { margin: 0 0 var(--s3); padding-left: 1.2em; }
 li { margin-bottom: var(--s1); }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-[hidden] { display: none !important; }
-.k { display: block; font-size: var(--f-xs); font-weight: 600; color: var(--muted); letter-spacing: .02em; margin: 0 0 2px; }
+.k { display: block; font-size: var(--f-xs); font-weight: 600; color: var(--muted); letter-spacing: .02em; margin: var(--s3) 0 2px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; margin: 0; padding: 0; }
 
-.head { padding-bottom: var(--s5); border-bottom: 1px solid var(--line); }
+.head { grid-column: 1; grid-row: 1; min-height: 72vh; display: flex; flex-direction: column; justify-content: center; padding: var(--s6) 0 var(--s5); }
 .brand { font-size: var(--f-xs); letter-spacing: .14em; color: var(--muted); font-weight: 600; margin-bottom: var(--s2); }
 .head h1 { font-size: var(--f-xl); margin-bottom: var(--s4); }
-.thesis { font-size: var(--f-l); font-weight: 600; line-height: 1.55; border-left: 3px solid var(--accent); padding-left: var(--s4); }
+.thesis { font-size: var(--f-l); font-weight: 600; line-height: 1.55; border-left: 3px solid var(--accent); padding-left: var(--s4); margin: 0; }
 
-.sec { padding: var(--s6) 0 var(--s2); border-bottom: 1px solid var(--line); }
-.sec:last-child { border-bottom: 0; }
-.sec h2 { font-size: var(--f-l); margin-bottom: var(--s4); display: flex; gap: var(--s3); align-items: baseline; }
+/* 글은 왼쪽, 뼈대 그림은 오른쪽에 붙어 있다 */
+.story-wrap { display: grid; grid-template-columns: minmax(0, var(--measure)) minmax(0, 1fr); column-gap: var(--s6); align-items: start; }
+.story { grid-column: 1; grid-row: 2; padding-bottom: 45vh; }
+.stage { grid-column: 2; grid-row: 1 / span 2; align-self: start; position: sticky; top: 0; height: 100vh; margin: 0; padding: var(--s5) 0; display: flex; align-items: center; justify-content: center; }
+.stage svg { display: block; width: 100%; height: 100%; font: 15.5px -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif; }
+
+.sec { padding-top: var(--s6); }
+.sec h2 { font-size: var(--f-l); margin-bottom: var(--s3); display: flex; gap: var(--s3); align-items: baseline; padding-bottom: var(--s2); border-bottom: 1px solid var(--line); }
 .num { font-size: var(--f-s); color: var(--muted); font-variant-numeric: tabular-nums; }
-
-.fig { margin: var(--s4) 0 var(--s5); }
-.fig figcaption { font-size: var(--f-s); font-weight: 600; margin-bottom: var(--s2); }
-.svg-wrap { overflow-x: auto; }
-.svg-wrap svg { display: block; max-width: 100%; height: auto; margin: 0 auto; font: 14px -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif; }
-.edge { fill: none; stroke: var(--muted); stroke-width: 1.6; }
-.arrow { fill: var(--muted); }
-.lab { fill: var(--bg); }
-.svg-wrap svg { min-width: var(--minw); }
-.edge-g text { fill: var(--fg); font-size: 12.5px; }
-.node rect { fill: var(--surface); stroke: var(--line-strong); }
-.node text { fill: var(--fg); font-weight: 600; }
-.life { stroke: var(--line-strong); stroke-dasharray: 4 4; }
-.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-
-.basis { font-size: var(--f-xs); color: var(--muted); margin-top: var(--s2); }
-
-.table-wrap { overflow-x: auto; }
-table { border-collapse: collapse; width: 100%; font-size: var(--f-s); }
-th, td { text-align: left; vertical-align: top; padding: var(--s2) var(--s3); border-bottom: 1px solid var(--line); }
-thead th { border-bottom: 2px solid var(--line-strong); }
-
-
-.boundary { color: var(--muted); }
-
-.judge { padding: var(--s3) 0 var(--s3) var(--s4); border-left: 3px solid var(--line-strong); margin-bottom: var(--s4); }
-.judge p { margin-bottom: var(--s1); }
-.sit { color: var(--muted); }
-.res { font-weight: 600; }
-.why { color: var(--fg); }
-.limits ul { padding-left: 1.2em; }
-
-.switch { padding: var(--s4); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); margin: 0 0 var(--s5); }
-.assume { font-size: var(--f-xs); color: var(--muted); }
-.knob input { width: 100%; accent-color: var(--accent); }
-.knob output { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
-.unit { color: var(--muted); font-size: var(--f-xs); min-width: 2em; }
-.note { font-size: var(--f-s); padding: var(--s2) var(--s3); background: var(--accent-weak); border-radius: var(--radius); margin: var(--s3) 0 0; }
-.switch .q { font-weight: 600; }
-.choices { display: flex; flex-wrap: wrap; gap: var(--s2); margin: var(--s2) 0 var(--s3); }
-.choice { display: inline-flex; align-items: center; gap: var(--s1); padding: var(--s1) var(--s3); border: 1px solid var(--line-strong); border-radius: 999px; cursor: pointer; font-size: var(--f-s); }
-.choice:has(input:checked) { border-color: var(--accent); background: var(--accent-weak); }
-
-.model { margin-bottom: var(--s5); }
-.val { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--accent); }
-tspan.val { fill: var(--accent); }
-
-.knob { display: grid; grid-template-columns: minmax(6rem, 38%) 1fr auto; gap: var(--s2); align-items: center; font-size: var(--f-s); }
-.lab-area { margin-top: var(--s5); }
-.controls { position: sticky; top: 0; z-index: 2; background: var(--bg); padding: var(--s3) 0; border-bottom: 1px solid var(--line); display: grid; gap: var(--s1); }
-.assume { font-size: var(--f-xs); color: var(--muted); margin-top: var(--s2); }
-.plot-box svg { display: block; width: 100%; height: auto; font: 13px -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif; }
-.axis { stroke: var(--line-strong); }
-.tick { fill: var(--muted); font-size: 12px; }
-.line { fill: none; stroke-width: 2.4; }
-.line.s0, .dot.s0 { stroke: var(--c0); } .line.s1, .dot.s1 { stroke: var(--c1); } .line.s2, .dot.s2 { stroke: var(--c2); }
-.dot { fill: var(--bg); stroke-width: 2.4; }
-.now { stroke: var(--fg); stroke-dasharray: 2 3; }
-.mark { stroke: var(--warn-fg); stroke-dasharray: 5 4; stroke-width: 1.5; }
-.mark-label { fill: var(--warn-fg); font-size: 12px; font-weight: 600; paint-order: stroke; stroke: var(--bg); stroke-width: 4px; stroke-linejoin: round; }
-.legend { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s3); font-size: var(--f-xs); margin: var(--s2) 0 0; }
-.sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: var(--s1); vertical-align: 0; }
-.sw.s0 { background: var(--c0); } .sw.s1 { background: var(--c1); } .sw.s2 { background: var(--c2); }
-.sw.plus { background: var(--c0); } .sw.minus { background: var(--c1); }
-.finding { margin-top: var(--s2); padding: var(--s2) var(--s3); background: var(--accent-weak); border-radius: var(--radius); }
-.link.plus .edge { stroke: var(--c0); } .link.minus .edge { stroke: var(--c1); stroke-dasharray: 6 4; }
-.arrow-plus { fill: var(--c0); } .arrow-minus { fill: var(--c1); }
-.link text { fill: var(--fg); font-size: 12.5px; }
-.link .sign { font-weight: 700; }
-.link.plus .sign { fill: var(--c0); } .link.minus .sign { fill: var(--c1); }
-.node.concept rect { stroke-dasharray: 4 3; }
-.legend-line { font-size: var(--f-xs); color: var(--muted); }
+.blk { padding: var(--s4) 0 var(--s4) var(--s4); border-left: 3px solid transparent; margin-left: calc(-1 * var(--s4) - 3px); transition: border-color .25s; }
+.blk.now { border-left-color: var(--accent); }
+.blk > :last-child { margin-bottom: 0; }
+.step { min-height: 34vh; }
+.step h3 { display: flex; gap: var(--s2); align-items: baseline; }
+.step .n { font-size: var(--f-s); color: var(--accent); font-variant-numeric: tabular-nums; }
 .known { font-weight: 600; }
-.pair { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s4); }
-.differs ul li { font-weight: 600; }
-.claim { font-weight: 600; }
-.phen { list-style: none; padding: 0; }
-.phen li { padding: var(--s2) 0; border-bottom: 1px solid var(--line); }
-.phen p { margin: 0; }
-.via { margin-top: var(--s1) !important; }
-.chip { display: inline-block; font-size: 12px; padding: 0 var(--s2); margin: 0 var(--s1) 0 0; border-radius: 999px; background: var(--accent-weak); color: var(--accent); }
-.infer { padding: var(--s3) 0 var(--s3) var(--s4); border-left: 3px solid var(--accent); margin-bottom: var(--s4); }
+.pairs { list-style: none; padding: 0; }
+.pairs .mine { font-weight: 600; }
+.arr { color: var(--muted); }
+.differs li { font-weight: 600; }
+.route { font-size: var(--f-s); color: var(--muted); margin-top: var(--s2); }
 .infer .q { font-weight: 600; }
+.res { font-weight: 600; }
 .infer p { margin-bottom: var(--s1); }
-.case { padding: var(--s4); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+.limits h3 { font-size: var(--f-s); color: var(--muted); }
 
-@media (max-width: 760px) {
-  .pair { grid-template-columns: 1fr; }
-  .controls { position: static; }
+/* 뼈대 그림 */
+.node, .link { transition: opacity .35s; }
+.node rect { fill: var(--surface); stroke: var(--line-strong); stroke-width: 1.4; transition: fill .25s, stroke .25s; }
+.node text { fill: var(--fg); font-weight: 600; }
+.node .kn { display: none; }
+.edge { fill: none; stroke: var(--line-strong); stroke-width: 1.8; transition: stroke .25s; }
+.arrow { fill: var(--line-strong); }
+.arrow-on { fill: var(--accent); }
+.lab { fill: var(--bg); }
+.link text { fill: var(--muted); font-size: 13.5px; }
+.off { opacity: 0; }
+.has-focus .node:not(.on):not(.off), .has-focus .link:not(.on):not(.off) { opacity: .55; }
+.node.on rect { fill: var(--accent-weak); stroke: var(--accent); stroke-width: 2.2; }
+.link.on .edge { stroke: var(--accent); stroke-width: 2.6; }
+.link.on text { fill: var(--accent); font-weight: 600; }
+.known .node .kn { display: inline; }
+.known .node .nm { display: none; }
+.known .link text, .known .link .lab { opacity: 0; }
+.known .node.diff rect { fill: var(--warn-weak); stroke: var(--warn-fg); stroke-dasharray: 5 3; }
+.known .node.diff text { fill: var(--warn-fg); }
+
+@media (max-width: 900px) {
+  main { padding: 0 var(--s4); }
+  .story-wrap { display: block; }
+  .head { min-height: 0; padding: var(--s5) 0; }
+  .stage { position: sticky; top: 0; z-index: 2; height: 46vh; padding: var(--s2) 0; background: var(--bg); border-bottom: 1px solid var(--line); }
+  .blk { margin-left: 0; padding-left: var(--s3); }
+  .step { min-height: 0; padding-bottom: var(--s6); }
 }
 @media (max-width: 640px) {
   body { font-size: 16px; }
-  main { padding-top: var(--s5); }
   .head h1 { font-size: 24px; }
   .thesis { font-size: 18px; }
-  .knob { grid-template-columns: 1fr auto; }
-  .knob-label { grid-column: 1 / -1; }
-    }
-
-.model .fig { width: min(62rem, calc(100vw - 32px)); position: relative; left: 50%; transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) { .node, .link, .node rect, .edge, .blk { transition: none; } }
 
 </style>
 </head>
 <body>
-<main>
+<main class="story-wrap">
   <header class="head">
     <p class="brand">UNDERSTAND</p>
-    <h1>CSO(의약품 영업대행) 업계와 페인포인트</h1>
-    <p class="thesis">CSO 는 제약사가 처방이 없어도 나가는 영업 고정비를 처방 비례 수수료로 바꾸는 장치이고, 그 수수료가 과정을 볼 수 없는 하위 단계로 흘러 정상 영업비를 넘는 순간 리베이트 유인이 생긴다.</p>
+    <h1>의약품 영업대행(CSO) 업계와 페인포인트</h1>
+    <p class="thesis">약값이 정해져 영업으로만 경쟁하는 제약사가 영업을 처방액 비례 수수료로 밖에 맡기면, 보험에서 나온 돈이 CSO 를 거쳐 처방하는 의사에게까지 돌 수 있는 고리가 생기고, 그 고리는 아래로 갈수록 보이지 않는다.</p>
   </header>
-<section class="sec" id="start" aria-labelledby="start-h"><h2 id="start-h"><span class="num">01</span>출발점</h2><p class="known">부동산 중개나 보험 설계사처럼, 성사된 거래만큼 수수료를 받는 영업 대행은 이미 안다.</p><div class="pair"><div><p class="k">그대로 통하는 것</p><ul><li>맡긴 쪽은 고정 인건비 없이 성과만큼 돈을 내고, 대행 쪽은 많이 팔수록 많이 번다.</li><li>대행이 다시 하위 영업자에게 넘기면 단계마다 수수료가 나뉜다.</li></ul></div><div class="differs"><p class="k">결과를 바꾸는 차이</p><ul><li>처방을 고르는 의사는 약값을 내지 않는다. 돈은 건강보험과 환자가 낸다. 그래서 의사에게 이익을 주면 처방이 바뀌어도 그 비용을 의사가 지지 않는다.</li><li>약값은 정부가 정해 가격으로 경쟁할 수 없고, 성분이 같은 복제약이 많아 영업이 처방을 가르는 사실상 유일한 수단이다.</li></ul></div></div></section><section class="sec" id="model" aria-labelledby="model-h"><h2 id="model-h"><span class="num">02</span>핵심 메커니즘</h2><article class="model"><h3>고정비와 변동비</h3><p class="claim">자체 영업은 처방과 무관하게 고정비를 내고 CSO 는 처방에 비례해 낸다. 처방이 적은 품목은 CSO 가 싸고, 처방이 손익분기를 넘으면 자체 영업이 싸다.</p><figure class="fig"><div class="svg-wrap"><svg viewBox="0 0 620 268" width="620" style="--minw:527px" role="img" aria-labelledby="g1t"><title id="g1t">고정비와 변동비: 변수 관계</title><defs><marker id="g1p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow-plus"/></marker><marker id="g1m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow-minus"/></marker></defs><g class="link plus"><path d="M101.0,52.0 C101.0,84.0 182.0,84.0 182.0,114.0" class="edge" marker-end="url(#g1p)"/><rect class="lab" x="99.8" y="74.0" width="83.4" height="20" rx="3"/><text x="141.5" y="88.0" text-anchor="middle"><tspan class="sign">+</tspan> 처방 비례</text></g><g class="link plus"><path d="M292.0,52.0 C292.0,84.0 182.0,84.0 182.0,114.0" class="edge" marker-end="url(#g1p)"/><rect class="lab" x="211.4" y="74.0" width="51.3" height="20" rx="3"/><text x="237.0" y="88.0" text-anchor="middle"><tspan class="sign">+</tspan> 비율</text></g><g class="link minus"><path d="M182.0,152.0 C182.0,184.0 310.0,184.0 310.0,214.0" class="edge" marker-end="url(#g1m)"/><rect class="lab" x="214.1" y="174.0" width="63.8" height="20" rx="3"/><text x="246.0" y="188.0" text-anchor="middle"><tspan class="sign">-</tspan> 줄인다</text></g><g class="link plus"><path d="M501.0,52.0 C501.0,84.0 425.0,84.0 425.0,114.0" class="edge" marker-end="url(#g1p)"/><rect class="lab" x="415.0" y="74.0" width="95.9" height="20" rx="3"/><text x="463.0" y="88.0" text-anchor="middle"><tspan class="sign">+</tspan> 처방과 무관</text></g><g class="link plus"><path d="M425.0,152.0 C425.0,184.0 310.0,184.0 310.0,214.0" class="edge" marker-end="url(#g1p)"/><rect class="lab" x="335.6" y="174.0" width="63.8" height="20" rx="3"/><text x="367.5" y="188.0" text-anchor="middle"><tspan class="sign">+</tspan> 늘린다</text></g><g class="node"><rect x="16.0" y="16.0" width="170.0" height="36" rx="4"/><text x="101.0" y="39.0" text-anchor="middle">처방액 <tspan class="val" data-out="rx">6,000</tspan>만 원</text></g><g class="node"><rect x="81.0" y="116.0" width="202.0" height="36" rx="4"/><text x="182.0" y="139.0" text-anchor="middle">CSO 수수료 <tspan class="val" data-out="fee">2,580</tspan>만 원</text></g><g class="node"><rect x="214.0" y="16.0" width="156.0" height="36" rx="4"/><text x="292.0" y="39.0" text-anchor="middle">수수료율 <tspan class="val" data-out="rate">43</tspan>%</text></g><g class="node"><rect x="194.0" y="216.0" width="232.0" height="36" rx="4"/><text x="310.0" y="239.0" text-anchor="middle">CSO 로 아낀 돈 <tspan class="val" data-out="saving">420</tspan>만 원</text></g><g class="node"><rect x="398.0" y="16.0" width="206.0" height="36" rx="4"/><text x="501.0" y="39.0" text-anchor="middle">자체 영업비 <tspan class="val" data-out="fixed">3,000</tspan>만 원</text></g><g class="node"><rect x="311.0" y="116.0" width="228.0" height="36" rx="4"/><text x="425.0" y="139.0" text-anchor="middle">자체 영업 비용 <tspan class="val" data-out="inhouse">3,000</tspan>만 원</text></g></svg></div><ul class="sr"><li>처방액 늘면 CSO 수수료 늘어난다: 처방 비례</li><li>수수료율 늘면 CSO 수수료 늘어난다: 비율</li><li>CSO 수수료 늘면 CSO 로 아낀 돈 줄어든다: 줄인다</li><li>자체 영업비 늘면 자체 영업 비용 늘어난다: 처방과 무관</li><li>자체 영업 비용 늘면 CSO 로 아낀 돈 늘어난다: 늘린다</li></ul><p class="legend-line"><span class="sw plus"></span>함께 늘어난다 <span class="sw minus"></span>반대로 움직인다</p></figure><p class="boundary"><span class="k">이 모델이 설명하지 못하는 것</span>처방이 영업보다 약효나 진료 지침에 좌우되는 독점 신약은 영업비와 처방의 관계가 약해 이 비교가 덜 맞는 것으로 추정된다.</p></article><article class="model"><h3>주인-대리인 문제</h3><p class="claim">제약사는 처방이라는 결과만 보고 수수료를 준다. 끝단 영업자에게 정상 영업에 드는 돈보다 많은 돈이 닿고 제약사가 그 쓰임을 볼 수 없으면, 남는 돈이 처방 대가로 쓰일 유인이 생긴다.</p><figure class="fig"><div class="svg-wrap"><svg viewBox="0 0 878 368" width="878" style="--minw:746px" role="img" aria-labelledby="g2t"><title id="g2t">주인-대리인 문제: 변수 관계</title><defs><marker id="g2p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow-plus"/></marker><marker id="g2m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow-minus"/></marker></defs><g class="link plus"><path d="M117.0,52.0 C117.0,84.0 262.0,84.0 262.0,114.0" class="edge" marker-end="url(#g2p)"/><rect class="lab" x="163.9" y="74.0" width="51.3" height="20" rx="3"/><text x="189.5" y="88.0" text-anchor="middle"><tspan class="sign">+</tspan> 재원</text></g><g class="link minus"><path d="M345.0,52.0 C345.0,84.0 262.0,84.0 262.0,114.0" class="edge" marker-end="url(#g2m)"/><rect class="lab" x="255.5" y="74.0" width="95.9" height="20" rx="3"/><text x="303.5" y="88.0" text-anchor="middle"><tspan class="sign">-</tspan> 단계마다 뗌</text></g><g class="link plus"><path d="M262.0,152.0 C262.0,184.0 439.0,184.0 439.0,214.0" class="edge" marker-end="url(#g2p)"/><rect class="lab" x="315.0" y="174.0" width="70.9" height="20" rx="3"/><text x="350.5" y="188.0" text-anchor="middle"><tspan class="sign">+</tspan> 닿는 돈</text></g><g class="link plus"><path d="M557.0,52.0 C557.0,84.0 602.0,84.0 602.0,114.0" class="edge" marker-end="url(#g2p)"/><rect class="lab" x="537.8" y="74.0" width="83.4" height="20" rx="3"/><text x="579.5" y="88.0" text-anchor="middle"><tspan class="sign">+</tspan> 영업 대상</text></g><g class="link plus"><path d="M766.0,52.0 C766.0,84.0 602.0,84.0 602.0,114.0" class="edge" marker-end="url(#g2p)"/><rect class="lab" x="658.4" y="74.0" width="51.3" height="20" rx="3"/><text x="684.0" y="88.0" text-anchor="middle"><tspan class="sign">+</tspan> 비율</text></g><g class="link minus"><path d="M602.0,152.0 C602.0,184.0 439.0,184.0 439.0,214.0" class="edge" marker-end="url(#g2m)"/><rect class="lab" x="491.3" y="174.0" width="58.4" height="20" rx="3"/><text x="520.5" y="188.0" text-anchor="middle"><tspan class="sign">-</tspan> 쓸 돈</text></g><g class="link plus"><path d="M439.0,252.0 C439.0,284.0 439.0,284.0 439.0,314.0" class="edge" marker-end="url(#g2p)"/><rect class="lab" x="403.5" y="274.0" width="70.9" height="20" rx="3"/><text x="439.0" y="288.0" text-anchor="middle"><tspan class="sign">+</tspan> 남는 돈</text></g><g class="link minus"><path d="M345.0,52.0 C345.0,84.0 425.0,84.0 425.0,114.0" class="edge" marker-end="url(#g2m)"/><rect class="lab" x="395.0" y="74.0" width="63.8" height="20" rx="3"/><text x="426.9" y="88.0" text-anchor="middle"><tspan class="sign">-</tspan> 멀어짐</text></g><g class="link minus"><path d="M419.0,152.0 L419.0,178.0 L143.0,178.0 L143.0,290.0 L445.0,290.0 L445.0,314.0" class="edge" marker-end="url(#g2m)"/><rect class="lab" x="117.4" y="224.0" width="51.3" height="20" rx="3"/><text x="143.0" y="238.0" text-anchor="middle"><tspan class="sign">-</tspan> 억제</text></g><g class="node"><rect x="16.0" y="16.0" width="202.0" height="36" rx="4"/><text x="117.0" y="39.0" text-anchor="middle">CSO 수수료 <tspan class="val" data-out="fee">2,580</tspan>만 원</text></g><g class="node"><rect x="173.0" y="116.0" width="178.0" height="36" rx="4"/><text x="262.0" y="139.0" text-anchor="middle">끝단 몫 <tspan class="val" data-out="bottom">2,064</tspan>만 원</text></g><g class="node"><rect x="246.0" y="16.0" width="198.0" height="36" rx="4"/><text x="345.0" y="39.0" text-anchor="middle">재위탁 단계 <tspan class="val" data-out="tiers">1</tspan>단계</text></g><g class="node"><rect x="350.0" y="216.0" width="178.0" height="36" rx="4"/><text x="439.0" y="239.0" text-anchor="middle">남는 돈 <tspan class="val" data-out="surplus">1,164</tspan>만 원</text></g><g class="node"><rect x="472.0" y="16.0" width="170.0" height="36" rx="4"/><text x="557.0" y="39.0" text-anchor="middle">처방액 <tspan class="val" data-out="rx">6,000</tspan>만 원</text></g><g class="node"><rect x="499.0" y="116.0" width="206.0" height="36" rx="4"/><text x="602.0" y="139.0" text-anchor="middle">정상 영업비 <tspan class="val" data-out="need">900</tspan>만 원</text></g><g class="node"><rect x="670.0" y="16.0" width="192.0" height="36" rx="4"/><text x="766.0" y="39.0" text-anchor="middle">정상 영업비율 <tspan class="val" data-out="legit">15</tspan>%</text></g><g class="node concept"><rect x="379.0" y="316.0" width="120.0" height="36" rx="4"/><text x="439.0" y="339.0" text-anchor="middle">리베이트 유인</text></g><g class="node concept"><rect x="379.0" y="116.0" width="92.0" height="36" rx="4"/><text x="425.0" y="139.0" text-anchor="middle">관찰 범위</text></g></svg></div><ul class="sr"><li>CSO 수수료 늘면 끝단 몫 늘어난다: 재원</li><li>재위탁 단계 늘면 끝단 몫 줄어든다: 단계마다 뗌</li><li>끝단 몫 늘면 남는 돈 늘어난다: 닿는 돈</li><li>처방액 늘면 정상 영업비 늘어난다: 영업 대상</li><li>정상 영업비율 늘면 정상 영업비 늘어난다: 비율</li><li>정상 영업비 늘면 남는 돈 줄어든다: 쓸 돈</li><li>남는 돈 늘면 리베이트 유인 늘어난다: 남는 돈</li><li>재위탁 단계 늘면 관찰 범위 줄어든다: 멀어짐</li><li>관찰 범위 늘면 리베이트 유인 줄어든다: 억제</li></ul><p class="legend-line"><span class="sw plus"></span>함께 늘어난다 <span class="sw minus"></span>반대로 움직인다</p></figure><p class="boundary"><span class="k">이 모델이 설명하지 못하는 것</span>남는 돈이 곧 리베이트는 아니다. 이 모델은 유인이 생기는 조건을 설명할 뿐 실제 위법 여부는 설명하지 못한다.</p></article><div class="lab-area"><div data-vars="[[&quot;fee&quot;, 0, [[&quot;v&quot;, &quot;rx&quot;], [&quot;v&quot;, &quot;rate&quot;], [&quot;o&quot;, &quot;*&quot;], [&quot;n&quot;, 100.0], [&quot;o&quot;, &quot;/&quot;]]], [&quot;inhouse&quot;, 0, [[&quot;v&quot;, &quot;fixed&quot;]]], [&quot;saving&quot;, 0, [[&quot;v&quot;, &quot;inhouse&quot;], [&quot;v&quot;, &quot;fee&quot;], [&quot;o&quot;, &quot;-&quot;]]], [&quot;bottom&quot;, 0, [[&quot;v&quot;, &quot;fee&quot;], [&quot;v&quot;, &quot;tiers&quot;], [&quot;n&quot;, 0.0], [&quot;o&quot;, &quot;==&quot;], [&quot;v&quot;, &quot;tiers&quot;], [&quot;n&quot;, 1.0], [&quot;o&quot;, &quot;==&quot;], [&quot;n&quot;, 0.8], [&quot;o&quot;, &quot;*&quot;], [&quot;o&quot;, &quot;+&quot;], [&quot;v&quot;, &quot;tiers&quot;], [&quot;n&quot;, 2.0], [&quot;o&quot;, &quot;==&quot;], [&quot;n&quot;, 0.64], [&quot;o&quot;, &quot;*&quot;], [&quot;o&quot;, &quot;+&quot;], [&quot;v&quot;, &quot;tiers&quot;], [&quot;n&quot;, 3.0], [&quot;o&quot;, &quot;==&quot;], [&quot;n&quot;, 0.512], [&quot;o&quot;, &quot;*&quot;], [&quot;o&quot;, &quot;+&quot;], [&quot;o&quot;, &quot;*&quot;]]], [&quot;need&quot;, 0, [[&quot;v&quot;, &quot;rx&quot;], [&quot;v&quot;, &quot;legit&quot;], [&quot;o&quot;, &quot;*&quot;], [&quot;n&quot;, 100.0], [&quot;o&quot;, &quot;/&quot;]]], [&quot;surplus&quot;, 0, [[&quot;v&quot;, &quot;bottom&quot;], [&quot;v&quot;, &quot;need&quot;], [&quot;o&quot;, &quot;-&quot;]]]]" hidden></div><div class="controls"><label class="knob" for="in3"><span class="knob-label">처방액</span><input type="range" id="in3" data-in="rx" min="500" max="50000" step="500" value="6000"><output for="in3"><span class="val" data-out="rx">6,000</span>만 원</output></label><label class="knob" for="in4"><span class="knob-label">자체 영업비</span><input type="range" id="in4" data-in="fixed" min="500" max="10000" step="100" value="3000"><output for="in4"><span class="val" data-out="fixed">3,000</span>만 원</output></label><label class="knob" for="in5"><span class="knob-label">수수료율</span><input type="range" id="in5" data-in="rate" min="5" max="65" step="1" value="43"><output for="in5"><span class="val" data-out="rate">43</span>%</output></label><label class="knob" for="in6"><span class="knob-label">재위탁 단계</span><input type="range" id="in6" data-in="tiers" min="0" max="3" step="1" value="1"><output for="in6"><span class="val" data-out="tiers">1</span>단계</output></label><label class="knob" for="in7"><span class="knob-label">정상 영업비율</span><input type="range" id="in7" data-in="legit" min="5" max="40" step="1" value="15"><output for="in7"><span class="val" data-out="legit">15</span>%</output></label></div><p class="assume">가정 모델: 자체 영업 조직 비용과 정상 영업비 비율은 공개 통계가 없어 사용자가 정하는 추정값이다. 재위탁 단계마다 위 사업자가 수수료의 20% 를 뗀다고 둔다.</p><figure class="fig plot"><figcaption>처방액에 따른 CSO 비용과 자체 영업 비용</figcaption><div class="plot-box" data-plot="{&quot;x&quot;: &quot;rx&quot;, &quot;xl&quot;: &quot;\ucc98\ubc29\uc561&quot;, &quot;xu&quot;: &quot;\ub9cc \uc6d0&quot;, &quot;min&quot;: 500, &quot;max&quot;: 50000, &quot;ys&quot;: [[&quot;fee&quot;, &quot;CSO \uc218\uc218\ub8cc&quot;, &quot;\ub9cc \uc6d0&quot;, 0], [&quot;inhouse&quot;, &quot;\uc790\uccb4 \uc601\uc5c5 \ube44\uc6a9&quot;, &quot;\ub9cc \uc6d0&quot;, 0]], &quot;marks&quot;: [[[[&quot;v&quot;, &quot;fee&quot;], [&quot;v&quot;, &quot;inhouse&quot;], [&quot;o&quot;, &quot;&gt;&quot;]], &quot;\uc790\uccb4 \uc601\uc5c5\uc774 \ub354 \uc308&quot;]]}"></div><p class="finding"><span class="k">그래프에서 읽히는 것</span>처방액이 자체 영업 비용을 수수료율로 나눈 값보다 작으면 CSO 가 싸고, 넘으면 자체 영업이 싸다. 수수료율이 높을수록 이 손익분기 처방액이 낮아진다.</p></figure><figure class="fig plot"><figcaption>수수료율에 따른 끝단 몫과 정상 영업비</figcaption><div class="plot-box" data-plot="{&quot;x&quot;: &quot;rate&quot;, &quot;xl&quot;: &quot;\uc218\uc218\ub8cc\uc728&quot;, &quot;xu&quot;: &quot;%&quot;, &quot;min&quot;: 5, &quot;max&quot;: 65, &quot;ys&quot;: [[&quot;bottom&quot;, &quot;\ub05d\ub2e8 \ubaab&quot;, &quot;\ub9cc \uc6d0&quot;, 0], [&quot;need&quot;, &quot;\uc815\uc0c1 \uc601\uc5c5\ube44&quot;, &quot;\ub9cc \uc6d0&quot;, 0]], &quot;marks&quot;: [[[[&quot;v&quot;, &quot;surplus&quot;], [&quot;n&quot;, 0.0], [&quot;o&quot;, &quot;&gt;&quot;]], &quot;\ub0a8\ub294 \ub3c8 \uc0dd\uae40&quot;]]}"></div><p class="finding"><span class="k">그래프에서 읽히는 것</span>수수료율이 정상 영업비율을 0.8 의 단계 거듭제곱으로 나눈 값을 넘는 순간 끝단에 남는 돈이 생긴다. 재위탁 단계가 늘면 이 문턱은 올라가지만 제약사가 볼 수 있는 범위는 줄어든다.</p></figure></div></section><section class="sec" id="phenomena" aria-labelledby="phenomena-h"><h2 id="phenomena-h"><span class="num">03</span>설명되는 현상</h2><ul class="phen"><li><p>매출이 작고 같은 성분 제품이 많은 복제약 중심의 중견 제약사가 CSO 에 크게 기댄다.</p><p class="via"><span class="chip">처방액</span><span class="chip">자체 영업 비용</span><span class="chip">CSO 로 아낀 돈</span></p></li><li><p>국정감사 표본 446개 품목의 평균 수수료율은 42.9% 였고, 이런 고율 계약은 의도와 관계없이 리베이트 의심을 받는다. 이 값은 표본의 평균이고 업계 전체 평균이 아니다.</p><p class="via"><span class="chip">수수료율</span><span class="chip">남는 돈</span><span class="chip">리베이트 유인</span></p></li><li><p>약가 인하가 예고되자 한 중견 제약사는 51개 품목 가운데 49개의 수수료율을 낮췄다. 수수료가 처방과 함께 움직이는 가장 큰 비용이라 먼저 깎인다.</p><p class="via"><span class="chip">수수료율</span><span class="chip">CSO 수수료</span></p></li><li><p>2024년 10월부터 CSO 는 신고하고 지출보고서를 쓰지만, 재위탁 아래에서 돈이 어디에 쓰였는지는 여전히 제약사도 정부도 보지 못한다.</p><p class="via"><span class="chip">재위탁 단계</span><span class="chip">관찰 범위</span></p></li></ul></section><section class="sec" id="inferences" aria-labelledby="inferences-h"><h2 id="inferences-h"><span class="num">04</span>새로운 추론</h2><div class="infer"><p class="q">한 품목의 처방이 크게 늘어 대표 품목이 되면 CSO 를 계속 쓰는 것이 합리적인가?</p><p class="res">수수료율이 그대로면 처방이 손익분기를 넘는 순간부터 자체 영업 조직이 더 싸진다.</p><p class="why">CSO 비용은 처방에 비례해 커지고 자체 영업 비용은 고정이라, 처방이 커지면 두 비용의 크기가 뒤집힌다.</p></div><div class="infer"><p class="q">재위탁을 법으로 금지하면 리베이트 유인은 줄어드는가?</p><p class="res">같은 수수료율이면 끝단 몫이 오히려 커져 남는 돈이 늘 수 있다. 대신 제약사가 영업자를 직접 볼 수 있게 된다.</p><p class="why">끝단 몫은 수수료에 단계마다 남는 비율을 단계 수만큼 곱한 값이라 단계를 없애면 커지고, 관찰 가능성은 단계가 줄수록 커져 두 효과가 반대로 움직인다.</p></div><div class="infer"><p class="q">정부가 수수료율 상한을 정상 영업비 근처로 정하면 무엇이 달라지나?</p><p class="res">끝단에 남는 돈이 줄어 리베이트 유인은 약해지지만, CSO 비용이 낮아져 더 많은 품목에서 CSO 가 자체 영업보다 싸진다.</p><p class="why">남는 돈은 수수료율에서 정상 영업비를 뺀 값에 달려 있고, CSO 와 자체 영업의 손익분기는 수수료율이 낮을수록 높은 처방액으로 밀려난다.</p></div></section><section class="sec" id="limits" aria-labelledby="limits-h"><h2 id="limits-h"><span class="num">05</span>적용 한계</h2><div class="limits"><h3>반례</h3><ul><li>수수료 일부를 떼어도 하위 영업자가 실제로 쓰는 영업비가 커서 남는 돈이 없는 품목도 있다. 높은 수수료율만으로 위법을 단정할 수 없다.</li></ul></div><div class="limits"><h3>확인되지 않은 전제</h3><ul><li>자체 영업 조직 비용과 정상 영업비 비율은 공개 통계가 없다. 그래프의 문턱 위치는 이 가정값에 따라 움직인다.</li></ul></div><div class="limits"><h3>아직 모르는 것</h3><ul><li>하위 CSO 와 개인 영업자의 실제 수입 분포를 보여 주는 공개 통계는 찾지 못했다.</li><li>수수료율 신고, 제약사와 CSO 의 연대 책임, 재위탁 제한은 2026년 11월 현재 논의 중이고 확정되지 않았다.</li></ul></div></section>
+    <figure class="stage" aria-label="뼈대 그림"><svg viewBox="0 0 340 408" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="skt" data-mon="mk-on" data-moff="mk"><title id="skt">의약품 영업대행(CSO) 업계와 페인포인트의 뼈대</title><defs><marker id="mk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow"/></marker><marker id="mk-on" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow-on"/></marker></defs><g class="link" data-link="gov&gt;pharma"><path d="M81.5,52.0 C81.5,75.0 81.5,75.0 81.5,96.0" class="edge" marker-end="url(#mk)"/></g><g class="link" data-link="pharma&gt;cso"><path d="M81.5,138.0 C81.5,161.0 81.5,161.0 81.5,182.0" class="edge" marker-end="url(#mk)"/></g><g class="link" data-link="cso&gt;sub"><path d="M81.5,224.0 C81.5,247.0 81.5,247.0 81.5,268.0" class="edge" marker-end="url(#mk)"/></g><g class="link" data-link="sub&gt;doc"><path d="M81.5,310.0 C81.5,333.0 81.5,333.0 81.5,354.0" class="edge" marker-end="url(#mk)"/></g><g class="link" data-link="doc&gt;gov"><path d="M151.0,376.0 H201.0 Q211.0,376.0 211.0,366.0 V33.0 Q211.0,23.0 201.0,23.0 H149.5" class="edge" marker-end="url(#mk)"/></g><g class="link" data-link="gov&gt;cso"><path d="M146.5,32.0 H166.5 Q176.5,32.0 176.5,42.0 V194.0 Q176.5,204.0 166.5,204.0 H120.5" class="edge" marker-end="url(#mk)"/></g><g class="link name" data-link="gov&gt;pharma"><rect class="lab" x="20.4" y="65.0" width="122.2" height="20" rx="3"/><text x="81.5" y="79.5" text-anchor="middle">약값을 정해 낸다</text></g><g class="link name" data-link="pharma&gt;cso"><rect class="lab" x="16.5" y="151.0" width="130.0" height="20" rx="3"/><text x="81.5" y="165.5" text-anchor="middle">처방액의 %를 준다</text></g><g class="link name" data-link="cso&gt;sub"><rect class="lab" x="37.8" y="237.0" width="87.3" height="20" rx="3"/><text x="81.5" y="251.5" text-anchor="middle">다시 맡긴다</text></g><g class="link name" data-link="sub&gt;doc"><rect class="lab" x="48.5" y="323.0" width="66.0" height="20" rx="3"/><text x="81.5" y="337.5" text-anchor="middle">영업한다</text></g><g class="link name" data-link="doc&gt;gov"><rect class="lab" x="178.7" y="173.0" width="149.2" height="20" rx="3"/><text x="253.3" y="187.5" text-anchor="middle">처방하면 보험이 낸다</text></g><g class="link name" data-link="gov&gt;cso"><rect class="lab" x="126.1" y="106.0" width="100.8" height="20" rx="3"/><text x="176.5" y="120.5" text-anchor="middle">신고·지출보고</text></g><g class="node" data-part="gov"><rect x="16.5" y="12.0" width="130.0" height="40" rx="6"/><text class="nm" x="81.5" y="37.5" text-anchor="middle">정부·건강보험</text><text class="kn" x="81.5" y="37.5" text-anchor="middle">정부·건강보험</text></g><g class="node" data-part="pharma"><rect x="44.2" y="98.0" width="74.5" height="40" rx="6"/><text class="nm" x="81.5" y="123.5" text-anchor="middle">제약사</text><text class="kn" x="81.5" y="123.5" text-anchor="middle">집주인</text></g><g class="node" data-part="cso"><rect x="45.5" y="184.0" width="72.0" height="40" rx="6"/><text class="nm" x="81.5" y="209.5" text-anchor="middle">CSO</text><text class="kn" x="81.5" y="209.5" text-anchor="middle">중개사</text></g><g class="node" data-part="sub"><rect x="34.0" y="270.0" width="95.0" height="40" rx="6"/><text class="nm" x="81.5" y="295.5" text-anchor="middle">하위 CSO</text><text class="kn" x="81.5" y="295.5" text-anchor="middle">하위 CSO</text></g><g class="node" data-part="doc"><rect x="12.0" y="356.0" width="139.0" height="40" rx="6"/><text class="nm" x="81.5" y="381.5" text-anchor="middle">의사</text><text class="kn" x="81.5" y="381.5" text-anchor="middle">집을 사는 사람</text></g></svg><ul class="sr"><li>정부·건강보험 → 제약사: 약값을 정해 낸다</li><li>제약사 → CSO: 처방액의 %를 준다</li><li>CSO → 하위 CSO: 다시 맡긴다</li><li>하위 CSO → 의사: 영업한다</li><li>의사 → 정부·건강보험: 처방하면 보험이 낸다</li><li>정부·건강보험 → CSO: 신고·지출보고</li></ul></figure>
+    <div class="story">
+<section class="sec" id="bridge" aria-labelledby="bridge-h"><h2 id="bridge-h"><span class="num">01</span>출발점</h2><div class="blk bridge" id="b1" data-show="gov pharma cso doc" data-links="gov&gt;pharma pharma&gt;cso doc&gt;gov gov&gt;cso" data-focus="" data-at="doc gov" data-mode="known"><p class="known">부동산 중개처럼 성사된 거래만큼 수수료를 받는 영업 대행은 이미 안다.</p><ul class="pairs"><li><span class="mine">제약사</span> <span class="arr">≈</span> 집주인</li><li><span class="mine">CSO</span> <span class="arr">≈</span> 중개사</li><li><span class="mine">의사</span> <span class="arr">≈</span> 집을 사는 사람</li></ul><p class="k">결과를 바꾸는 차이</p><ul class="differs"><li>집을 사는 사람은 자기 돈을 내지만, 약을 고르는 의사는 약값을 내지 않는다. 값은 건강보험과 환자가 낸다.</li><li>집값은 흥정으로 정하지만 약값은 정부가 정한다. 그래서 파는 쪽은 값을 깎아 경쟁할 수 없다.</li></ul></div></section><section class="sec" id="build" aria-labelledby="build-h"><h2 id="build-h"><span class="num">02</span>뼈대</h2><div class="blk step" id="b2" data-show="doc gov" data-links="" data-focus="doc gov"><h3><span class="n">1</span>약을 고르는 사람과 값을 내는 쪽이 다르다</h3><p>처방할 약은 의사가 고른다. 약값은 건강보험과 환자가 내고, 그 값은 정부가 정한다.</p><p>그래서 의사는 어느 약을 골라도 자기 돈이 나가지 않는다.</p></div><div class="blk step" id="b3" data-show="doc gov pharma" data-links="gov&gt;pharma" data-focus="pharma gov&gt;pharma"><h3><span class="n">2</span>제약사는 값으로 경쟁할 수 없다</h3><p>약값이 정해져 있고 성분이 같은 복제약이 많아서, 제약사가 매출을 늘리는 길은 의사가 자기 약을 고르게 하는 것뿐이다. 경쟁은 영업에서 일어난다.</p></div><div class="blk step" id="b4" data-show="doc gov pharma cso" data-links="gov&gt;pharma pharma&gt;cso" data-focus="cso pharma&gt;cso"><h3><span class="n">3</span>영업을 처방액 비례 수수료로 밖에 맡긴다</h3><p>영업사원을 직접 두면 처방이 없어도 월급이 나간다. CSO 에 맡기면 처방액의 몇 %만 내므로, 팔린 만큼만 비용이 생긴다.</p></div><div class="blk step" id="b5" data-show="doc gov pharma cso sub" data-links="cso&gt;sub gov&gt;pharma pharma&gt;cso" data-focus="sub cso&gt;sub"><h3><span class="n">4</span>CSO 는 다시 맡기고, 아래로 갈수록 안 보인다</h3><p>CSO 는 일을 작은 하위 CSO 나 개인 영업자에게 다시 맡기고 수수료를 나눈다.</p><p>단계가 늘수록 제약사는 의사 앞에서 실제로 무슨 일이 일어나는지 볼 수 없다.</p></div><div class="blk step" id="b6" data-show="doc gov pharma cso sub" data-links="cso&gt;sub doc&gt;gov gov&gt;pharma pharma&gt;cso sub&gt;doc" data-focus="sub&gt;doc doc&gt;gov sub doc"><h3><span class="n">5</span>남는 수수료가 의사에게 가면 고리가 닫힌다</h3><p>수수료가 실제 영업에 드는 돈보다 크면 남는 몫이 생긴다.</p><p>그 몫이 의사에게 가면 의사는 자기 돈이 들지 않는 처방으로 보답할 수 있다. 이것이 리베이트이고, 그 처방값은 다시 보험이 낸다.</p></div><div class="blk step" id="b7" data-show="doc gov pharma cso sub" data-links="cso&gt;sub doc&gt;gov gov&gt;cso gov&gt;pharma pharma&gt;cso sub&gt;doc" data-focus="gov&gt;cso gov cso"><h3><span class="n">6</span>정부는 안 보이는 아래를 보이게 하려 한다</h3><p>2024년 10월부터 CSO 는 신고해야 하고, 누구에게 무엇을 썼는지 지출보고서를 쓴다.</p><p>보고는 CSO 단위로 들어와서, 하위 CSO 아래에서 돈이 어디에 쓰였는지는 여전히 잘 보이지 않는다.</p></div></section><section class="sec" id="phenomena" aria-labelledby="phenomena-h"><h2 id="phenomena-h"><span class="num">03</span>설명되는 현상</h2><div class="blk phen" id="b8" data-show="gov pharma cso sub doc" data-links="gov&gt;pharma pharma&gt;cso cso&gt;sub sub&gt;doc doc&gt;gov gov&gt;cso" data-focus="gov pharma cso gov&gt;pharma pharma&gt;cso"><p>매출이 작고 같은 성분 제품이 많은 복제약 중심의 중견 제약사가 CSO 에 크게 기댄다.</p><p class="route">정부·건강보험 <span class="arr">→</span> 제약사 <span class="arr">→</span> CSO</p></div><div class="blk phen" id="b9" data-show="gov pharma cso sub doc" data-links="gov&gt;pharma pharma&gt;cso cso&gt;sub sub&gt;doc doc&gt;gov gov&gt;cso" data-focus="pharma cso sub doc pharma&gt;cso cso&gt;sub sub&gt;doc"><p>국정감사 표본 446개 품목의 평균 수수료율은 42.9% 였다. 이런 고율 계약은 의도와 관계없이 리베이트 의심을 받는다. 이 값은 표본 평균이고 업계 전체 평균이 아니다.</p><p class="route">제약사 <span class="arr">→</span> CSO <span class="arr">→</span> 하위 CSO <span class="arr">→</span> 의사</p></div><div class="blk phen" id="b10" data-show="gov pharma cso sub doc" data-links="gov&gt;pharma pharma&gt;cso cso&gt;sub sub&gt;doc doc&gt;gov gov&gt;cso" data-focus="gov pharma cso gov&gt;pharma pharma&gt;cso"><p>약가 인하가 예고되자 한 중견 제약사는 51개 품목 가운데 49개의 수수료율을 낮췄다. 약값이 줄면 수수료가 처방과 함께 가장 먼저 깎인다.</p><p class="route">정부·건강보험 <span class="arr">→</span> 제약사 <span class="arr">→</span> CSO</p></div><div class="blk phen" id="b11" data-show="gov pharma cso sub doc" data-links="gov&gt;pharma pharma&gt;cso cso&gt;sub sub&gt;doc doc&gt;gov gov&gt;cso" data-focus="gov cso sub gov&gt;cso cso&gt;sub"><p>신고제 이후에도 재위탁 아래에서 돈이 어디에 쓰였는지는 제약사도 정부도 잘 보지 못한다.</p><p class="route">정부·건강보험 <span class="arr">→</span> CSO <span class="arr">→</span> 하위 CSO</p></div></section><section class="sec" id="inferences" aria-labelledby="inferences-h"><h2 id="inferences-h"><span class="num">04</span>새로운 추론</h2><div class="blk infer" id="b12" data-show="gov pharma cso sub doc" data-links="gov&gt;pharma pharma&gt;cso cso&gt;sub sub&gt;doc doc&gt;gov gov&gt;cso" data-focus="pharma cso pharma&gt;cso"><p class="q">한 품목의 처방이 크게 늘어 대표 품목이 되면 CSO 를 계속 쓰는 것이 합리적인가?</p><p class="res">처방이 어느 규모를 넘으면 직접 영업 조직을 두는 편이 더 싸진다.</p><p class="why">제약사가 CSO 에 주는 돈은 처방액에 비례해 커지고, 직접 영업 조직의 비용은 처방과 거의 상관없이 고정이다.</p><p class="route">제약사 <span class="arr">→</span> CSO</p></div><div class="blk infer" id="b13" data-show="gov pharma cso sub doc" data-links="gov&gt;pharma pharma&gt;cso cso&gt;sub sub&gt;doc doc&gt;gov gov&gt;cso" data-focus="pharma cso sub pharma&gt;cso cso&gt;sub"><p class="q">재위탁을 법으로 금지하면 무엇이 달라지나?</p><p class="res">제약사가 실제 영업자를 직접 보게 되어 안 보이던 단계가 준다. 다만 같은 수수료율이면 한 곳에 남는 몫은 오히려 커진다.</p><p class="why">하위 CSO 단계가 없어지면 제약사와 의사 사이가 짧아지지만, 단계마다 나뉘던 수수료가 한 CSO 에 모인다.</p><p class="route">제약사 <span class="arr">→</span> CSO <span class="arr">→</span> 하위 CSO</p></div><div class="blk infer" id="b14" data-show="gov pharma cso sub doc" data-links="gov&gt;pharma pharma&gt;cso cso&gt;sub sub&gt;doc doc&gt;gov gov&gt;cso" data-focus="sub doc gov sub&gt;doc doc&gt;gov"><p class="q">의사가 아니라 약사가 같은 성분 가운데 약을 고르게 하면(성분명 처방) 리베이트 문제가 사라지는가?</p><p class="res">사라지지 않고 영업이 약국 쪽으로 옮겨 간다.</p><p class="why">고르는 사람이 의사에서 약사로 바뀌어도, 고르는 사람이 값을 내지 않고 값은 보험이 낸다는 고리는 그대로다.</p><p class="route">하위 CSO <span class="arr">→</span> 의사 <span class="arr">→</span> 정부·건강보험</p></div></section><section class="sec" id="limits" aria-labelledby="limits-h"><h2 id="limits-h"><span class="num">05</span>적용 한계</h2><div class="blk" id="b15" data-show="gov pharma cso sub doc" data-links="gov&gt;pharma pharma&gt;cso cso&gt;sub sub&gt;doc doc&gt;gov gov&gt;cso" data-focus=""><div class="limits"><h3>성립 조건</h3><ul><li>이 고리는 건강보험이 약값을 내는 급여 의약품에서 성립한다. 환자가 전액 내는 비급여 의약품은 값으로도 경쟁할 수 있어 다르게 움직인다(추론).</li></ul></div><div class="limits"><h3>반례</h3><ul><li>수수료 일부를 떼어도 하위 영업자가 실제로 쓰는 영업비가 커서 남는 돈이 없는 품목도 있다. 높은 수수료율만으로 위법을 단정할 수 없다.</li></ul></div><div class="limits"><h3>아직 모르는 것</h3><ul><li>하위 CSO 와 개인 영업자의 실제 수입 분포를 보여 주는 공개 통계는 찾지 못했다.</li><li>수수료율 신고, 제약사와 CSO 의 연대 책임, 재위탁 제한은 2026년 11월 현재 논의 중이고 확정되지 않았다.</li></ul></div></div></section>
+    </div>
 </main>
 <script>
 (function () {
   "use strict";
+  var svg = document.querySelector(".stage svg");
+  if (!svg) return;
   var all = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
+  var nodes = all("[data-part]", svg), links = all("[data-link]", svg), blocks = all("[data-show]");
+  var stage = svg.parentNode;
+  var set = function (s) { var o = {}; (s || "").split(" ").forEach(function (x) { if (x) o[x] = true; }); return o; };
+  var current;
 
-  function evaluate(rpn, env) {
-    var st = [];
-    rpn.forEach(function (t) {
-      if (t[0] === "n") st.push(t[1]);
-      else if (t[0] === "v") st.push(env[t[1]]);
-      else if (t[0] === "f") {
-        if (t[1] === "round") st.push(Math.floor(st.pop() + 0.5));
-        else if (t[1] === "abs") st.push(Math.abs(st.pop()));
-        else { var b = st.pop(), a = st.pop(); st.push(t[1] === "min" ? Math.min(a, b) : Math.max(a, b)); }
-      } else if (t[1] === "neg") st.push(-st.pop());
-      else {
-        var y = st.pop(), x = st.pop();
-        switch (t[1]) {
-          case "+": st.push(x + y); break;
-          case "-": st.push(x - y); break;
-          case "*": st.push(x * y); break;
-          case "/": st.push(y ? x / y : NaN); break;
-          case "<": st.push(+(x < y)); break;
-          case "<=": st.push(+(x <= y)); break;
-          case ">": st.push(+(x > y)); break;
-          case ">=": st.push(+(x >= y)); break;
-          case "==": st.push(+(x === y)); break;
-          case "!=": st.push(+(x !== y)); break;
-          case "&&": st.push(+(!!x && !!y)); break;
-          default: st.push(+(!!x || !!y));
-        }
-      }
+  // 읽는 자리에 걸린 글 덩어리의 상태(보이는 부분, 보이는 연결, 짚는 것)를 그림에 옮긴다. 덩어리 위면 뼈대 전체를 보인다.
+  function apply(b) {
+    if (b === current) return;
+    current = b;
+    var show = b ? set(b.getAttribute("data-show")) : null, ls = b ? set(b.getAttribute("data-links")) : null;
+    var focus = b ? set(b.getAttribute("data-focus")) : {}, at = b ? set(b.getAttribute("data-at")) : {};
+    svg.classList.toggle("known", !!b && b.getAttribute("data-mode") === "known");
+    svg.classList.toggle("has-focus", Object.keys(focus).length > 0);
+    nodes.forEach(function (n) {
+      var id = n.getAttribute("data-part");
+      n.classList.toggle("off", !!show && !show[id]);
+      n.classList.toggle("on", !!focus[id]);
+      n.classList.toggle("diff", !!at[id]);
     });
-    return st[0];
-  }
-
-  function fmt(v, digits) {
-    if (!isFinite(v)) return "계산 불가";
-    var s = v.toFixed(digits).replace(/^(-?\d+)/, function (m) { return m.replace(/\B(?=(\d{3})+(?!\d))/g, ","); });
-    return /^-0(\.0+)?$/.test(s) ? "0" : s;
-  }
-
-  var spec = document.querySelector("[data-vars]");
-  var outs = spec ? JSON.parse(spec.getAttribute("data-vars")) : [];
-  var NS = "http://www.w3.org/2000/svg";
-  var digits = {};
-  function inputs() {
-    var env = {};
-    all("[data-in]").forEach(function (i) {
-      env[i.getAttribute("data-in")] = Number(i.value);
-      var f = String(i.step).split(".")[1];
-      digits[i.getAttribute("data-in")] = f ? Math.min(2, f.length) : 0;
+    links.forEach(function (l) {
+      var id = l.getAttribute("data-link"), on = !!focus[id];
+      l.classList.toggle("off", !!ls && !ls[id]);
+      l.classList.toggle("on", on);
+      var edge = l.querySelector(".edge");
+      if (edge) edge.setAttribute("marker-end", "url(#" + svg.getAttribute(on ? "data-mon" : "data-moff") + ")");
     });
-    return env;
+    blocks.forEach(function (x) { x.classList.toggle("now", x === b); });
+    svg.setAttribute("data-block", b ? b.id : "");
   }
-  function solve(env) {
-    outs.forEach(function (o) { env[o[0]] = evaluate(o[2], env); digits[o[0]] = o[1]; });
-    return env;
+  function line() {
+    var r = stage.getBoundingClientRect();
+    return r.width > innerWidth * 0.8 ? r.bottom + 40 : innerHeight * 0.5;
   }
-  function el(tag, attrs, text) {
-    var n = document.createElementNS(NS, tag);
-    Object.keys(attrs).forEach(function (k) { n.setAttribute(k, attrs[k]); });
-    if (text !== undefined) n.textContent = text;
-    return n;
+  function update() {
+    var y = line(), hit = null;
+    blocks.forEach(function (b) { if (b.getBoundingClientRect().top <= y) hit = b; });
+    apply(hit);
   }
-  function drawPlot(box, base) {
-    var p = JSON.parse(box.getAttribute("data-plot"));
-    var W = Math.max(300, Math.round(box.clientWidth || 640)), H = W < 500 ? 240 : 280, L = 58, R = 12, T = 30 + 16 * p.marks.length, B = 40, N = 81;
-    var rows = [];
-    for (var k = 0; k < N; k++) {
-      var env = {};
-      Object.keys(base).forEach(function (key) { env[key] = base[key]; });
-      env[p.x] = p.min + (p.max - p.min) * k / (N - 1);
-      rows.push(solve(env));
-    }
-    var lo = 0, hi = 0;
-    rows.forEach(function (r) { p.ys.forEach(function (y) { lo = Math.min(lo, r[y[0]]); hi = Math.max(hi, r[y[0]]); }); });
-    if (hi === lo) hi = lo + 1;
-    var sx = function (v) { return L + (v - p.min) / (p.max - p.min) * (W - L - R); };
-    var sy = function (v) { return T + (hi - v) / (hi - lo) * (H - T - B); };
-    var svg = el("svg", { viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": p.xl + "에 따른 변화" });
-    svg.appendChild(el("line", { x1: L, y1: sy(0), x2: W - R, y2: sy(0), "class": "axis" }));
-    svg.appendChild(el("line", { x1: L, y1: T, x2: L, y2: H - B, "class": "axis" }));
-    svg.appendChild(el("text", { x: L - 6, y: sy(hi) + 4, "text-anchor": "end", "class": "tick" }, fmt(hi, 0)));
-    svg.appendChild(el("text", { x: L - 6, y: sy(lo) + 4, "text-anchor": "end", "class": "tick" }, fmt(lo, 0)));
-    svg.appendChild(el("text", { x: L, y: H - B + 18, "text-anchor": "start", "class": "tick" }, fmt(p.min, digits[p.x] || 0) + p.xu));
-    svg.appendChild(el("text", { x: W - R, y: H - B + 18, "text-anchor": "end", "class": "tick" }, fmt(p.max, digits[p.x] || 0) + p.xu));
-    svg.appendChild(el("text", { x: (L + W - R) / 2, y: H - 6, "text-anchor": "middle", "class": "tick" }, p.xl));
-    p.marks.forEach(function (m, mi) {
-      for (var k = 1; k < N; k++) {
-        var a = !!evaluate(m[0], rows[k - 1]), b = !!evaluate(m[0], rows[k]);
-        if (a !== b) {
-          var lo2 = rows[k - 1][p.x], hi2 = rows[k][p.x];
-          for (var it = 0; it < 30; it++) {
-            var mid = (lo2 + hi2) / 2, envm = Object.assign({}, base);
-            envm[p.x] = mid;
-            if (!!evaluate(m[0], solve(envm)) === a) lo2 = mid; else hi2 = mid;
-          }
-          var xv = hi2, xm = sx(xv);
-          var ly = 14 + 16 * mi, right = xm > W * 0.6;
-          svg.appendChild(el("line", { x1: xm, y1: ly + 4, x2: xm, y2: H - B, "class": "mark" }));
-          svg.appendChild(el("text", { x: right ? xm - 4 : xm + 4, y: ly, "text-anchor": right ? "end" : "start", "class": "mark-label", "data-mark": "" }, m[1] + " · 약 " + fmt(xv, digits[p.x] || 0) + p.xu));
-        }
-      }
-    });
-    p.ys.forEach(function (y, i) {
-      var pts = rows.map(function (r) { return sx(r[p.x]).toFixed(1) + "," + sy(r[y[0]]).toFixed(1); }).join(" ");
-      svg.appendChild(el("polyline", { points: pts, "class": "line s" + i, "data-y": y[0] }));
-    });
-    var cx = sx(base[p.x]);
-    svg.appendChild(el("line", { x1: cx, y1: T, x2: cx, y2: H - B, "class": "now" }));
-    var cur = solve(Object.assign({}, base));
-    p.ys.forEach(function (y, i) { svg.appendChild(el("circle", { cx: cx, cy: sy(cur[y[0]]), r: 4, "class": "dot s" + i })); });
-    box.textContent = "";
-    box.appendChild(svg);
-    var legend = document.createElement("ul");
-    legend.className = "legend";
-    p.ys.forEach(function (y, i) {
-      var li = document.createElement("li");
-      var sw = document.createElement("span");
-      sw.className = "sw s" + i;
-      li.appendChild(sw);
-      li.appendChild(document.createTextNode(y[1] + " " + fmt(cur[y[0]], y[3]) + y[2]));
-      legend.appendChild(li);
-    });
-    box.appendChild(legend);
-  }
-  function recompute() {
-    var base = inputs();
-    var env = solve(Object.assign({}, base));
-    all("[data-out]").forEach(function (s) {
-      var k = s.getAttribute("data-out");
-      if (k in env) s.textContent = fmt(env[k], digits[k] || 0);
-    });
-    all("[data-plot]").forEach(function (b) { drawPlot(b, base); });
-  }
-  all("[data-in]").forEach(function (i) { i.addEventListener("input", recompute); });
-  window.addEventListener("resize", function () { var base = inputs(); all("[data-plot]").forEach(function (b) { drawPlot(b, base); }); });
-  recompute();
-
-  all("[data-switch]").forEach(function (r) {
-    r.addEventListener("change", function () {
-      var out = document.querySelector('[data-outcome="' + r.getAttribute("data-switch") + '"]');
-      all("[data-option]", out).forEach(function (o) { o.hidden = o.getAttribute("data-option") !== r.value; });
-    });
-  });
+  var queued = false;
+  addEventListener("scroll", function () {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(function () { queued = false; update(); });
+  }, { passive: true });
+  addEventListener("resize", update);
+  update();
 })();
 
 </script>

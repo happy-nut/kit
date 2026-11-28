@@ -1,555 +1,134 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "understand/4",
-  "title": "UNDERSTAND 정신 모델 데이터",
-  "description": "정신 모델이 설명의 뼈대다. 아는 것에서 출발해 결정적인 차이, 핵심 메커니즘(변수와 관계), 그 메커니즘으로 설명되는 현상, 새로운 추론 순서로 쓴다. 모델 설명에 필요 없는 개별 사실은 넣지 않는다. sources 와 src 는 검증용이고 화면에 내보내지 않는다.",
+  "$id": "understand/5",
+  "title": "UNDERSTAND 뼈대 데이터",
+  "description": "대상의 큰 뼈대(몇 안 되는 부분과 그 사이의 연결) 하나가 설명 전체의 축이다. 아는 그림에서 출발해 뼈대를 한두 부분씩 세우고, 현상과 추론을 뼈대 위의 길로 설명한다. 화면에는 조절 장치가 없다. sources 와 src 는 검증용이고 화면에 내보내지 않는다.",
   "type": "object",
   "additionalProperties": false,
-  "required": [
-    "schema",
-    "title",
-    "thesis",
-    "model",
-    "phenomena",
-    "inferences",
-    "sources"
-  ],
+  "required": ["schema", "title", "thesis", "skeleton", "build", "phenomena", "inferences", "sources"],
   "properties": {
-    "schema": {
-      "const": "understand/4"
-    },
-    "title": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 60
-    },
-    "thesis": {
-      "$ref": "#/$defs/sentence",
-      "description": "핵심 메커니즘을 한 문장으로"
+    "schema": {"const": "understand/5"},
+    "title": {"type": "string", "minLength": 1, "maxLength": 60},
+    "thesis": {"$ref": "#/$defs/sentence", "description": "뼈대 전체가 어떻게 움직이는지 한 문장으로"},
+    "skeleton": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["parts", "links"],
+      "description": "대상을 이루는 큰 부분과 그 사이의 연결. 세부 사실이 아니라 결과를 정하는 구조만",
+      "properties": {
+        "parts": {
+          "type": "array", "minItems": 3, "maxItems": 6,
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["id", "name"],
+            "properties": {
+              "id": {"$ref": "#/$defs/pid"},
+              "name": {"type": "string", "minLength": 1, "maxLength": 12}
+            }
+          }
+        },
+        "links": {
+          "type": "array", "minItems": 2, "maxItems": 9,
+          "description": "from 이 to 에 하는 일. label 은 동사구로",
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["from", "to", "label"],
+            "properties": {
+              "from": {"$ref": "#/$defs/pid"},
+              "to": {"$ref": "#/$defs/pid"},
+              "label": {"type": "string", "minLength": 1, "maxLength": 14}
+            }
+          }
+        }
+      }
     },
     "bridge": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "known",
-        "same",
-        "differs"
-      ],
-      "description": "01 출발점. 사용자가 이미 아는 모델로 시작한다. 맞는 기존 지식이 확인되지 않으면 bridge 대신 case 를 쓴다",
+      "required": ["known", "map", "at", "differs"],
+      "description": "01 출발점. 사용자가 이미 아는 그림을 같은 뼈대 위에 겹친다. map 은 부분마다 아는 그림의 짝, at 은 결정적인 차이가 있는 부분. 맞는 기존 지식이 없으면 뺀다",
       "properties": {
-        "known": {
-          "$ref": "#/$defs/sentence",
-          "description": "사용자가 이미 아는 대상이나 모델"
+        "known": {"$ref": "#/$defs/sentence"},
+        "map": {
+          "type": "object", "minProperties": 1,
+          "additionalProperties": {"type": "string", "minLength": 1, "maxLength": 12}
         },
-        "same": {
-          "type": "array",
-          "minItems": 1,
-          "maxItems": 3,
-          "items": {
-            "$ref": "#/$defs/sentence"
-          },
-          "description": "그 모델로 그대로 설명되는 부분"
-        },
-        "differs": {
-          "type": "array",
-          "minItems": 1,
-          "maxItems": 3,
-          "items": {
-            "$ref": "#/$defs/sentence"
-          },
-          "description": "결과를 바꾸는 결정적인 차이"
-        },
-        "src": {
-          "$ref": "#/$defs/src"
-        }
+        "at": {"type": "array", "minItems": 1, "maxItems": 3, "items": {"$ref": "#/$defs/pid"}},
+        "differs": {"type": "array", "minItems": 1, "maxItems": 3, "items": {"$ref": "#/$defs/sentence"}},
+        "src": {"$ref": "#/$defs/src"}
       }
     },
-    "case": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "title",
-        "body"
-      ],
-      "description": "01 출발점. 기존 지식이 확인되지 않을 때 대표 사례 하나",
-      "properties": {
-        "title": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 40
-        },
-        "body": {
-          "type": "array",
-          "minItems": 1,
-          "maxItems": 4,
-          "items": {
-            "$ref": "#/$defs/sentence"
-          }
-        },
-        "src": {
-          "$ref": "#/$defs/src"
-        }
-      }
-    },
-    "model": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "calc",
-        "models",
-        "plots"
-      ],
-      "description": "02 핵심 메커니즘",
-      "properties": {
-        "calc": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "assumption",
-            "inputs",
-            "outputs"
-          ],
-          "description": "모델의 변수. 입력은 사용자가 바꾸는 변수, 출력은 입력과 앞 출력의 식. 실제 데이터가 없으면 assumption 에 가정을 밝힌다",
-          "properties": {
-            "assumption": {
-              "$ref": "#/$defs/sentence"
-            },
-            "inputs": {
-              "type": "array",
-              "minItems": 1,
-              "maxItems": 5,
-              "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "id",
-                  "label",
-                  "unit",
-                  "min",
-                  "max",
-                  "step",
-                  "value"
-                ],
-                "properties": {
-                  "id": {
-                    "$ref": "#/$defs/varid"
-                  },
-                  "label": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 24
-                  },
-                  "unit": {
-                    "type": "string",
-                    "maxLength": 8
-                  },
-                  "min": {
-                    "type": "number"
-                  },
-                  "max": {
-                    "type": "number"
-                  },
-                  "step": {
-                    "type": "number",
-                    "minimum": 0.0001
-                  },
-                  "value": {
-                    "type": "number"
-                  }
-                }
-              }
-            },
-            "outputs": {
-              "type": "array",
-              "minItems": 1,
-              "maxItems": 6,
-              "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "id",
-                  "label",
-                  "unit",
-                  "expr"
-                ],
-                "properties": {
-                  "id": {
-                    "$ref": "#/$defs/varid"
-                  },
-                  "label": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 24
-                  },
-                  "unit": {
-                    "type": "string",
-                    "maxLength": 8
-                  },
-                  "expr": {
-                    "$ref": "#/$defs/expr"
-                  },
-                  "digits": {
-                    "type": "number",
-                    "minimum": 0,
-                    "maximum": 2
-                  }
-                }
-              }
-            }
-          }
-        },
-        "concepts": {
-          "type": "array",
-          "maxItems": 4,
-          "description": "수치로 두지 않는 변수(예: 관찰 가능성). 관계도 마디로만 쓴다",
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "id",
-              "label"
-            ],
-            "properties": {
-              "id": {
-                "$ref": "#/$defs/varid"
-              },
-              "label": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 16
-              }
-            }
-          }
-        },
-        "models": {
-          "type": "array",
-          "minItems": 1,
-          "maxItems": 2,
-          "items": {
-            "$ref": "#/$defs/mm"
-          }
-        },
-        "plots": {
-          "type": "array",
-          "minItems": 1,
-          "maxItems": 3,
-          "items": {
-            "$ref": "#/$defs/plot"
-          }
+    "build": {
+      "type": "array", "minItems": 3, "maxItems": 7,
+      "description": "02 뼈대. 한 단계에 부분을 둘까지 세운다. 아직 세우지 않은 부분의 이름은 쓰지 않는다",
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["title", "body"],
+        "properties": {
+          "add": {"type": "array", "maxItems": 2, "items": {"$ref": "#/$defs/pid"}},
+          "focus": {
+            "type": "array", "maxItems": 4,
+            "description": "이 단계에서 짚는 부분 id 나 연결 \"from>to\". 빼면 새로 세운 부분과 새로 생긴 연결",
+            "items": {"type": "string", "pattern": "^[a-z][a-z0-9]{0,20}(>[a-z][a-z0-9]{0,20})?$"}
+          },
+          "title": {"type": "string", "minLength": 2, "maxLength": 40},
+          "body": {"type": "array", "minItems": 1, "maxItems": 3, "items": {"$ref": "#/$defs/sentence"}},
+          "src": {"$ref": "#/$defs/src"}
         }
       }
     },
     "phenomena": {
-      "type": "array",
-      "minItems": 2,
-      "maxItems": 6,
-      "description": "03 이 메커니즘 하나로 설명되는 현상. via 는 그 현상을 만드는 변수",
+      "type": "array", "minItems": 2, "maxItems": 6,
+      "description": "03 뼈대로 설명되는 현상. path 는 그 현상이 지나는 부분들이고 이웃한 둘은 연결돼 있어야 한다",
       "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "text",
-          "via"
-        ],
+        "type": "object", "additionalProperties": false, "required": ["text", "path"],
         "properties": {
-          "text": {
-            "$ref": "#/$defs/sentence"
-          },
-          "via": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 4,
-            "items": {
-              "$ref": "#/$defs/varid"
-            }
-          },
-          "src": {
-            "$ref": "#/$defs/src"
-          }
+          "text": {"$ref": "#/$defs/sentence"},
+          "path": {"$ref": "#/$defs/path"},
+          "src": {"$ref": "#/$defs/src"}
         }
       }
     },
     "inferences": {
-      "type": "array",
-      "minItems": 1,
-      "maxItems": 4,
-      "description": "04 원문에 없던 질문을 모델로 답한다. reason 은 사실이 아니라 변수와 관계로 쓴다",
+      "type": "array", "minItems": 1, "maxItems": 4,
+      "description": "04 원문에 없던 질문을 뼈대로 답한다. reason 은 사실이 아니라 부분과 연결로 쓴다",
       "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "question",
-          "answer",
-          "reason"
-        ],
+        "type": "object", "additionalProperties": false, "required": ["question", "answer", "reason", "path"],
         "properties": {
-          "question": {
-            "$ref": "#/$defs/sentence"
-          },
-          "answer": {
-            "$ref": "#/$defs/sentence"
-          },
-          "reason": {
-            "$ref": "#/$defs/sentence"
-          }
+          "question": {"$ref": "#/$defs/sentence"},
+          "answer": {"$ref": "#/$defs/sentence"},
+          "reason": {"$ref": "#/$defs/sentence"},
+          "path": {"$ref": "#/$defs/path"}
         }
       }
     },
-    "switch": {
-      "$ref": "#/$defs/switch"
-    },
     "limits": {
-      "type": "array",
-      "maxItems": 6,
+      "type": "array", "maxItems": 6,
       "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "kind",
-          "text"
-        ],
+        "type": "object", "additionalProperties": false, "required": ["kind", "text"],
         "properties": {
-          "kind": {
-            "enum": [
-              "counterexample",
-              "tradeoff",
-              "assumption",
-              "unknown",
-              "condition"
-            ]
-          },
-          "text": {
-            "$ref": "#/$defs/sentence"
-          },
-          "src": {
-            "$ref": "#/$defs/src"
-          }
+          "kind": {"enum": ["counterexample", "tradeoff", "assumption", "unknown", "condition"]},
+          "text": {"$ref": "#/$defs/sentence"},
+          "src": {"$ref": "#/$defs/src"}
         }
       }
     },
     "sources": {
-      "type": "array",
-      "maxItems": 30,
+      "type": "array", "maxItems": 30,
       "description": "내부 검증 자료. 화면에 내보내지 않는다",
       "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "id",
-          "label"
-        ],
+        "type": "object", "additionalProperties": false, "required": ["id", "label"],
         "properties": {
-          "id": {
-            "$ref": "#/$defs/id"
-          },
-          "label": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 200
-          },
-          "url": {
-            "type": "string",
-            "pattern": "^https?://"
-          },
-          "note": {
-            "type": "string",
-            "maxLength": 200
-          }
+          "id": {"$ref": "#/$defs/id"},
+          "label": {"type": "string", "minLength": 1, "maxLength": 200},
+          "url": {"type": "string", "pattern": "^https?://"},
+          "note": {"type": "string", "maxLength": 200}
         }
       }
     }
   },
   "$defs": {
-    "sentence": {
-      "type": "string",
-      "minLength": 2,
-      "maxLength": 200
-    },
-    "id": {
-      "type": "string",
-      "pattern": "^[a-z][a-z0-9-]{0,30}$"
-    },
-    "varid": {
-      "type": "string",
-      "pattern": "^[a-z][a-z0-9]{0,20}$",
-      "description": "식에 쓰는 이름. 하이픈은 빼기와 헷갈려 쓰지 않는다"
-    },
-    "src": {
-      "type": "array",
-      "maxItems": 6,
-      "items": {
-        "$ref": "#/$defs/id"
-      }
-    },
-    "expr": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 160,
-      "description": "숫자, 입력·앞 출력 id, + - * / ( ), < <= > >= ==, && ||, min max round abs"
-    },
-    "switch": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "question",
-        "options"
-      ],
-      "description": "수치로 못 나타내는 조건 변화. 조건을 바꾸면 결과와 이유가 바뀐다",
-      "properties": {
-        "question": {
-          "$ref": "#/$defs/sentence"
-        },
-        "options": {
-          "type": "array",
-          "minItems": 2,
-          "maxItems": 5,
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "label",
-              "result",
-              "reason"
-            ],
-            "properties": {
-              "label": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 30
-              },
-              "result": {
-                "$ref": "#/$defs/sentence"
-              },
-              "reason": {
-                "$ref": "#/$defs/sentence"
-              },
-              "src": {
-                "$ref": "#/$defs/src"
-              }
-            }
-          }
-        }
-      }
-    },
-    "mm": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "name",
-        "claim",
-        "links",
-        "boundary"
-      ],
-      "properties": {
-        "name": {
-          "type": "string",
-          "minLength": 2,
-          "maxLength": 30,
-          "description": "검증된 표준 개념 이름"
-        },
-        "claim": {
-          "$ref": "#/$defs/sentence",
-          "description": "이 대상에서 이 모델이 말하는 인과 메커니즘"
-        },
-        "links": {
-          "type": "array",
-          "minItems": 2,
-          "maxItems": 12,
-          "description": "변수 사이의 인과. sign + 는 같이 늘고 - 는 반대로 움직인다",
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "from",
-              "to",
-              "sign",
-              "label"
-            ],
-            "properties": {
-              "from": {
-                "$ref": "#/$defs/varid"
-              },
-              "to": {
-                "$ref": "#/$defs/varid"
-              },
-              "sign": {
-                "enum": [
-                  "+",
-                  "-"
-                ]
-              },
-              "label": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 14
-              }
-            }
-          }
-        },
-        "boundary": {
-          "$ref": "#/$defs/sentence",
-          "description": "이 모델이 설명하지 못하는 것, 성립 조건"
-        },
-        "src": {
-          "$ref": "#/$defs/src"
-        }
-      }
-    },
-    "plot": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "title",
-        "x",
-        "ys",
-        "finding"
-      ],
-      "description": "한 입력을 범위 전체로 움직일 때 출력이 어떻게 변하는지. 임계점·교차·비선형이 보여야 한다. 다른 입력은 지금 값으로 둔다",
-      "properties": {
-        "title": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 50
-        },
-        "x": {
-          "$ref": "#/$defs/varid"
-        },
-        "ys": {
-          "type": "array",
-          "minItems": 1,
-          "maxItems": 3,
-          "items": {
-            "$ref": "#/$defs/varid"
-          }
-        },
-        "marks": {
-          "type": "array",
-          "maxItems": 3,
-          "description": "조건식이 참에서 거짓으로(또는 반대로) 바뀌는 x 에 선을 긋는다",
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "when",
-              "label"
-            ],
-            "properties": {
-              "when": {
-                "$ref": "#/$defs/expr"
-              },
-              "label": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 20
-              }
-            }
-          }
-        },
-        "finding": {
-          "$ref": "#/$defs/sentence",
-          "description": "이 그래프로 처음 추론할 수 있는 결과. 본문에 없던 것"
-        }
-      }
-    }
+    "sentence": {"type": "string", "minLength": 2, "maxLength": 200},
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9-]{0,30}$"},
+    "pid": {"type": "string", "pattern": "^[a-z][a-z0-9]{0,20}$"},
+    "src": {"type": "array", "maxItems": 6, "items": {"$ref": "#/$defs/id"}},
+    "path": {"type": "array", "minItems": 2, "maxItems": 6, "items": {"$ref": "#/$defs/pid"}}
   }
 }
