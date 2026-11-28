@@ -55,7 +55,7 @@ const shot = async (name, what) => {
 const viewport = (width, height, mobile) => send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 2, mobile });
 const results = [];
 const expect = (name, ok, got) => results.push({ name, ok: !!ok, got });
-const ORDER = ["작동 원리", "핵심 관계", "적용과 한계"];
+const ORDER = ["출발점", "핵심 메커니즘", "설명되는 현상", "새로운 추론", "적용 한계"];
 const H = `q=s=>document.querySelector(s), qa=s=>[...document.querySelectorAll(s)], vis=el=>!!(el&&el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden');`;
 
 await send("Runtime.enable"); await send("Log.enable"); await send("Page.enable");
@@ -71,7 +71,7 @@ expect("영역은 고정 순서를 지키고 있는 것만 나온다", idx.every
 expect("빈 영역 없음", await js(`${H} qa('.sec').every(s=>s.textContent.trim().length > s.querySelector('h2').textContent.length + 20)`), null);
 const banned = await js(`${H} ({buttons: qa('button, details, nav, select').length, depth: qa('[data-depth], [data-fold], [data-more], [data-reset]').length, words: (document.body.innerText.match(/\\bL[1-5]\\b|개요|표준|심층|더 보기|초기화|출처|각주|해당 없음|퀴즈|이해 확인|진행률|가장 구체적인 수준|갈래로 더/g)||[]), refs: qa('sup, .ref, [href^="#src"]').length})`);
 expect("금지 요소 없음(모드·접기·단계 버튼·계층 표시·출처·초기화·퀴즈)", banned.buttons === 0 && banned.depth === 0 && banned.words.length === 0 && banned.refs === 0, banned);
-const clash = await js(`${H} const cards=qa('.switch, .knob'); cards.flatMap(c=>{const top=c.getBoundingClientRect().top; return [...c.children].filter(k=>vis(k) && k.getBoundingClientRect().top < top - 1).map(k=>k.className||k.tagName);})`);
+const clash = await js(`${H} const cards=qa('.switch, .infer'); cards.flatMap(c=>{const top=c.getBoundingClientRect().top; return [...c.children].filter(k=>vis(k) && k.getBoundingClientRect().top < top - 1).map(k=>k.className||k.tagName);})`);
 expect("카드 안 글이 카드 테두리 밖으로 넘지 않음", clash.length === 0, clash);
 const hidden = await js(`${H} qa('main p, main li, main h3, main figure, main table').filter(el=>!vis(el) && !el.closest('[data-option], .note, .sr')).map(el=>el.textContent.slice(0,30))`);
 expect("클릭 없이 모든 설명이 보인다", hidden.length === 0, hidden);
@@ -83,34 +83,25 @@ for (const [i, id] of secIds.entries()) {
   await shot(`${i + 2}-${id}`, `${names[i]} 영역`);
 }
 
-const steps = await js(`${H} qa('[data-step]').map(s=>JSON.parse(s.dataset.show))`);
-if (steps.length) {
-  await js(`${H} scrollTo({top:0, behavior:'instant'})`);
-  await sleep(150);
-  const first = await js(`${H} const u=sel=>new Set(qa(sel).map(x=>x.dataset.el)).size; ({on: u('[data-el].on'), all: u('[data-el]')})`);
-  expect("처음에는 그림이 다 드러나지 않는다", first.on === steps[0].length && first.on < first.all, { first, step0: steps[0].length });
-  const seen = [];
-  let total = 0;
-  for (let k = 0; k < steps.length; k++) {
-    total += steps[k].length;
-    const r = await js(`${H} const s=qa('[data-step]')[${k}]; scrollTo({top: s.getBoundingClientRect().top + scrollY - innerHeight*0.35, behavior:'instant'}); await new Promise(r=>setTimeout(r,80)); const u=sel=>new Set(qa(sel).map(x=>x.dataset.el)).size; ({active: qa('[data-step]').findIndex(x=>x.classList.contains('active')), on: u('[data-el].on'), focus: u('[data-el].focus'), stageVisible: (()=>{const r=q('.stage').getBoundingClientRect(); return r.bottom>0 && r.top<innerHeight;})()})`);
-    seen.push(r);
-    expect(`${k + 1}단계: 그 단계가 맡은 만큼만 더 드러나고 그림은 화면에 남는다`, r.active === k && r.on === total && r.focus === steps[k].length && r.stageVisible, { r, want: total });
-    if (k === 0 || k === Math.floor(steps.length / 2) || k === steps.length - 1) await shot(`story-${k + 1}`, `작동 원리 ${k + 1}단계. 스크롤에 따라 그림이 한 단계씩 드러난다`);
+const exp = expectFile && existsSync(expectFile) ? JSON.parse(readFileSync(expectFile, "utf8")) : null;
+const plots = await js(`${H} qa('[data-plot]').map(b=>({lines: [...b.querySelectorAll('polyline')].map(l=>l.getAttribute('points').split(' ').length), ys: JSON.parse(b.dataset.plot).ys.length, marks: b.querySelectorAll('[data-mark]').length}))`);
+expect("그래프가 그려진다(출력마다 선 하나, 점 50개 이상)", plots.length > 0 && plots.every(p => p.lines.length === p.ys && p.lines.every(n => n >= 50)), plots);
+for (let k = 0; k < await js(`${H} qa('.model').length`); k++) {
+  await js(`${H} qa('.model figure')[${k}].scrollIntoView({behavior:'instant', block:'center'})`);
+  await shot(`model-${k + 1}`, `정신 모델 ${k + 1} 의 관계도. 변수마다 지금 값, 선마다 부호와 관계`);
+}
+expect("관계도마다 변수의 지금 값이 보인다", await js(`${H} qa('.model svg').length > 0 && qa('.model svg').every(s=>s.querySelector('.val'))`), null);
+if (await js(`${H} qa('[data-in]').length`)) {
+  const before = await js(`${H} ({outs: qa('[data-out]').map(o=>o.textContent).join('|'), lines: qa('[data-plot] polyline').map(l=>l.getAttribute('points')).join('|')})`);
+  const after = await js(`${H} const set=${JSON.stringify(exp ? exp.inputs : null)}; qa('[data-in]').forEach(i=>{ i.value = set ? set[i.dataset.in] : i.max; i.dispatchEvent(new Event('input',{bubbles:true})); }); const outs={}; qa('[data-out]').forEach(o=>{ (outs[o.dataset.out] ||= new Set()).add(o.textContent); }); ({outs: Object.fromEntries(Object.entries(outs).map(([k,v])=>[k,[...v]])), lines: qa('[data-plot] polyline').map(l=>l.getAttribute('points')).join('|'), marks: qa('[data-plot]').map(b=>b.querySelectorAll('[data-mark]').length)})`);
+  expect("변수를 바꾸면 관계도의 값과 그래프가 함께 바뀐다", after.lines !== before.lines && JSON.stringify(Object.values(after.outs).map(v => v.length)) === JSON.stringify(Object.values(after.outs).map(() => 1)), after.outs);
+  if (exp) {
+    const screen = Object.fromEntries(Object.keys(exp.outputs).map(k => [k, after.outs[k] ? after.outs[k][0] : null]));
+    expect("화면 계산이 Python 계산과 같다", JSON.stringify(screen) === JSON.stringify(exp.outputs), { screen, python: exp.outputs });
+    expect("그래프의 임계선 수가 Python 계산과 같다", JSON.stringify(after.marks) === JSON.stringify(exp.marks), { screen: after.marks, python: exp.marks });
   }
-  const exp = expectFile && existsSync(expectFile) ? JSON.parse(readFileSync(expectFile, "utf8")) : null;
-  if (await js(`${H} qa('[data-in]').length`)) {
-    const before = await js(`${H} qa('[data-out]').map(o=>o.textContent).join('|')`);
-    const after = await js(`${H} const set=${JSON.stringify(exp ? exp.inputs : null)}; qa('[data-in]').forEach(i=>{ i.value = set ? set[i.dataset.in] : i.max; i.dispatchEvent(new Event('input',{bubbles:true})); }); const outs={}; qa('[data-out]').forEach(o=>{ (outs[o.dataset.out] ||= new Set()).add(o.textContent); }); ({outs: Object.fromEntries(Object.entries(outs).map(([k,v])=>[k,[...v]])), notes: qa('.note').filter(vis).map(n=>n.textContent)})`);
-    expect("입력을 바꾸면 본문과 그림의 값이 함께 바뀐다", JSON.stringify(after.outs) !== JSON.stringify(before) && Object.values(after.outs).every(v => v.length === 1), after.outs);
-    if (exp) {
-      const screen = Object.fromEntries(Object.keys(exp.outputs).map(k => [k, after.outs[k] ? after.outs[k][0] : null]));
-      expect("화면 계산이 Python 계산과 같다", JSON.stringify(screen) === JSON.stringify(exp.outputs), { screen, python: exp.outputs });
-      expect("조건 결과 문장이 계산과 같다", JSON.stringify(after.notes) === JSON.stringify(exp.notes), { screen: after.notes, python: exp.notes });
-    }
-    await js(`${H} q('.knob').scrollIntoView({behavior:'instant', block:'center'})`);
-    await shot("controls", "단계 안의 입력. 바꾸면 본문의 값과 그림의 값이 함께 바뀐다");
-  }
+  await js(`${H} q('[data-plot]').scrollIntoView({behavior:'instant', block:'center'})`);
+  await shot("plot", "변수를 바꾼 뒤의 그래프. 임계선과 지금 위치가 함께 움직인다");
 }
 const hasSwitch = await js(`${H} !!q('[data-switch]')`);
 if (hasSwitch) {
@@ -129,9 +120,8 @@ const small = await js(`${H} qa('svg').map(s=>{const vb=s.viewBox.baseVal; const
 expect("모바일에서 그림 글자가 10.5px 이상", small.length === 0, small);
 const bodyPx = await js(`parseFloat(getComputedStyle(document.querySelector('.sec p:not(.basis):not(.k):not(.assume)')).fontSize)`);
 expect("모바일 본문 글자 15px 이상", bodyPx >= 15, bodyPx);
-const mstage = await js(`${H} const s=qa('[data-step]'); const k=Math.floor(s.length/2); scrollTo({top: s[k].getBoundingClientRect().top + scrollY - innerHeight*0.6, behavior:'instant'}); await new Promise(r=>setTimeout(r,80)); const st=q('.stage').getBoundingClientRect(); ({top: st.top, h: st.height, vh: innerHeight})`);
-expect("모바일에서 그림이 위에 붙어 화면의 절반 안쪽을 쓴다", mstage.top <= 1 && mstage.h < mstage.vh * 0.55, mstage);
-await shot("m3-story", "휴대폰 폭의 작동 원리. 그림이 위에 붙고 본문이 그 아래로 지나간다");
+await js(`${H} q('[data-plot]').scrollIntoView({behavior:'instant', block:'center'})`);
+await shot("m3-plot", "휴대폰 폭의 그래프. 변수 조절은 위에 붙는다");
 await shot("m1-head", "휴대폰 폭(390px) 첫 화면");
 if (await js(`${H} !!q('.fig')`)) {
   await js(`${H} q('.fig').scrollIntoView({behavior:'instant'})`);

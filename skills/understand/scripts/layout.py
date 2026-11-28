@@ -86,19 +86,34 @@ def layout(nodes, edges):
             continue
         lo, hi = min(ra, rb), max(ra, rb)
         span = [b for b, (x, y, w) in zip(boxes, pos.values()) if PAD + lo * (NODE_H + ROW_GAP) <= y <= PAD + hi * (NODE_H + ROW_GAP)]
-        side = "r" if (ax + aw / 2 + bx + bw / 2) / 2 >= core_w / 2 else "l"
+        row_of = lambda y0: [b for b in boxes if abs(b[1] - y0) < 1]
+        clear = {
+            "r": not any(b[0] > ax + aw + 1 for b in row_of(ay)) and not any(b[0] > bx + bw + 1 for b in row_of(by)),
+            "l": not any(b[2] < ax - 1 for b in row_of(ay)) and not any(b[2] < bx - 1 for b in row_of(by)),
+        }
+        pref = "r" if (ax + aw / 2 + bx + bw / 2) / 2 >= core_w / 2 else "l"
+        side = pref if clear[pref] else ("l" if pref == "r" and clear["l"] else "r" if pref == "l" and clear["r"] else pref)
         busy = [ln for ln in lanes[side] if not (ln[1] < lo or ln[0] > hi)]
         if side == "r":
             lx = max(b[2] for b in span) + LANE * (len(busy) + 1)
-            x1, x2 = ax + aw, bx + bw
         else:
             lx = min(b[0] for b in span) - LANE * (len(busy) + 1)
-            x1, x2 = ax, bx
         lanes[side].append((lo, hi))
-        y1, y2 = ay + NODE_H / 2, by + NODE_H / 2
         s = 1 if side == "r" else -1
-        dy = 1 if y2 > y1 else -1
-        paths.append({"g": ("lane", x1, y1, x2, y2, lx, s, dy), "label": ed["label"], "lx": lx, "ly": (y1 + y2) / 2, "lw": lw})
+        if clear[side]:
+            x1, x2 = (ax + aw, bx + bw) if side == "r" else (ax, bx)
+            y1, y2 = ay + NODE_H / 2, by + NODE_H / 2
+            dy = 1 if y2 > y1 else -1
+            paths.append({"g": ("lane", x1, y1, x2, y2, lx, s, dy), "label": ed["label"], "lx": lx, "ly": (y1 + y2) / 2, "lw": lw})
+        else:
+            # 같은 줄의 다른 마디를 가로지르지 않게, 마디 사이 빈 줄(층 사이 틈)로 나가 옆 레인을 탄다.
+            down = rb >= ra
+            sx, sy = ax + aw / 2 + 6 * s, (ay + NODE_H if down else ay)
+            tx, ty = bx + bw / 2 - 6 * s, (by if down else by + NODE_H)
+            g1 = sy + (ROW_GAP / 2 if down else -ROW_GAP / 2) + 6 * s
+            g2 = ty + (-ROW_GAP / 2 if down else ROW_GAP / 2) - 6 * s
+            pts = [(sx, sy), (sx, g1), (lx, g1), (lx, g2), (tx, g2), (tx, ty + (-2 if down else 2))]
+            paths.append({"g": ("poly", pts), "label": ed["label"], "lx": lx, "ly": (g1 + g2) / 2, "lw": lw})
     placed = []
     for p in paths:
         base, k = p["ly"], 0
@@ -126,6 +141,8 @@ def layout(nodes, edges):
 
 
 def path_d(g, dx):
+    if g[0] == "poly":
+        return "M" + " L".join(f"{x + dx:.1f},{y:.1f}" for x, y in g[1])
     if g[0] == "curve":
         _, x1, y1, x2, y2 = g
         x1, x2 = x1 + dx, x2 + dx

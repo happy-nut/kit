@@ -1,19 +1,20 @@
-"""UNDERSTAND 설명 JSON 을 고정 디자인의 HTML 한 장으로 만든다.
+"""UNDERSTAND 정신 모델 JSON 을 고정 디자인의 HTML 한 장으로 만든다.
 
-쓰는 법: render.py <설명.json> <출력.html>
+쓰는 법: render.py <모델.json> <출력.html>
 검사(validate.py)를 먼저 돌리고 오류가 있으면 쓰지 않는다.
 모든 글은 이스케이프해 넣는다. sources·src 는 화면에 내보내지 않는다.
-페이지의 스크립트는 템플릿의 것 하나뿐이고 CSP 해시로 묶는다. 시뮬레이터 식은 미리 RPN 으로 옮겨 넣는다.
+페이지의 스크립트는 템플릿의 것 하나뿐이고 CSP 해시로 묶는다. 식은 미리 RPN 으로 옮겨 넣는다.
 """
 import base64, hashlib, html, json, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from validate import validate, edge_id, PLACEHOLDER  # noqa: E402
+from validate import validate  # noqa: E402
 from expr import compile_expr, run_sim, fmt  # noqa: E402
-from layout import layout, text_w  # noqa: E402
+from layout import layout  # noqa: E402
 
 ASSETS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets")
-SECTIONS = [("story", "01", "작동 원리"), ("relations", "02", "핵심 관계"), ("application", "03", "적용과 한계")]
+SECTIONS = [("start", "01", "출발점"), ("model", "02", "핵심 메커니즘"), ("phenomena", "03", "설명되는 현상"),
+            ("inferences", "04", "새로운 추론"), ("limits", "05", "적용 한계")]
 LIMIT_KINDS = [("condition", "성립 조건"), ("counterexample", "반례"), ("tradeoff", "트레이드오프"),
                ("assumption", "확인되지 않은 전제"), ("unknown", "아직 모르는 것")]
 
@@ -22,145 +23,108 @@ paras = lambda xs: "".join(f"<p>{e(x)}</p>" for x in xs)
 
 
 def step_digits(step):
-    s = repr(float(step))
-    return 0 if float(step).is_integer() else min(2, len(s.split(".")[1]))
+    return 0 if float(step).is_integer() else min(2, len(repr(float(step)).split(".")[1]))
 
 
 class Page:
     def __init__(self, data):
         self.d = data
         self.n = 0
-        v = data["story"].get("vars")
-        self.env, self.digits = {}, {}
-        if v:
-            outs, _ = run_sim(v)
-            self.env = {i["id"]: float(i["value"]) for i in v["inputs"]}
-            self.env.update(outs)
-            self.digits = {o["id"]: int(o.get("digits", 0)) for o in v["outputs"]}
-            self.digits.update({i["id"]: step_digits(i["step"]) for i in v["inputs"]})
+        c = data["model"]["calc"]
+        outs, _ = run_sim(c)
+        self.env = {i["id"]: float(i["value"]) for i in c["inputs"]}
+        self.env.update(outs)
+        self.meta = {i["id"]: (i["label"], i["unit"], step_digits(i["step"])) for i in c["inputs"]}
+        self.meta.update({o["id"]: (o["label"], o["unit"], int(o.get("digits", 0))) for o in c["outputs"]})
+        self.meta.update({k["id"]: (k["label"], "", 0) for k in data["model"].get("concepts", [])})
 
     def uid(self, p):
         self.n += 1
         return f"{p}{self.n}"
 
-    # ---- 값 채우기 ----
-    def fill(self, text):
-        """{변수} 를 계산된 값을 담은 span 으로. 나머지는 이스케이프."""
-        out, last = "", 0
-        for m in PLACEHOLDER.finditer(text):
-            out += e(text[last:m.start()]) + self.value_span(m.group(1))
-            last = m.end()
-        return out + e(text[last:])
+    def val(self, i, svg=False):
+        label, unit, dg = self.meta[i]
+        tag = "tspan" if svg else "span"
+        return f'<{tag} class="val" data-out="{e(i)}">{e(fmt(self.env[i], dg))}</{tag}>{e(unit)}'
 
-    def value_span(self, name):
-        dg = self.digits.get(name, 0)
-        return f'<span class="val" data-out="{e(name)}">{e(fmt(self.env.get(name, 0), dg))}</span>'
-
-    def tspan_fill(self, text):
-        out, last = "", 0
-        for m in PLACEHOLDER.finditer(text):
-            out += e(text[last:m.start()]) + f'<tspan class="val" data-out="{e(m.group(1))}">{e(fmt(self.env.get(m.group(1), 0), self.digits.get(m.group(1), 0)))}</tspan>'
-            last = m.end()
-        return out + e(text[last:])
-
-    # ---- 그림 ----
-    def svg_open(self, w, h, title):
+    def diagram(self, mm):
+        ids = list(dict.fromkeys([x for l in mm["links"] for x in (l["from"], l["to"])]))
+        wide = lambda i: f"{self.meta[i][0]} 000,000{self.meta[i][1]}" if i in self.env else self.meta[i][0]
+        pos, w, h, paths = layout([{"id": i, "label": wide(i)} for i in ids],
+                                  [{"from": l["from"], "to": l["to"], "label": f"{l['sign']} {l['label']}"} for l in mm["links"]])
         sid = self.uid("g")
-        return sid, (f'<div class="svg-wrap"><svg viewBox="0 0 {w} {h}" width="{w}" style="--minw:{min(w, round(w * 0.85))}px" '
-                     f'role="img" aria-labelledby="{sid}t" preserveAspectRatio="xMidYMin meet"><title id="{sid}t">{e(title)}</title>'
-                     f'<defs><marker id="{sid}a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow"/></marker></defs>')
-
-    def stage(self, f):
-        if f["kind"] == "sequence":
-            return self.stage_sequence(f)
-        wide = lambda t: PLACEHOLDER.sub("000,000", t)
-        pos, w, h, paths = layout([{"id": n["id"], "label": wide(n["label"])} for n in f["nodes"]],
-                                  [{**x, "label": wide(x["label"])} for x in f["edges"]])
-        sid, out = self.svg_open(w, h, f["title"])
-        for x, p in zip(f["edges"], paths):
+        out = (f'<div class="svg-wrap"><svg viewBox="0 0 {w} {h}" width="{w}" style="--minw:{min(w, round(w * 0.85))}px" role="img" aria-labelledby="{sid}t">'
+               f'<title id="{sid}t">{e(mm["name"])}: 변수 관계</title><defs>'
+               f'<marker id="{sid}p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow-plus"/></marker>'
+               f'<marker id="{sid}m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow-minus"/></marker></defs>')
+        for l, p in zip(mm["links"], paths):
+            kind = "plus" if l["sign"] == "+" else "minus"
             lw = p["lw"]
-            out += (f'<g class="edge-g" data-el="{e(edge_id(x))}"><path d="{p["d"]}" class="edge" marker-end="url(#{sid}a)"/>'
+            out += (f'<g class="link {kind}"><path d="{p["d"]}" class="edge" marker-end="url(#{sid}{kind[0]})"/>'
                     f'<rect class="lab" x="{p["lx"] - lw / 2:.1f}" y="{p["ly"] - 10:.1f}" width="{lw:.1f}" height="20" rx="3"/>'
-                    f'<text x="{p["lx"]:.1f}" y="{p["ly"] + 4:.1f}" text-anchor="middle">{self.tspan_fill(x["label"])}</text></g>')
-        for n in f["nodes"]:
-            x, y, nw = pos[n["id"]]
-            out += f'<g class="node" data-el="{e(n["id"])}"><rect x="{x:.1f}" y="{y:.1f}" width="{nw:.1f}" height="36" rx="4"/><text x="{x + nw / 2:.1f}" y="{y + 23:.1f}" text-anchor="middle">{self.tspan_fill(n["label"])}</text></g>'
-        return out + "</svg></div>"
-
-    def stage_sequence(self, f):
-        wide = lambda t: PLACEHOLDER.sub("000,000", t)
-        col = max(120, max(text_w(a["label"]) + 32 for a in f["nodes"]))
-        gap = max(col, max(text_w(wide(m["label"])) * 12.5 / 14 + 40 for m in f["edges"]))
-        xs = {a["id"]: 16 + col / 2 + i * gap for i, a in enumerate(f["nodes"])}
-        w = round(32 + col + gap * (len(f["nodes"]) - 1))
-        row = 46
-        h = row * len(f["edges"]) + 16
-        minw = f'style="--minw:{min(w, round(w * 0.85))}px"'
-        sid = self.uid("g")
-        head = f'<svg class="seq-head" viewBox="0 0 {w} 40" width="{w}" {minw} aria-hidden="true">'
-        body = (f'<svg viewBox="0 0 {w} {h}" width="{w}" {minw} role="img" aria-labelledby="{sid}t" preserveAspectRatio="xMidYMin meet"><title id="{sid}t">{e(f["title"])}</title>'
-                f'<defs><marker id="{sid}a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow"/></marker></defs>')
-        for a in f["nodes"]:
-            x = xs[a["id"]]
-            aw = text_w(a["label"]) + 24
-            head += f'<g class="node" data-el="{e(a["id"])}"><rect x="{x - aw / 2:.1f}" y="4" width="{aw:.1f}" height="32" rx="4"/><text x="{x:.1f}" y="25" text-anchor="middle">{self.tspan_fill(a["label"])}</text></g>'
-            body += f'<g class="node" data-el="{e(a["id"])}"><line x1="{x:.1f}" y1="0" x2="{x:.1f}" y2="{h - 6}" class="life"/></g>'
-        for i, m in enumerate(f["edges"]):
-            y = row * i + 30
-            x1, x2 = xs[m["from"]], xs[m["to"]]
-            d = 1 if x2 > x1 else -1
-            body += (f'<g class="edge-g" data-el="{e(edge_id(m))}"><line x1="{x1 + 3 * d:.1f}" y1="{y}" x2="{x2 - 3 * d:.1f}" y2="{y}" class="edge" marker-end="url(#{sid}a)"/>'
-                     f'<text x="{(x1 + x2) / 2:.1f}" y="{y - 7}" text-anchor="middle">{i + 1}. {self.tspan_fill(m["label"])}</text></g>')
-        return f'<div class="svg-wrap seq">{head}</svg>{body}</svg></div>'
+                    f'<text x="{p["lx"]:.1f}" y="{p["ly"] + 4:.1f}" text-anchor="middle"><tspan class="sign">{e(l["sign"])}</tspan> {e(l["label"])}</text></g>')
+        for i in ids:
+            x, y, nw = pos[i]
+            inner = f'{e(self.meta[i][0])} {self.val(i, True)}' if i in self.env else e(self.meta[i][0])
+            out += f'<g class="node{"" if i in self.env else " concept"}"><rect x="{x:.1f}" y="{y:.1f}" width="{nw:.1f}" height="36" rx="4"/><text x="{x + nw / 2:.1f}" y="{y + 23:.1f}" text-anchor="middle">{inner}</text></g>'
+        rel = "".join(f'<li>{e(self.meta[l["from"]][0])} {"늘면" } {e(self.meta[l["to"]][0])} {"늘어난다" if l["sign"] == "+" else "줄어든다"}: {e(l["label"])}</li>' for l in mm["links"])
+        return out + f'</svg></div><ul class="sr">{rel}</ul><p class="legend-line"><span class="sw plus"></span>함께 늘어난다 <span class="sw minus"></span>반대로 움직인다</p>'
 
     # ---- 영역 ----
-    def story(self, st):
-        out = '<div class="story" data-story>'
-        out += f'<div class="stage"><figure class="fig"><figcaption>{e(st["figure"]["title"])}</figcaption>{self.stage(st["figure"])}</figure></div>'
-        v = st.get("vars")
-        if v:
-            names = {i["id"] for i in v["inputs"]}
-            spec = []
-            for o in v["outputs"]:
-                spec.append([o["id"], int(o.get("digits", 0)), compile_expr(o["expr"], names)])
-                names.add(o["id"])
-            out += f'<div data-vars="{e(json.dumps(spec))}" hidden></div>'
-        out += '<ol class="steps">'
-        inputs = {i["id"]: i for i in (v or {}).get("inputs", [])}
-        for k, step in enumerate(st["steps"]):
-            out += f'<li class="step" data-step="{k}" data-show="{e(json.dumps(step["show"]))}"><h3>{e(step["title"])}</h3>'
-            out += "".join(f"<p>{self.fill(t)}</p>" for t in step["body"])
-            for c in step.get("controls", []):
-                i, iid = inputs[c], self.uid("in")
-                out += (f'<label class="knob" for="{iid}"><span class="knob-label">{e(i["label"])}</span>'
-                        f'<input type="range" id="{iid}" data-in="{e(c)}" min="{i["min"]}" max="{i["max"]}" step="{i["step"]}" value="{i["value"]}">'
-                        f'<output for="{iid}">{self.value_span(c)}</output><span class="unit">{e(i["unit"])}</span></label>')
-            for n in step.get("notes", []):
-                names = set(self.env)
-                rpn = compile_expr(n["when"], names)
-                from expr import evaluate
-                on = evaluate(rpn, self.env)
-                out += f'<p class="note" data-when="{e(json.dumps(rpn))}"{"" if on else " hidden"}>{self.fill(n["text"])}</p>'
-            out += "</li>"
-        out += "</ol>"
-        if v:
-            out += f'<p class="assume">{e(v["assumption"])}</p>'
+    def start(self, _):
+        if "bridge" in self.d:
+            b = self.d["bridge"]
+            return (f'<p class="known">{e(b["known"])}</p><div class="pair"><div><p class="k">그대로 통하는 것</p><ul>'
+                    + "".join(f"<li>{e(x)}</li>" for x in b["same"]) + '</ul></div><div class="differs"><p class="k">결과를 바꾸는 차이</p><ul>'
+                    + "".join(f"<li>{e(x)}</li>" for x in b["differs"]) + "</ul></div></div>")
+        c = self.d["case"]
+        return f'<div class="case"><h3>{e(c["title"])}</h3>{paras(c["body"])}</div>'
+
+    def model(self, m):
+        c = m["calc"]
+        out = ""
+        for mm in m["models"]:
+            out += (f'<article class="model"><h3>{e(mm["name"])}</h3><p class="claim">{e(mm["claim"])}</p>'
+                    f'<figure class="fig">{self.diagram(mm)}</figure><p class="boundary"><span class="k">이 모델이 설명하지 못하는 것</span>{e(mm["boundary"])}</p></article>')
+        names = {i["id"] for i in c["inputs"]}
+        spec = []
+        for o in c["outputs"]:
+            spec.append([o["id"], int(o.get("digits", 0)), compile_expr(o["expr"], names)])
+            names.add(o["id"])
+        out += f'<div class="lab-area"><div data-vars="{e(json.dumps(spec))}" hidden></div><div class="controls">'
+        for i in c["inputs"]:
+            iid = self.uid("in")
+            out += (f'<label class="knob" for="{iid}"><span class="knob-label">{e(i["label"])}</span>'
+                    f'<input type="range" id="{iid}" data-in="{e(i["id"])}" min="{i["min"]}" max="{i["max"]}" step="{i["step"]}" value="{i["value"]}">'
+                    f'<output for="{iid}">{self.val(i["id"])}</output></label>')
+        out += f'</div><p class="assume">{e(c["assumption"])}</p>'
+        for p in m["plots"]:
+            spec = {"x": p["x"], "xl": self.meta[p["x"]][0], "xu": self.meta[p["x"]][1],
+                    "min": next(i["min"] for i in c["inputs"] if i["id"] == p["x"]), "max": next(i["max"] for i in c["inputs"] if i["id"] == p["x"]),
+                    "ys": [[y, self.meta[y][0], self.meta[y][1], self.meta[y][2]] for y in p["ys"]],
+                    "marks": [[compile_expr(mk["when"], names), mk["label"]] for mk in p.get("marks", [])]}
+            out += (f'<figure class="fig plot"><figcaption>{e(p["title"])}</figcaption>'
+                    f'<div class="plot-box" data-plot="{e(json.dumps(spec))}"></div>'
+                    f'<p class="finding"><span class="k">그래프에서 읽히는 것</span>{e(p["finding"])}</p></figure>')
         return out + "</div>"
 
-    def relations(self, r):
+    def phenomena(self, ps):
+        out = '<ul class="phen">'
+        for p in ps:
+            chips = "".join(f'<span class="chip">{e(self.meta[v][0])}</span>' for v in p["via"])
+            out += f'<li><p>{e(p["text"])}</p><p class="via">{chips}</p></li>'
+        return out + "</ul>"
+
+    def inferences(self, xs):
         out = ""
-        for m in r["models"]:
-            out += (f'<article class="model"><h3>{e(m["name"])}</h3><p><strong>{e(m["claim"])}</strong> {e(m["cause"])}</p>'
-                    f'<p>{e(" ".join(m["explains"]))}</p><p class="boundary">{e(m["boundary"])}</p></article>')
+        for x in xs:
+            out += f'<div class="infer"><p class="q">{e(x["question"])}</p><p class="res">{e(x["answer"])}</p><p class="why">{e(x["reason"])}</p></div>'
+        if self.d.get("switch"):
+            out += self.switch(self.d["switch"])
         return out
 
-    def application(self, a):
+    def limits(self, lim):
         out = ""
-        for j in a.get("judgments", []):
-            out += f'<div class="judge"><p class="sit">{e(j["situation"])}</p><p class="res">{e(j["result"])}</p><p class="why">{e(j["reason"])}</p></div>'
-        if a.get("switch"):
-            out += self.switch(a["switch"])
-        lim = a.get("limits", [])
         for kind, name in LIMIT_KINDS:
             xs = [x for x in lim if x["kind"] == kind]
             if xs:
@@ -185,9 +149,10 @@ class Page:
         head = f'<p class="thesis">{e(self.d["thesis"])}</p>'
         body = ""
         for key, num, name in SECTIONS:
-            if self.d.get(key):
+            value = True if key == "start" else self.d.get(key)
+            if value:
                 body += (f'<section class="sec" id="{key}" aria-labelledby="{key}-h"><h2 id="{key}-h"><span class="num">{num}</span>{name}</h2>'
-                         f'{getattr(self, key)(self.d[key])}</section>')
+                         f'{getattr(self, key)(self.d.get(key))}</section>')
         tpl = tpl.replace("__STYLES__", css).replace("__CSP_HASH__", digest)
         top, tail = tpl.split("__SCRIPT__")
         for k, v in {"__TITLE__": e(self.d["title"]), "__HEAD__": head, "__SECTIONS__": body}.items():
@@ -201,7 +166,7 @@ def render(data):
 
 def main(argv):
     if len(argv) != 2:
-        sys.exit("쓰는 법: render.py <설명.json> <출력.html>")
+        sys.exit("쓰는 법: render.py <모델.json> <출력.html>")
     data = json.load(open(argv[0], encoding="utf-8"))
     errors, warns = validate(data)
     for w in warns:

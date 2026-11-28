@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'sha256-XFA7qtROv6l+NXw1/3x6JK/igQ+zhlnuVLpRoDLSjXY='; img-src data:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'sha256-lHzDEXt2Snh73qlk0OmMkXpLgz4LCCoTaa1nvgMsaSs='; img-src data:; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>기회비용</title>
 <style>
 :root {
   --bg: #fbfbfa; --surface: #ffffff; --fg: #1b1c1e; --muted: #5a5e65; --line: #dfe1e4; --line-strong: #b5b9c0;
   --accent: #1f5fbf; --accent-weak: #e9f0fa; --focus: #1f5fbf;
-  --c0: #1f5fbf; --c1: #c2702a; --c2: #3e8a5a; --c3: #8a5cb8; --c4: #8a8f98;
+  --warn-fg: #9a5a00; --c0: #1f5fbf; --c1: #c2702a; --c2: #3e8a5a; --c3: #8a5cb8; --c4: #8a8f98;
   --f-xs: 13px; --f-s: 15px; --f-m: 17px; --f-l: 20px; --f-xl: 28px;
   --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 40px; --s7: 64px;
   --measure: 44rem; --radius: 6px;
@@ -20,17 +20,17 @@
   :root:not([data-theme="light"]) {
     --bg: #15171a; --surface: #1c1f23; --fg: #e8e9eb; --muted: #a5aab2; --line: #31353b; --line-strong: #4b5159;
     --accent: #82b2ff; --accent-weak: #1e2a3c; --focus: #82b2ff;
-    --c0: #82b2ff; --c1: #e3a56b; --c2: #7cc395; --c3: #b996e0; --c4: #8d939c;
+    --warn-fg: #f1c57a; --c0: #82b2ff; --c1: #e3a56b; --c2: #7cc395; --c3: #b996e0; --c4: #8d939c;
   }
 }
 :root[data-theme="dark"] {
   --bg: #15171a; --surface: #1c1f23; --fg: #e8e9eb; --muted: #a5aab2; --line: #31353b; --line-strong: #4b5159;
   --accent: #82b2ff; --accent-weak: #1e2a3c; --focus: #82b2ff;
-  --c0: #82b2ff; --c1: #e3a56b; --c2: #7cc395; --c3: #b996e0; --c4: #8d939c;
+  --warn-fg: #f1c57a; --c0: #82b2ff; --c1: #e3a56b; --c2: #7cc395; --c3: #b996e0; --c4: #8d939c;
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--fg); font: var(--f-m)/1.7 -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", system-ui, sans-serif; word-break: keep-all; overflow-wrap: anywhere; }
-main { max-width: 72rem; margin: 0 auto; padding: var(--s6) var(--s4) var(--s7); }
+main { max-width: var(--measure); margin: 0 auto; padding: var(--s6) var(--s4) var(--s7); }
 p { margin: 0 0 var(--s3); }
 h1, h2, h3 { margin: 0; line-height: 1.35; }
 h3 { font-size: var(--f-m); margin: 0 0 var(--s2); }
@@ -57,6 +57,7 @@ li { margin-bottom: var(--s1); }
 .edge { fill: none; stroke: var(--muted); stroke-width: 1.6; }
 .arrow { fill: var(--muted); }
 .lab { fill: var(--bg); }
+.svg-wrap svg { min-width: var(--minw); }
 .edge-g text { fill: var(--fg); font-size: 12.5px; }
 .node rect { fill: var(--surface); stroke: var(--line-strong); }
 .node text { fill: var(--fg); font-weight: 600; }
@@ -95,42 +96,59 @@ thead th { border-bottom: 2px solid var(--line-strong); }
 .val { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--accent); }
 tspan.val { fill: var(--accent); }
 
-.story { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: var(--s5); align-items: start; }
-.stage { order: 2; position: sticky; top: var(--s4); }
-.stage .fig { margin: 0; }
-.steps { order: 1; list-style: none; padding: 0; margin: 0; counter-reset: st; }
-.step { counter-increment: st; min-height: 52vh; padding: var(--s4) 0 var(--s4) var(--s4); border-left: 3px solid var(--line); transition: border-color .2s; }
-.step:last-child { min-height: 0; }
-.step h3::before { content: counter(st) ". "; color: var(--muted); }
-.story[data-js] .step:not(.active) { color: var(--muted); }
-.story[data-js] .step.active { border-left-color: var(--accent); }
-.assume { order: 3; grid-column: 1 / -1; font-size: var(--f-xs); color: var(--muted); }
-.story[data-js] [data-el] { transition: opacity .35s; }
-.story[data-js] [data-el]:not(.on) { opacity: 0; }
-.focus rect { stroke: var(--accent); stroke-width: 2; }
-.edge-g.focus .edge { stroke: var(--accent); stroke-width: 2.2; }
-.edge-g.focus text { font-weight: 700; }
-.knob { display: grid; grid-template-columns: minmax(6rem, 38%) 1fr auto auto; gap: var(--s2); align-items: center; font-size: var(--f-s); margin: var(--s2) 0; padding: var(--s2) var(--s3); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+.knob { display: grid; grid-template-columns: minmax(6rem, 38%) 1fr auto; gap: var(--s2); align-items: center; font-size: var(--f-s); }
+.lab-area { margin-top: var(--s5); }
+.controls { position: sticky; top: 0; z-index: 2; background: var(--bg); padding: var(--s3) 0; border-bottom: 1px solid var(--line); display: grid; gap: var(--s1); }
+.assume { font-size: var(--f-xs); color: var(--muted); margin-top: var(--s2); }
+.plot-box svg { display: block; width: 100%; height: auto; font: 13px -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif; }
+.axis { stroke: var(--line-strong); }
+.tick { fill: var(--muted); font-size: 12px; }
+.line { fill: none; stroke-width: 2.4; }
+.line.s0, .dot.s0 { stroke: var(--c0); } .line.s1, .dot.s1 { stroke: var(--c1); } .line.s2, .dot.s2 { stroke: var(--c2); }
+.dot { fill: var(--bg); stroke-width: 2.4; }
+.now { stroke: var(--fg); stroke-dasharray: 2 3; }
+.mark { stroke: var(--warn-fg); stroke-dasharray: 5 4; stroke-width: 1.5; }
+.mark-label { fill: var(--warn-fg); font-size: 12px; font-weight: 600; paint-order: stroke; stroke: var(--bg); stroke-width: 4px; stroke-linejoin: round; }
+.legend { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s3); font-size: var(--f-xs); margin: var(--s2) 0 0; }
+.sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: var(--s1); vertical-align: 0; }
+.sw.s0 { background: var(--c0); } .sw.s1 { background: var(--c1); } .sw.s2 { background: var(--c2); }
+.sw.plus { background: var(--c0); } .sw.minus { background: var(--c1); }
+.finding { margin-top: var(--s2); padding: var(--s2) var(--s3); background: var(--accent-weak); border-radius: var(--radius); }
+.link.plus .edge { stroke: var(--c0); } .link.minus .edge { stroke: var(--c1); stroke-dasharray: 6 4; }
+.arrow-plus { fill: var(--c0); } .arrow-minus { fill: var(--c1); }
+.link text { fill: var(--fg); font-size: 12.5px; }
+.link .sign { font-weight: 700; }
+.link.plus .sign { fill: var(--c0); } .link.minus .sign { fill: var(--c1); }
+.node.concept rect { stroke-dasharray: 4 3; }
+.legend-line { font-size: var(--f-xs); color: var(--muted); }
+.known { font-weight: 600; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s4); }
+.differs ul li { font-weight: 600; }
+.claim { font-weight: 600; }
+.phen { list-style: none; padding: 0; }
+.phen li { padding: var(--s2) 0; border-bottom: 1px solid var(--line); }
+.phen p { margin: 0; }
+.via { margin-top: var(--s1) !important; }
+.chip { display: inline-block; font-size: 12px; padding: 0 var(--s2); margin: 0 var(--s1) 0 0; border-radius: 999px; background: var(--accent-weak); color: var(--accent); }
+.infer { padding: var(--s3) 0 var(--s3) var(--s4); border-left: 3px solid var(--accent); margin-bottom: var(--s4); }
+.infer .q { font-weight: 600; }
+.infer p { margin-bottom: var(--s1); }
+.case { padding: var(--s4); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
 
 @media (max-width: 760px) {
-  .story { grid-template-columns: minmax(0, 1fr); gap: 0; }
-  .stage { order: 0; top: 0; z-index: 2; background: var(--bg); padding: var(--s2) 0; border-bottom: 1px solid var(--line); }
-  .stage .svg-wrap { max-height: 46vh; overflow: auto; }
-  .stage .svg-wrap svg { min-width: var(--minw); }
-  .stage figcaption { font-size: var(--f-xs); }
-  .step { min-height: 48vh; }
+  .pair { grid-template-columns: 1fr; }
+  .controls { position: static; }
 }
 @media (max-width: 640px) {
   body { font-size: 16px; }
   main { padding-top: var(--s5); }
   .head h1 { font-size: 24px; }
   .thesis { font-size: 18px; }
-  .knob { grid-template-columns: 1fr auto auto; }
+  .knob { grid-template-columns: 1fr auto; }
   .knob-label { grid-column: 1 / -1; }
     }
-.head, .sec:not(#story) { max-width: var(--measure); }
-.seq .seq-head { position: sticky; top: 0; z-index: 1; background: var(--bg); }
-.svg-wrap.seq svg { margin-bottom: 0; }
+
+.model .fig { width: min(62rem, calc(100vw - 32px)); position: relative; left: 50%; transform: translateX(-50%); }
 
 </style>
 </head>
@@ -139,9 +157,9 @@ tspan.val { fill: var(--accent); }
   <header class="head">
     <p class="brand">UNDERSTAND</p>
     <h1>기회비용</h1>
-    <p class="thesis">어떤 선택의 실제 비용은 낸 돈에, 같은 자원으로 할 수 있었던 다음 최선 선택의 가치를 더한 값이다.</p>
+    <p class="thesis">선택의 실제 비용은 낸 돈에, 같은 자원으로 할 수 있었던 대안 가운데 가장 큰 하나의 가치를 더한 값이다.</p>
   </header>
-<section class="sec" id="story" aria-labelledby="story-h"><h2 id="story-h"><span class="num">01</span>작동 원리</h2><div class="story" data-story><div class="stage"><figure class="fig"><figcaption>토요일 오후 네 시간이 공부에 쓰일 때 비용이 생기는 경로</figcaption><div class="svg-wrap"><svg viewBox="0 0 528 368" width="528" style="--minw:449px" role="img" aria-labelledby="g1t" preserveAspectRatio="xMidYMin meet"><title id="g1t">토요일 오후 네 시간이 공부에 쓰일 때 비용이 생기는 경로</title><defs><marker id="g1a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow"/></marker></defs><g class="edge-g" data-el="time&gt;study"><path d="M264.0,52.0 C264.0,84.0 81.0,84.0 81.0,114.0" class="edge" marker-end="url(#g1a)"/><rect class="lab" x="154.0" y="74.0" width="37.0" height="20" rx="3"/><text x="172.5" y="88.0" text-anchor="middle">쓰임</text></g><g class="edge-g" data-el="time&gt;job"><path d="M264.0,52.0 C264.0,84.0 262.0,84.0 262.0,114.0" class="edge" marker-end="url(#g1a)"/><rect class="lab" x="244.5" y="74.0" width="37.0" height="20" rx="3"/><text x="263.0" y="88.0" text-anchor="middle">포기</text></g><g class="edge-g" data-el="time&gt;rest"><path d="M264.0,52.0 C264.0,84.0 445.0,84.0 445.0,114.0" class="edge" marker-end="url(#g1a)"/><rect class="lab" x="336.0" y="74.0" width="37.0" height="20" rx="3"/><text x="354.5" y="88.0" text-anchor="middle">포기</text></g><g class="edge-g" data-el="job&gt;oc"><path d="M262.0,152.0 C262.0,184.0 352.0,184.0 352.0,214.0" class="edge" marker-end="url(#g1a)"/><rect class="lab" x="278.7" y="174.0" width="56.6" height="20" rx="3"/><text x="307.0" y="188.0" text-anchor="middle">더 크면</text></g><g class="edge-g" data-el="rest&gt;oc"><path d="M445.0,152.0 C445.0,184.0 352.0,184.0 352.0,214.0" class="edge" marker-end="url(#g1a)"/><rect class="lab" x="370.2" y="174.0" width="56.6" height="20" rx="3"/><text x="398.5" y="188.0" text-anchor="middle">더 크면</text></g><g class="edge-g" data-el="study&gt;book"><path d="M81.0,152.0 C81.0,184.0 169.0,184.0 169.0,214.0" class="edge" marker-end="url(#g1a)"/><rect class="lab" x="106.5" y="174.0" width="37.0" height="20" rx="3"/><text x="125.0" y="188.0" text-anchor="middle">지출</text></g><g class="edge-g" data-el="book&gt;total"><path d="M169.0,252.0 C169.0,284.0 264.0,284.0 264.0,314.0" class="edge" marker-end="url(#g1a)"/><rect class="lab" x="198.0" y="274.0" width="37.0" height="20" rx="3"/><text x="216.5" y="288.0" text-anchor="middle">더함</text></g><g class="edge-g" data-el="oc&gt;total"><path d="M352.0,252.0 C352.0,284.0 264.0,284.0 264.0,314.0" class="edge" marker-end="url(#g1a)"/><rect class="lab" x="289.5" y="274.0" width="37.0" height="20" rx="3"/><text x="308.0" y="288.0" text-anchor="middle">더함</text></g><g class="node" data-el="time"><rect x="190.0" y="16.0" width="148.0" height="36" rx="4"/><text x="264.0" y="39.0" text-anchor="middle">오후 <tspan class="val" data-out="hours">4</tspan>시간</text></g><g class="node" data-el="study"><rect x="16.0" y="116.0" width="130.0" height="36" rx="4"/><text x="81.0" y="139.0" text-anchor="middle">공부 (고른 것)</text></g><g class="node" data-el="job"><rect x="174.0" y="116.0" width="176.0" height="36" rx="4"/><text x="262.0" y="139.0" text-anchor="middle">아르바이트 <tspan class="val" data-out="alt">40,000</tspan>원</text></g><g class="node" data-el="rest"><rect x="378.0" y="116.0" width="134.0" height="36" rx="4"/><text x="445.0" y="139.0" text-anchor="middle">휴식 <tspan class="val" data-out="restv">20,000</tspan>원</text></g><g class="node" data-el="book"><rect x="95.0" y="216.0" width="148.0" height="36" rx="4"/><text x="169.0" y="239.0" text-anchor="middle">교재비 <tspan class="val" data-out="book">20,000</tspan>원</text></g><g class="node" data-el="oc"><rect x="271.0" y="216.0" width="162.0" height="36" rx="4"/><text x="352.0" y="239.0" text-anchor="middle">기회비용 <tspan class="val" data-out="oc">40,000</tspan>원</text></g><g class="node" data-el="total"><rect x="179.0" y="316.0" width="170.0" height="36" rx="4"/><text x="264.0" y="339.0" text-anchor="middle">실제 비용 <tspan class="val" data-out="cost">60,000</tspan>원</text></g></svg></div></figure></div><div data-vars="[[&quot;alt&quot;, 0, [[&quot;v&quot;, &quot;wage&quot;], [&quot;v&quot;, &quot;hours&quot;], [&quot;o&quot;, &quot;*&quot;]]], [&quot;oc&quot;, 0, [[&quot;v&quot;, &quot;alt&quot;], [&quot;v&quot;, &quot;restv&quot;], [&quot;f&quot;, &quot;max&quot;]]], [&quot;cost&quot;, 0, [[&quot;v&quot;, &quot;book&quot;], [&quot;v&quot;, &quot;oc&quot;], [&quot;o&quot;, &quot;+&quot;]]], [&quot;net&quot;, 0, [[&quot;v&quot;, &quot;gain&quot;], [&quot;v&quot;, &quot;cost&quot;], [&quot;o&quot;, &quot;-&quot;]]]]" hidden></div><ol class="steps"><li class="step" data-step="0" data-show="[&quot;time&quot;, &quot;study&quot;, &quot;time&gt;study&quot;]"><h3>시간이 한 곳에 묶인다</h3><p>한 사람이 토요일 오후 <span class="val" data-out="hours">4</span>시간을 자격증 공부에 쓰기로 한다.</p><p>시간은 한 번에 한 곳에만 쓰인다.</p></li><li class="step" data-step="1" data-show="[&quot;job&quot;, &quot;rest&quot;, &quot;time&gt;job&quot;, &quot;time&gt;rest&quot;]"><h3>그 시간에 할 수 있던 다른 일</h3><p>같은 시간에 아르바이트로 <span class="val" data-out="alt">40,000</span>원을 벌 수도 있었고, 쉴 수도 있었다.</p><p>공부를 고른 순간 이 둘은 하지 않은 일이 된다.</p><label class="knob" for="in2"><span class="knob-label">아르바이트 시급</span><input type="range" id="in2" data-in="wage" min="0" max="30000" step="1000" value="10000"><output for="in2"><span class="val" data-out="wage">10,000</span></output><span class="unit">원</span></label><label class="knob" for="in3"><span class="knob-label">쓸 수 있는 시간</span><input type="range" id="in3" data-in="hours" min="1" max="8" step="1" value="4"><output for="in3"><span class="val" data-out="hours">4</span></output><span class="unit">시간</span></label></li><li class="step" data-step="2" data-show="[&quot;oc&quot;, &quot;job&gt;oc&quot;, &quot;rest&gt;oc&quot;]"><h3>포기한 것 가운데 가장 큰 하나만 센다</h3><p>공부를 하지 않았더라도 아르바이트와 휴식을 동시에 하지는 못한다. 그래서 둘을 더하지 않고 더 큰 하나만 센다.</p><p>이 값을 기회비용이라 한다. 지금 조건에서는 <span class="val" data-out="oc">40,000</span>원이다.</p><label class="knob" for="in4"><span class="knob-label">휴식의 가치</span><input type="range" id="in4" data-in="restv" min="0" max="100000" step="5000" value="20000"><output for="in4"><span class="val" data-out="restv">20,000</span></output><span class="unit">원</span></label><p class="note" data-when="[[&quot;v&quot;, &quot;restv&quot;], [&quot;v&quot;, &quot;alt&quot;], [&quot;o&quot;, &quot;&gt;&quot;]]" hidden>휴식의 가치가 아르바이트 수입보다 커서, 기회비용은 휴식의 가치가 된다.</p></li><li class="step" data-step="3" data-show="[&quot;book&quot;, &quot;study&gt;book&quot;]"><h3>실제로 나간 돈</h3><p>공부에는 교재비 <span class="val" data-out="book">20,000</span>원이 실제로 나간다. 이렇게 나간 돈을 명시적 비용이라 한다.</p><p>가계부에 남는 비용은 이것뿐이다.</p><label class="knob" for="in5"><span class="knob-label">교재비</span><input type="range" id="in5" data-in="book" min="0" max="60000" step="5000" value="20000"><output for="in5"><span class="val" data-out="book">20,000</span></output><span class="unit">원</span></label></li><li class="step" data-step="4" data-show="[&quot;total&quot;, &quot;book&gt;total&quot;, &quot;oc&gt;total&quot;]"><h3>둘을 더한 것이 실제 비용이다</h3><p>공부의 실제 비용은 교재비 <span class="val" data-out="book">20,000</span>원과 기회비용 <span class="val" data-out="oc">40,000</span>원을 더한 <span class="val" data-out="cost">60,000</span>원이다.</p><p>교재비만 보고 판단하면 기회비용만큼 공부를 싸게 본다.</p></li><li class="step" data-step="5" data-show="[]"><h3>공부가 남는 선택인가</h3><p>공부로 얻는 가치가 실제 비용 <span class="val" data-out="cost">60,000</span>원보다 크면 공부가 낫다. 지금 차이는 <span class="val" data-out="net">10,000</span>원이다.</p><label class="knob" for="in6"><span class="knob-label">공부로 얻는 가치</span><input type="range" id="in6" data-in="gain" min="0" max="200000" step="5000" value="70000"><output for="in6"><span class="val" data-out="gain">70,000</span></output><span class="unit">원</span></label><p class="note" data-when="[[&quot;v&quot;, &quot;net&quot;], [&quot;n&quot;, 0.0], [&quot;o&quot;, &quot;&gt;=&quot;]]">이 조건에서는 공부가 다른 두 선택보다 낫다.</p><p class="note" data-when="[[&quot;v&quot;, &quot;net&quot;], [&quot;n&quot;, 0.0], [&quot;o&quot;, &quot;&lt;&quot;]]" hidden>이 조건에서는 공부를 하지 않는 편이 낫다.</p></li></ol><p class="assume">가정 모델: 휴식과 공부의 가치는 원 단위로 바꾼 추정값이다. 실제로는 사람마다 다르다.</p></div></section><section class="sec" id="relations" aria-labelledby="relations-h"><h2 id="relations-h"><span class="num">02</span>핵심 관계</h2><article class="model"><h3>기회비용</h3><p><strong>같은 자원을 두고 겨루는 대안이 있으면, 고른 것의 비용에 포기한 최선 대안의 가치가 들어간다.</strong> 자원은 한 번에 한 곳에만 쓰이므로 하나를 고르는 행위가 곧 다른 하나를 잃는 행위가 된다.</p><p>아르바이트 시급이 오르면 공부 자체는 그대로여도 공부의 비용이 오른다. 무료 공연에 두 시간 줄을 서는 사람도 그 두 시간에 벌 수 있던 돈만큼 값을 낸다. 회사가 개발자에게 기능 A 를 맡기면 같은 기간 만들 수 있던 기능 B 의 가치가 A 의 비용이 된다.</p><p class="boundary">대안의 가치를 같은 단위로 바꾸기 어려우면 기회비용은 정확한 값이 아니라 비교의 틀로만 쓰인다.</p></article><article class="model"><h3>매몰비용</h3><p><strong>이미 써서 돌려받을 수 없는 돈은 지금 고를 수 있는 모든 대안에서 같으므로 판단에서 뺀다.</strong> 판단은 대안마다 앞으로 달라지는 결과만 비교하는데, 되돌릴 수 없는 지출은 어느 대안에서도 달라지지 않는다.</p><p>이미 낸 헬스장 1년 회비는 오늘 운동을 갈지 정하는 데 들어가지 않는다. 다음 주 토요일에 같은 공부를 고를 때는 이미 산 교재비가 빠져 비용이 4만 원이 된다.</p><p class="boundary">되팔 수 있는 물건은 매몰비용이 아니다. 되팔아 받을 수 있는 값이 계속 쓰는 쪽의 기회비용이 된다.</p></article></section><section class="sec" id="application" aria-labelledby="application-h"><h2 id="application-h"><span class="num">03</span>적용과 한계</h2><div class="judge"><p class="sit">예를 들어 혼자 가게를 하는 사람이 월 매출에서 재료비와 임대료를 빼고 300만 원이 남았다고 본다.</p><p class="res">같은 시간에 회사에서 월 350만 원을 받을 수 있었다면 이 가게는 경제적으로 월 50만 원 손해다.</p><p class="why">자기 노동의 기회비용 350만 원이 장부에 비용으로 잡히지 않았기 때문이다.</p></div><div class="limits"><h3>성립 조건</h3><ul><li>대안이 실제로 실행 가능해야 한다. 할 수 없었던 일은 포기한 대안이 아니다.</li></ul></div><div class="limits"><h3>트레이드오프</h3><ul><li>휴식이나 관계처럼 돈으로 바꾸기 어려운 가치를 시급으로 재면 그 가치가 작게 잡힌다.</li></ul></div></section>
+<section class="sec" id="start" aria-labelledby="start-h"><h2 id="start-h"><span class="num">01</span>출발점</h2><p class="known">물건을 살 때 비용은 계산대에서 낸 돈이라는 것은 이미 안다.</p><div class="pair"><div><p class="k">그대로 통하는 것</p><ul><li>실제로 낸 돈(교재비, 수강료)은 그대로 비용이다.</li></ul></div><div class="differs"><p class="k">결과를 바꾸는 차이</p><ul><li>시간처럼 한 번에 한 곳에만 쓰이는 자원을 쓰면, 그 자원으로 할 수 있었던 다른 일의 가치도 비용이 된다. 이 비용은 누구에게도 내지 않아 영수증이 없다.</li><li>포기한 대안이 여럿이어도 전부 더하지 않는다. 어차피 동시에 할 수 없었으므로 가장 큰 하나만 센다.</li></ul></div></div></section><section class="sec" id="model" aria-labelledby="model-h"><h2 id="model-h"><span class="num">02</span>핵심 메커니즘</h2><article class="model"><h3>기회비용</h3><p class="claim">자원이 한 번에 한 곳에만 쓰이면, 하나를 고르는 순간 나머지 대안을 잃고, 그 가운데 가장 큰 가치가 고른 것의 비용에 더해진다.</p><figure class="fig"><div class="svg-wrap"><svg viewBox="0 0 500 468" width="500" style="--minw:425px" role="img" aria-labelledby="g1t"><title id="g1t">기회비용: 변수 관계</title><defs><marker id="g1p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow-plus"/></marker><marker id="g1m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow-minus"/></marker></defs><g class="link plus"><path d="M122.0,52.0 C122.0,84.0 144.0,84.0 144.0,114.0" class="edge" marker-end="url(#g1p)"/><rect class="lab" x="85.0" y="74.0" width="95.9" height="20" rx="3"/><text x="133.0" y="88.0" text-anchor="middle"><tspan class="sign">+</tspan> 시간당 수입</text></g><g class="link plus"><path d="M370.0,52.0 C370.0,84.0 144.0,84.0 144.0,114.0" class="edge" marker-end="url(#g1p)"/><rect class="lab" x="209.0" y="74.0" width="95.9" height="20" rx="3"/><text x="257.0" y="88.0" text-anchor="middle"><tspan class="sign">+</tspan> 묶이는 시간</text></g><g class="link plus"><path d="M144.0,152.0 C144.0,184.0 162.0,184.0 162.0,214.0" class="edge" marker-end="url(#g1p)"/><rect class="lab" x="117.5" y="174.0" width="70.9" height="20" rx="3"/><text x="153.0" y="188.0" text-anchor="middle"><tspan class="sign">+</tspan> 더 크면</text></g><g class="link plus"><path d="M370.0,152.0 C370.0,184.0 162.0,184.0 162.0,214.0" class="edge" marker-end="url(#g1p)"/><rect class="lab" x="230.5" y="174.0" width="70.9" height="20" rx="3"/><text x="266.0" y="188.0" text-anchor="middle"><tspan class="sign">+</tspan> 더 크면</text></g><g class="link plus"><path d="M162.0,252.0 C162.0,284.0 126.0,284.0 126.0,314.0" class="edge" marker-end="url(#g1p)"/><rect class="lab" x="118.4" y="274.0" width="51.3" height="20" rx="3"/><text x="144.0" y="288.0" text-anchor="middle"><tspan class="sign">+</tspan> 더함</text></g><g class="link plus"><path d="M345.0,252.0 C345.0,284.0 126.0,284.0 126.0,314.0" class="edge" marker-end="url(#g1p)"/><rect class="lab" x="209.9" y="274.0" width="51.3" height="20" rx="3"/><text x="235.5" y="288.0" text-anchor="middle"><tspan class="sign">+</tspan> 더함</text></g><g class="link minus"><path d="M126.0,352.0 C126.0,384.0 250.0,384.0 250.0,414.0" class="edge" marker-end="url(#g1m)"/><rect class="lab" x="168.6" y="374.0" width="38.8" height="20" rx="3"/><text x="188.0" y="388.0" text-anchor="middle"><tspan class="sign">-</tspan> 뺌</text></g><g class="link plus"><path d="M374.0,352.0 C374.0,384.0 250.0,384.0 250.0,414.0" class="edge" marker-end="url(#g1p)"/><rect class="lab" x="286.4" y="374.0" width="51.3" height="20" rx="3"/><text x="312.0" y="388.0" text-anchor="middle"><tspan class="sign">+</tspan> 더함</text></g><g class="node"><rect x="16.0" y="16.0" width="212.0" height="36" rx="4"/><text x="122.0" y="39.0" text-anchor="middle">아르바이트 시급 <tspan class="val" data-out="wage">10,000</tspan>원</text></g><g class="node"><rect x="38.0" y="116.0" width="212.0" height="36" rx="4"/><text x="144.0" y="139.0" text-anchor="middle">아르바이트 수입 <tspan class="val" data-out="alt">40,000</tspan>원</text></g><g class="node"><rect x="256.0" y="16.0" width="228.0" height="36" rx="4"/><text x="370.0" y="39.0" text-anchor="middle">쓸 수 있는 시간 <tspan class="val" data-out="hours">4</tspan>시간</text></g><g class="node"><rect x="81.0" y="216.0" width="162.0" height="36" rx="4"/><text x="162.0" y="239.0" text-anchor="middle">기회비용 <tspan class="val" data-out="oc">40,000</tspan>원</text></g><g class="node"><rect x="278.0" y="116.0" width="184.0" height="36" rx="4"/><text x="370.0" y="139.0" text-anchor="middle">휴식의 가치 <tspan class="val" data-out="restv">30,000</tspan>원</text></g><g class="node"><rect x="16.0" y="316.0" width="220.0" height="36" rx="4"/><text x="126.0" y="339.0" text-anchor="middle">공부의 실제 비용 <tspan class="val" data-out="cost">60,000</tspan>원</text></g><g class="node"><rect x="271.0" y="216.0" width="148.0" height="36" rx="4"/><text x="345.0" y="239.0" text-anchor="middle">교재비 <tspan class="val" data-out="book">20,000</tspan>원</text></g><g class="node"><rect x="151.0" y="416.0" width="198.0" height="36" rx="4"/><text x="250.0" y="439.0" text-anchor="middle">공부의 순이익 <tspan class="val" data-out="net">30,000</tspan>원</text></g><g class="node"><rect x="264.0" y="316.0" width="220.0" height="36" rx="4"/><text x="374.0" y="339.0" text-anchor="middle">공부로 얻는 가치 <tspan class="val" data-out="gain">90,000</tspan>원</text></g></svg></div><ul class="sr"><li>아르바이트 시급 늘면 아르바이트 수입 늘어난다: 시간당 수입</li><li>쓸 수 있는 시간 늘면 아르바이트 수입 늘어난다: 묶이는 시간</li><li>아르바이트 수입 늘면 기회비용 늘어난다: 더 크면</li><li>휴식의 가치 늘면 기회비용 늘어난다: 더 크면</li><li>기회비용 늘면 공부의 실제 비용 늘어난다: 더함</li><li>교재비 늘면 공부의 실제 비용 늘어난다: 더함</li><li>공부의 실제 비용 늘면 공부의 순이익 줄어든다: 뺌</li><li>공부로 얻는 가치 늘면 공부의 순이익 늘어난다: 더함</li></ul><p class="legend-line"><span class="sw plus"></span>함께 늘어난다 <span class="sw minus"></span>반대로 움직인다</p></figure><p class="boundary"><span class="k">이 모델이 설명하지 못하는 것</span>대안의 가치를 같은 단위로 바꾸기 어려우면 기회비용은 정확한 값이 아니라 비교의 틀로만 쓰인다.</p></article><div class="lab-area"><div data-vars="[[&quot;alt&quot;, 0, [[&quot;v&quot;, &quot;wage&quot;], [&quot;v&quot;, &quot;hours&quot;], [&quot;o&quot;, &quot;*&quot;]]], [&quot;oc&quot;, 0, [[&quot;v&quot;, &quot;alt&quot;], [&quot;v&quot;, &quot;restv&quot;], [&quot;f&quot;, &quot;max&quot;]]], [&quot;cost&quot;, 0, [[&quot;v&quot;, &quot;book&quot;], [&quot;v&quot;, &quot;oc&quot;], [&quot;o&quot;, &quot;+&quot;]]], [&quot;net&quot;, 0, [[&quot;v&quot;, &quot;gain&quot;], [&quot;v&quot;, &quot;cost&quot;], [&quot;o&quot;, &quot;-&quot;]]]]" hidden></div><div class="controls"><label class="knob" for="in2"><span class="knob-label">아르바이트 시급</span><input type="range" id="in2" data-in="wage" min="0" max="30000" step="1000" value="10000"><output for="in2"><span class="val" data-out="wage">10,000</span>원</output></label><label class="knob" for="in3"><span class="knob-label">쓸 수 있는 시간</span><input type="range" id="in3" data-in="hours" min="1" max="8" step="1" value="4"><output for="in3"><span class="val" data-out="hours">4</span>시간</output></label><label class="knob" for="in4"><span class="knob-label">휴식의 가치</span><input type="range" id="in4" data-in="restv" min="0" max="100000" step="5000" value="30000"><output for="in4"><span class="val" data-out="restv">30,000</span>원</output></label><label class="knob" for="in5"><span class="knob-label">교재비</span><input type="range" id="in5" data-in="book" min="0" max="60000" step="5000" value="20000"><output for="in5"><span class="val" data-out="book">20,000</span>원</output></label><label class="knob" for="in6"><span class="knob-label">공부로 얻는 가치</span><input type="range" id="in6" data-in="gain" min="0" max="200000" step="5000" value="90000"><output for="in6"><span class="val" data-out="gain">90,000</span>원</output></label></div><p class="assume">가정 모델: 토요일 오후에 공부, 아르바이트, 휴식 가운데 하나를 고른다. 휴식과 공부의 가치는 사람마다 다른 원 단위 추정값이다.</p><figure class="fig plot"><figcaption>시급이 오를 때 공부의 비용과 순이익</figcaption><div class="plot-box" data-plot="{&quot;x&quot;: &quot;wage&quot;, &quot;xl&quot;: &quot;\uc544\ub974\ubc14\uc774\ud2b8 \uc2dc\uae09&quot;, &quot;xu&quot;: &quot;\uc6d0&quot;, &quot;min&quot;: 0, &quot;max&quot;: 30000, &quot;ys&quot;: [[&quot;oc&quot;, &quot;\uae30\ud68c\ube44\uc6a9&quot;, &quot;\uc6d0&quot;, 0], [&quot;net&quot;, &quot;\uacf5\ubd80\uc758 \uc21c\uc774\uc775&quot;, &quot;\uc6d0&quot;, 0]], &quot;marks&quot;: [[[[&quot;v&quot;, &quot;alt&quot;], [&quot;v&quot;, &quot;restv&quot;], [&quot;o&quot;, &quot;&gt;&quot;]], &quot;\uc54c\ubc14\uac00 \ud734\uc2dd\ubcf4\ub2e4 \ud07c&quot;], [[[&quot;v&quot;, &quot;net&quot;], [&quot;n&quot;, 0.0], [&quot;o&quot;, &quot;&lt;&quot;]], &quot;\uacf5\ubd80\uac00 \uc190\ud574&quot;]]}"></div><p class="finding"><span class="k">그래프에서 읽히는 것</span>시급이 휴식 가치를 시간으로 나눈 값보다 낮으면 시급이 올라도 공부의 비용은 그대로다. 그 문턱을 넘는 순간부터는 시급이 오르는 만큼 시간을 곱해 비용이 오른다.</p></figure></div></section><section class="sec" id="phenomena" aria-labelledby="phenomena-h"><h2 id="phenomena-h"><span class="num">03</span>설명되는 현상</h2><ul class="phen"><li><p>아르바이트 시급이 오르면 공부 자체는 그대로여도 공부를 하는 비용이 오른다.</p><p class="via"><span class="chip">아르바이트 시급</span><span class="chip">기회비용</span></p></li><li><p>쉬는 것을 크게 여기는 사람에게는 시급이 조금 올라도 공부의 비용이 바뀌지 않는다.</p><p class="via"><span class="chip">휴식의 가치</span><span class="chip">기회비용</span></p></li><li><p>혼자 가게를 하는 사람이 자기 노동을 0원으로 두면 장부상 이익이 나도 실제로는 손해일 수 있다.</p><p class="via"><span class="chip">기회비용</span><span class="chip">공부의 순이익</span></p></li><li><p>이미 산 교재는 다음 주 같은 판단에서 비용이 아니다. 어느 쪽을 골라도 돌아오지 않는 돈이라 대안 사이의 차이를 만들지 않는다.</p><p class="via"><span class="chip">교재비</span></p></li></ul></section><section class="sec" id="inferences" aria-labelledby="inferences-h"><h2 id="inferences-h"><span class="num">04</span>새로운 추론</h2><div class="infer"><p class="q">방학이 되어 같은 사람이 하루 8시간을 쓸 수 있게 되면 공부의 비용은 어떻게 되는가?</p><p class="res">아르바이트 수입이 휴식 가치를 넘는 한, 쓸 수 있는 시간에 비례해 커진다.</p><p class="why">기회비용은 대안 가운데 큰 쪽이고, 아르바이트 대안의 크기는 시급과 시간의 곱이다.</p></div><div class="infer"><p class="q">무료 강연을 들으려고 두 시간 줄을 서는 것은 공짜인가?</p><p class="res">아니다. 그 두 시간에 할 수 있던 일 가운데 가장 큰 가치만큼을 낸다.</p><p class="why">낸 돈이 0 이어도 시간이라는 자원이 묶이므로 기회비용 항이 남는다.</p></div><div class="infer"><p class="q">회사가 개발자 한 명에게 기능 A 를 맡길지 정할 때 무엇과 견줘야 하는가?</p><p class="res">같은 기간에 그 개발자가 만들 수 있던 기능 가운데 가치가 가장 큰 것과 견준다.</p><p class="why">개발자의 시간도 한 번에 한 기능에만 쓰이는 자원이라 같은 구조다.</p></div></section><section class="sec" id="limits" aria-labelledby="limits-h"><h2 id="limits-h"><span class="num">05</span>적용 한계</h2><div class="limits"><h3>성립 조건</h3><ul><li>대안이 실제로 실행 가능해야 한다. 할 수 없었던 일은 포기한 대안이 아니다.</li></ul></div><div class="limits"><h3>트레이드오프</h3><ul><li>휴식이나 관계처럼 돈으로 바꾸기 어려운 가치를 시급으로 재면 그 가치가 작게 잡힌다.</li></ul></div></section>
 </main>
 <script>
 (function () {
@@ -181,69 +199,107 @@ tspan.val { fill: var(--accent); }
 
   function fmt(v, digits) {
     if (!isFinite(v)) return "계산 불가";
-    var s = v.toLocaleString("en-US", { minimumFractionDigits: digits, maximumFractionDigits: digits });
+    var s = v.toFixed(digits).replace(/^(-?\d+)/, function (m) { return m.replace(/\B(?=(\d{3})+(?!\d))/g, ","); });
     return /^-0(\.0+)?$/.test(s) ? "0" : s;
   }
 
   var spec = document.querySelector("[data-vars]");
-  var env = {};
-  function recompute() {
-    all("[data-in]").forEach(function (i) { env[i.getAttribute("data-in")] = Number(i.value); });
-    var digits = {};
-    all("[data-in]").forEach(function (i) { var f = String(i.step).split(".")[1]; digits[i.getAttribute("data-in")] = f ? Math.min(2, f.length) : 0; });
-    if (spec) JSON.parse(spec.getAttribute("data-vars")).forEach(function (o) {
-      env[o[0]] = evaluate(o[2], env);
-      digits[o[0]] = o[1];
+  var outs = spec ? JSON.parse(spec.getAttribute("data-vars")) : [];
+  var NS = "http://www.w3.org/2000/svg";
+  var digits = {};
+  function inputs() {
+    var env = {};
+    all("[data-in]").forEach(function (i) {
+      env[i.getAttribute("data-in")] = Number(i.value);
+      var f = String(i.step).split(".")[1];
+      digits[i.getAttribute("data-in")] = f ? Math.min(2, f.length) : 0;
     });
+    return env;
+  }
+  function solve(env) {
+    outs.forEach(function (o) { env[o[0]] = evaluate(o[2], env); digits[o[0]] = o[1]; });
+    return env;
+  }
+  function el(tag, attrs, text) {
+    var n = document.createElementNS(NS, tag);
+    Object.keys(attrs).forEach(function (k) { n.setAttribute(k, attrs[k]); });
+    if (text !== undefined) n.textContent = text;
+    return n;
+  }
+  function drawPlot(box, base) {
+    var p = JSON.parse(box.getAttribute("data-plot"));
+    var W = Math.max(300, Math.round(box.clientWidth || 640)), H = W < 500 ? 240 : 280, L = 58, R = 12, T = 30 + 16 * p.marks.length, B = 40, N = 81;
+    var rows = [];
+    for (var k = 0; k < N; k++) {
+      var env = {};
+      Object.keys(base).forEach(function (key) { env[key] = base[key]; });
+      env[p.x] = p.min + (p.max - p.min) * k / (N - 1);
+      rows.push(solve(env));
+    }
+    var lo = 0, hi = 0;
+    rows.forEach(function (r) { p.ys.forEach(function (y) { lo = Math.min(lo, r[y[0]]); hi = Math.max(hi, r[y[0]]); }); });
+    if (hi === lo) hi = lo + 1;
+    var sx = function (v) { return L + (v - p.min) / (p.max - p.min) * (W - L - R); };
+    var sy = function (v) { return T + (hi - v) / (hi - lo) * (H - T - B); };
+    var svg = el("svg", { viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": p.xl + "에 따른 변화" });
+    svg.appendChild(el("line", { x1: L, y1: sy(0), x2: W - R, y2: sy(0), "class": "axis" }));
+    svg.appendChild(el("line", { x1: L, y1: T, x2: L, y2: H - B, "class": "axis" }));
+    svg.appendChild(el("text", { x: L - 6, y: sy(hi) + 4, "text-anchor": "end", "class": "tick" }, fmt(hi, 0)));
+    svg.appendChild(el("text", { x: L - 6, y: sy(lo) + 4, "text-anchor": "end", "class": "tick" }, fmt(lo, 0)));
+    svg.appendChild(el("text", { x: L, y: H - B + 18, "text-anchor": "start", "class": "tick" }, fmt(p.min, digits[p.x] || 0) + p.xu));
+    svg.appendChild(el("text", { x: W - R, y: H - B + 18, "text-anchor": "end", "class": "tick" }, fmt(p.max, digits[p.x] || 0) + p.xu));
+    svg.appendChild(el("text", { x: (L + W - R) / 2, y: H - 6, "text-anchor": "middle", "class": "tick" }, p.xl));
+    p.marks.forEach(function (m, mi) {
+      for (var k = 1; k < N; k++) {
+        var a = !!evaluate(m[0], rows[k - 1]), b = !!evaluate(m[0], rows[k]);
+        if (a !== b) {
+          var lo2 = rows[k - 1][p.x], hi2 = rows[k][p.x];
+          for (var it = 0; it < 30; it++) {
+            var mid = (lo2 + hi2) / 2, envm = Object.assign({}, base);
+            envm[p.x] = mid;
+            if (!!evaluate(m[0], solve(envm)) === a) lo2 = mid; else hi2 = mid;
+          }
+          var xv = hi2, xm = sx(xv);
+          var ly = 14 + 16 * mi, right = xm > W * 0.6;
+          svg.appendChild(el("line", { x1: xm, y1: ly + 4, x2: xm, y2: H - B, "class": "mark" }));
+          svg.appendChild(el("text", { x: right ? xm - 4 : xm + 4, y: ly, "text-anchor": right ? "end" : "start", "class": "mark-label", "data-mark": "" }, m[1] + " · 약 " + fmt(xv, digits[p.x] || 0) + p.xu));
+        }
+      }
+    });
+    p.ys.forEach(function (y, i) {
+      var pts = rows.map(function (r) { return sx(r[p.x]).toFixed(1) + "," + sy(r[y[0]]).toFixed(1); }).join(" ");
+      svg.appendChild(el("polyline", { points: pts, "class": "line s" + i, "data-y": y[0] }));
+    });
+    var cx = sx(base[p.x]);
+    svg.appendChild(el("line", { x1: cx, y1: T, x2: cx, y2: H - B, "class": "now" }));
+    var cur = solve(Object.assign({}, base));
+    p.ys.forEach(function (y, i) { svg.appendChild(el("circle", { cx: cx, cy: sy(cur[y[0]]), r: 4, "class": "dot s" + i })); });
+    box.textContent = "";
+    box.appendChild(svg);
+    var legend = document.createElement("ul");
+    legend.className = "legend";
+    p.ys.forEach(function (y, i) {
+      var li = document.createElement("li");
+      var sw = document.createElement("span");
+      sw.className = "sw s" + i;
+      li.appendChild(sw);
+      li.appendChild(document.createTextNode(y[1] + " " + fmt(cur[y[0]], y[3]) + y[2]));
+      legend.appendChild(li);
+    });
+    box.appendChild(legend);
+  }
+  function recompute() {
+    var base = inputs();
+    var env = solve(Object.assign({}, base));
     all("[data-out]").forEach(function (s) {
       var k = s.getAttribute("data-out");
       if (k in env) s.textContent = fmt(env[k], digits[k] || 0);
     });
-    all("[data-when]").forEach(function (n) { n.hidden = !evaluate(JSON.parse(n.getAttribute("data-when")), env); });
+    all("[data-plot]").forEach(function (b) { drawPlot(b, base); });
   }
   all("[data-in]").forEach(function (i) { i.addEventListener("input", recompute); });
-
-  all("[data-story]").forEach(function (story) {
-    var steps = all("[data-step]", story);
-    var shows = steps.map(function (s) { return JSON.parse(s.getAttribute("data-show")); });
-    var els = all("[data-el]", story);
-    story.setAttribute("data-js", "");
-    var current = -1;
-    function show(k) {
-      if (k === current) return;
-      current = k;
-      var on = {};
-      for (var i = 0; i <= k; i++) shows[i].forEach(function (id) { on[id] = true; });
-      var focus = {};
-      shows[k].forEach(function (id) { focus[id] = true; });
-      els.forEach(function (el) {
-        var id = el.getAttribute("data-el");
-        el.classList.toggle("on", !!on[id]);
-        el.classList.toggle("focus", !!focus[id]);
-      });
-      steps.forEach(function (s, i) { s.classList.toggle("active", i === k); });
-      var wrap = story.querySelector(".svg-wrap");
-      var hits = all("[data-el].focus", story);
-      if (wrap && hits.length && (wrap.scrollWidth > wrap.clientWidth || wrap.scrollHeight > wrap.clientHeight)) {
-        var w = wrap.getBoundingClientRect(), box = null;
-        hits.forEach(function (h) {
-          var r = h.getBoundingClientRect();
-          box = box ? { l: Math.min(box.l, r.left), t: Math.min(box.t, r.top), r: Math.max(box.r, r.right), b: Math.max(box.b, r.bottom) } : { l: r.left, t: r.top, r: r.right, b: r.bottom };
-        });
-        wrap.scrollLeft += (box.l + box.r) / 2 - (w.left + w.right) / 2;
-        wrap.scrollTop += (box.t + box.b) / 2 - (w.top + w.bottom) / 2;
-      }
-      story.setAttribute("data-at", String(k));
-    }
-    function pick() {
-      var mid = window.innerHeight * 0.5, best = 0;
-      steps.forEach(function (s, i) { if (s.getBoundingClientRect().top < mid) best = i; });
-      show(best);
-    }
-    window.addEventListener("scroll", pick, { passive: true });
-    window.addEventListener("resize", pick);
-    pick();
-  });
+  window.addEventListener("resize", function () { var base = inputs(); all("[data-plot]").forEach(function (b) { drawPlot(b, base); }); });
+  recompute();
 
   all("[data-switch]").forEach(function (r) {
     r.addEventListener("change", function () {
