@@ -3,355 +3,215 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'sha256-+r7cGWV/QF0uiwDw6OvXw3/AA4hvWKcj8pdJVpf7FyU='; img-src data:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'sha256-6gjm7oN4VWcGp9OZxyMWGuHnlhMO7Sw9T5bDCvVMHrI='; img-src data:; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>트랜잭션 격리 수준</title>
 <style>
 :root {
-  --bg: #fbfbfa; --surface: #ffffff; --fg: #1c1d1f; --muted: #5d6168; --line: #dcdee2; --line-strong: #b9bdc4;
-  --accent: #1f5fbf; --accent-fg: #ffffff; --accent-weak: #e8eff9; --focus: #1f5fbf;
-  --tag-bg: #f0f1f3; --warn-bg: #fbf3e4; --warn-fg: #7a4b00;
-  --f-xs: 13px; --f-s: 15px; --f-m: 17px; --f-l: 22px;
-  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px;
-  --measure: 46rem; --radius: 6px;
+  --bg: #fbfbfa; --surface: #ffffff; --fg: #1b1c1e; --muted: #5a5e65; --line: #dfe1e4; --line-strong: #b5b9c0;
+  --accent: #1f5fbf; --accent-weak: #e9f0fa; --focus: #1f5fbf;
+  --c0: #1f5fbf; --c1: #c2702a; --c2: #3e8a5a; --c3: #8a5cb8; --c4: #8a8f98;
+  --f-xs: 13px; --f-s: 15px; --f-m: 17px; --f-l: 20px; --f-xl: 28px;
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 40px; --s7: 64px;
+  --measure: 44rem; --radius: 6px;
   color-scheme: light dark;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #15171a; --surface: #1d2024; --fg: #e8e9eb; --muted: #a3a8b0; --line: #33373d; --line-strong: #4a5058;
-    --accent: #7fb0ff; --accent-fg: #0d1420; --accent-weak: #1f2b3d; --focus: #7fb0ff;
-    --tag-bg: #2a2e34; --warn-bg: #3a2f1b; --warn-fg: #f1c57a;
+    --bg: #15171a; --surface: #1c1f23; --fg: #e8e9eb; --muted: #a5aab2; --line: #31353b; --line-strong: #4b5159;
+    --accent: #82b2ff; --accent-weak: #1e2a3c; --focus: #82b2ff;
+    --c0: #82b2ff; --c1: #e3a56b; --c2: #7cc395; --c3: #b996e0; --c4: #8d939c;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #15171a; --surface: #1d2024; --fg: #e8e9eb; --muted: #a3a8b0; --line: #33373d; --line-strong: #4a5058;
-  --accent: #7fb0ff; --accent-fg: #0d1420; --accent-weak: #1f2b3d; --focus: #7fb0ff;
-  --tag-bg: #2a2e34; --warn-bg: #3a2f1b; --warn-fg: #f1c57a;
+  --bg: #15171a; --surface: #1c1f23; --fg: #e8e9eb; --muted: #a5aab2; --line: #31353b; --line-strong: #4b5159;
+  --accent: #82b2ff; --accent-weak: #1e2a3c; --focus: #82b2ff;
+  --c0: #82b2ff; --c1: #e3a56b; --c2: #7cc395; --c3: #b996e0; --c4: #8d939c;
 }
 * { box-sizing: border-box; }
-html { scroll-padding-top: 120px; }
-body { margin: 0; background: var(--bg); color: var(--fg); font: var(--f-s)/1.65 -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", system-ui, sans-serif; word-break: keep-all; overflow-wrap: anywhere; }
-p { margin: 0 0 var(--s2); }
+body { margin: 0; background: var(--bg); color: var(--fg); font: var(--f-m)/1.7 -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", system-ui, sans-serif; word-break: keep-all; overflow-wrap: anywhere; }
+main { max-width: var(--measure); margin: 0 auto; padding: var(--s6) var(--s4) var(--s7); }
+p { margin: 0 0 var(--s3); }
 h1, h2, h3 { margin: 0; line-height: 1.35; }
-h3 { font-size: var(--f-s); margin: var(--s4) 0 var(--s2); }
-a { color: var(--accent); }
+h3 { font-size: var(--f-m); margin: 0 0 var(--s2); }
+ul, ol { margin: 0 0 var(--s3); padding-left: 1.2em; }
+li { margin-bottom: var(--s1); }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-.skip { position: absolute; left: -999px; }
-.skip:focus { left: var(--s4); top: var(--s2); z-index: 10; background: var(--surface); padding: var(--s2); }
 [hidden] { display: none !important; }
+.k { display: block; font-size: var(--f-xs); font-weight: 600; color: var(--muted); letter-spacing: .02em; margin: 0 0 2px; }
 
-.top { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); }
-.top-in { max-width: 72rem; margin: 0 auto; padding: var(--s3) var(--s4); display: grid; grid-template-columns: 1fr auto; grid-template-areas: "brand zoom" "title zoom"; column-gap: var(--s4); align-items: center; }
-.brand { grid-area: brand; font-size: var(--f-xs); letter-spacing: .12em; color: var(--muted); font-weight: 600; }
-.top h1 { grid-area: title; font-size: var(--f-l); }
-.zoom { grid-area: zoom; display: inline-flex; border: 1px solid var(--line-strong); border-radius: var(--radius); overflow: hidden; }
-.seg { font: inherit; font-size: var(--f-xs); padding: var(--s2) var(--s3); min-height: 36px; border: 0; background: var(--surface); color: var(--fg); cursor: pointer; }
-.seg + .seg { border-left: 1px solid var(--line-strong); }
-.seg[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); font-weight: 600; }
+.head { padding-bottom: var(--s5); border-bottom: 1px solid var(--line); }
+.brand { font-size: var(--f-xs); letter-spacing: .14em; color: var(--muted); font-weight: 600; margin-bottom: var(--s2); }
+.head h1 { font-size: var(--f-xl); margin-bottom: var(--s4); }
+.thesis { font-size: var(--f-l); font-weight: 600; line-height: 1.55; border-left: 3px solid var(--accent); padding-left: var(--s4); }
+.primer { color: var(--fg); }
 
-.frame { max-width: 72rem; margin: 0 auto; padding: 0 var(--s4); display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: var(--s6); }
-.toc { position: sticky; top: 104px; align-self: start; padding-top: var(--s6); }
-.toc ol { list-style: none; margin: 0; padding: 0; }
-.toc a { display: flex; gap: var(--s2); padding: var(--s1) 0; color: var(--muted); text-decoration: none; font-size: var(--f-xs); }
-.toc a:hover, .toc a[aria-current="true"] { color: var(--fg); }
-.toc-toggle { display: none; }
-main { max-width: var(--measure); padding: var(--s5) 0 var(--s7); min-width: 0; }
+.sec { padding: var(--s6) 0 var(--s2); border-bottom: 1px solid var(--line); }
+.sec:last-child { border-bottom: 0; }
+.sec h2 { font-size: var(--f-l); margin-bottom: var(--s4); display: flex; gap: var(--s3); align-items: baseline; }
+.num { font-size: var(--f-s); color: var(--muted); font-variant-numeric: tabular-nums; }
 
-.sec { padding: var(--s5) 0; border-bottom: 1px solid var(--line); }
-.sec-head { display: flex; align-items: center; gap: var(--s3); margin-bottom: var(--s3); }
-.sec-head h2 { font-size: var(--f-m); flex: 1; }
-.sec-num { font-variant-numeric: tabular-nums; color: var(--muted); font-size: var(--f-xs); font-weight: 600; min-width: 1.6em; }
-.sec.folded .sec-body { display: none; }
-.lead { font-size: var(--f-m); font-weight: 600; }
-.hint, .basis, .muted { color: var(--muted); font-size: var(--f-xs); }
+.fig { margin: var(--s4) 0 var(--s5); }
+.fig figcaption { font-size: var(--f-s); font-weight: 600; margin-bottom: var(--s2); }
+.svg-wrap { overflow-x: auto; }
+.svg-wrap svg { display: block; max-width: 100%; height: auto; margin: 0 auto; font: 14px -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif; }
+.edge { fill: none; stroke: var(--muted); stroke-width: 1.6; }
+.arrow { fill: var(--muted); }
+.edge-label rect { fill: var(--bg); }
+.edge-label text, .msg { fill: var(--fg); font-size: 12.5px; }
+.node rect { fill: var(--surface); stroke: var(--line-strong); }
+.node text { fill: var(--fg); font-weight: 600; }
+.life { stroke: var(--line-strong); stroke-dasharray: 4 4; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-.btn { font: inherit; font-size: var(--f-xs); min-height: 32px; padding: var(--s1) var(--s3); border: 1px solid var(--line-strong); border-radius: var(--radius); background: var(--surface); color: var(--fg); cursor: pointer; }
-.btn:hover { border-color: var(--accent); }
-.btn[aria-expanded="true"]:not([data-fold]) { background: var(--accent-weak); }
+.bars { display: grid; gap: var(--s2); }
+.bar-row { display: grid; grid-template-columns: minmax(6rem, 30%) 1fr auto; gap: var(--s3); align-items: center; font-size: var(--f-s); }
+.bar-track { height: 14px; background: var(--accent-weak); border-radius: 3px; overflow: hidden; }
+.bar { display: block; height: 100%; background: var(--c0); }
+.bar-val { font-variant-numeric: tabular-nums; font-weight: 600; }
+.basis { font-size: var(--f-xs); color: var(--muted); margin-top: var(--s2); }
 
-.tag { display: inline-block; font-size: 12px; line-height: 1.4; padding: 0 var(--s1); margin-left: var(--s1); border-radius: 3px; background: var(--tag-bg); color: var(--muted); font-weight: 600; vertical-align: 1px; white-space: nowrap; }
-.tag-unknown, .tag-assumption { background: var(--warn-bg); color: var(--warn-fg); }
-.ref { font-size: 11px; margin-left: 2px; }
-.ref a { text-decoration: none; }
-
-.ladder { display: grid; gap: var(--s3); }
-.rung { display: grid; grid-template-columns: 2.2rem minmax(0, 1fr); gap: var(--s2); }
-.rung-name { font-size: 12px; color: var(--muted); font-weight: 600; padding-top: 3px; }
-.rung-1 > div { border-left: 3px solid var(--accent); padding-left: var(--s3); }
-.rung-1 p { margin: 0; color: var(--muted); }
-.rel { display: block; font-size: var(--f-xs); color: var(--muted); margin-bottom: var(--s2); }
-.picks { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: var(--s2); }
-.pick { font: inherit; text-align: left; padding: var(--s3); border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--fg); cursor: pointer; display: grid; gap: var(--s1); align-content: start; }
-.pick:hover { border-color: var(--line-strong); }
-.pick[aria-expanded="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
-.pick-label { font-weight: 600; }
-.pick-sum { font-size: var(--f-xs); color: var(--muted); }
-.panel { margin-top: var(--s3); padding: var(--s3) var(--s4); border-left: 3px solid var(--accent); background: var(--surface); }
-.panel-title { font-weight: 600; }
-.l3 { list-style: none; margin: var(--s3) 0 0; padding: 0; display: grid; gap: var(--s2); }
-.l3 li { display: grid; grid-template-columns: 2.2rem minmax(0, 1fr); gap: var(--s2); }
-.more-detail { margin-top: var(--s1); }
-summary { cursor: pointer; color: var(--accent); font-size: var(--f-xs); }
-
-.diagram { margin: var(--s4) 0 0; overflow-x: auto; }
-.diagram svg { display: block; max-width: 100%; height: auto; margin: 0 auto; font: 14px -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif; }
-.diagram .edge { fill: none; stroke: var(--line-strong); stroke-width: 1.5; }
-.diagram .arrow { fill: var(--line-strong); }
-.diagram .edge-label rect { fill: var(--bg); }
-.diagram .edge-label text { fill: var(--muted); font-size: 12px; }
-.diagram .node rect { fill: var(--surface); stroke: var(--line-strong); }
-.diagram .node text { fill: var(--fg); }
-.diagram .node { cursor: pointer; }
-.diagram .node:hover rect, .diagram .node[aria-pressed="true"] rect { stroke: var(--accent); stroke-width: 2; }
-.diagram .node:focus-visible { outline: none; }
-.diagram .node:focus-visible rect { stroke: var(--focus); stroke-width: 3; }
-
-.block { margin-bottom: var(--s4); }
-.block > h3:first-child { margin-top: 0; }
-.steps { margin: 0; padding-left: 1.4em; display: grid; gap: var(--s2); }
-.steps strong { margin-right: var(--s2); }
-.example { padding: var(--s3) var(--s4); border: 1px dashed var(--line-strong); border-radius: var(--radius); }
 .table-wrap { overflow-x: auto; }
-table { border-collapse: collapse; width: 100%; font-size: var(--f-xs); }
-th, td { text-align: left; vertical-align: top; padding: var(--s2); border-bottom: 1px solid var(--line); }
-thead th { color: var(--muted); font-weight: 600; }
-tbody th { font-weight: 600; white-space: nowrap; }
+table { border-collapse: collapse; width: 100%; font-size: var(--f-s); }
+th, td { text-align: left; vertical-align: top; padding: var(--s2) var(--s3); border-bottom: 1px solid var(--line); }
+thead th { border-bottom: 2px solid var(--line-strong); }
 
-.limit-group h3 { margin-top: var(--s3); color: var(--muted); font-size: var(--f-xs); }
-.limit-group ul, .principles { margin: 0; padding-left: 1.2em; }
-.limit-group li { margin-bottom: var(--s1); }
-.scenario { margin: var(--s4) 0 0; border: 1px solid var(--line); border-radius: var(--radius); padding: var(--s3) var(--s4); }
-.scenario legend { font-weight: 600; padding: 0 var(--s1); }
+.case { padding: var(--s4); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: var(--s5); }
+.case p:last-child { margin-bottom: 0; }
+.chain { list-style: none; padding: 0; counter-reset: c; }
+.chain li { counter-increment: c; position: relative; padding: 0 0 var(--s4) 2.6rem; margin: 0; }
+.chain li::before { content: counter(c); position: absolute; left: 0; top: 0; width: 1.8rem; height: 1.8rem; border-radius: 50%; background: var(--accent-weak); color: var(--accent); font-size: var(--f-s); font-weight: 700; display: grid; place-items: center; }
+.chain li:not(:last-child)::after { content: ""; position: absolute; left: .86rem; top: 2rem; bottom: .2rem; border-left: 2px solid var(--line); }
+.chain p:last-child { margin-bottom: 0; }
+
+.model, .principle { margin-bottom: var(--s5); }
+.claim { font-weight: 600; }
+.boundary { color: var(--muted); }
+.cases { list-style: none; padding: 0; }
+.field { display: inline-block; font-size: var(--f-xs); font-weight: 600; color: var(--accent); margin-right: var(--s2); }
+
+.judge { padding: var(--s3) 0 var(--s3) var(--s4); border-left: 3px solid var(--line-strong); margin-bottom: var(--s4); }
+.judge p { margin-bottom: var(--s1); }
+.sit { color: var(--muted); }
+.res { font-weight: 600; }
+.why { color: var(--fg); }
+.limits ul { padding-left: 1.2em; }
+
+.sim, .switch { padding: var(--s4); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); margin: 0 0 var(--s5); }
+.assume { font-size: var(--f-xs); color: var(--muted); }
+.sim-in { display: grid; gap: var(--s3); margin-bottom: var(--s4); }
+.knob { display: grid; grid-template-columns: minmax(7rem, 35%) 1fr 4.5rem auto; gap: var(--s3); align-items: center; font-size: var(--f-s); }
+.knob input { width: 100%; accent-color: var(--accent); }
+.knob output { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+.unit { color: var(--muted); font-size: var(--f-xs); min-width: 2em; }
+.sim-out { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: var(--s3); margin: 0 0 var(--s3); }
+.sim-out div { padding: var(--s2) var(--s3); border: 1px solid var(--line); border-radius: var(--radius); }
+.sim-out dt { font-size: var(--f-xs); color: var(--muted); }
+.sim-out dd { margin: 0; font-size: var(--f-l); font-weight: 700; font-variant-numeric: tabular-nums; }
+.share { display: flex; height: 18px; border-radius: 3px; overflow: hidden; background: var(--line); }
+.seg { display: block; height: 100%; transition: width .15s; }
+.s0 { background: var(--c0); } .s1 { background: var(--c1); } .s2 { background: var(--c2); } .s3 { background: var(--c3); } .s4 { background: var(--c4); }
+.legend { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s3); font-size: var(--f-xs); margin-top: var(--s2); }
+.sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: var(--s1); }
+.note { font-size: var(--f-s); padding: var(--s2) var(--s3); background: var(--accent-weak); border-radius: var(--radius); margin: var(--s3) 0 0; }
+.switch .q { font-weight: 600; }
 .choices { display: flex; flex-wrap: wrap; gap: var(--s2); margin: var(--s2) 0 var(--s3); }
-.choice { display: inline-flex; align-items: center; gap: var(--s1); padding: var(--s1) var(--s3); min-height: 36px; border: 1px solid var(--line-strong); border-radius: var(--radius); cursor: pointer; font-size: var(--f-xs); }
+.choice { display: inline-flex; align-items: center; gap: var(--s1); padding: var(--s1) var(--s3); border: 1px solid var(--line-strong); border-radius: 999px; cursor: pointer; font-size: var(--f-s); }
 .choice:has(input:checked) { border-color: var(--accent); background: var(--accent-weak); }
-.choice input { margin: 0; accent-color: var(--accent); }
-.outcome { border-top: 1px solid var(--line); padding-top: var(--s3); }
 
-.principles li { margin-bottom: var(--s4); }
-.statement { font-weight: 600; }
-.k { font-size: var(--f-xs); color: var(--muted); font-weight: 600; margin-right: var(--s1); }
-.checks { margin-top: var(--s5); padding: var(--s3) var(--s4); border: 1px solid var(--line); border-radius: var(--radius); }
-.checks > summary { font-size: var(--f-s); font-weight: 600; }
-.check { margin-top: var(--s3); padding-top: var(--s3); border-top: 1px solid var(--line); }
-.q { font-weight: 600; }
-.answer { margin-top: var(--s2); }
-.na summary { color: var(--muted); }
-
-.foot { padding: var(--s5) 0; display: grid; gap: var(--s4); justify-items: start; }
-.foot h2 { font-size: var(--f-s); margin-bottom: var(--s2); }
-.sources { margin: 0; padding-left: 1.4em; font-size: var(--f-xs); }
-
-.sec[data-level="overview"] [data-depth="standard"],
-.sec[data-level="overview"] [data-depth="deep"],
-.sec[data-level="standard"] [data-depth="deep"] { display: none !important; }
-
-@media (max-width: 760px) {
-  .top-in { grid-template-columns: 1fr; grid-template-areas: "brand" "title" "zoom"; row-gap: var(--s2); padding: var(--s2) var(--s4); }
-  .top h1 { font-size: var(--f-m); }
-  .zoom { justify-self: stretch; }
-  .seg { flex: 1; }
-  .frame { grid-template-columns: minmax(0, 1fr); gap: 0; }
-  .toc { position: static; padding-top: var(--s3); }
-  .toc-toggle { display: inline-block; }
-  .toc ol { display: none; margin-top: var(--s2); }
-  .toc.open ol { display: block; }
-  main { padding-top: var(--s2); }
-  html { scroll-padding-top: 150px; }
-  .picks { grid-template-columns: minmax(0, 1fr); }
-  .sec-head { flex-wrap: wrap; }
+@media (max-width: 640px) {
+  body { font-size: 16px; }
+  main { padding-top: var(--s5); }
+  .head h1 { font-size: 24px; }
+  .thesis { font-size: 18px; }
+  .knob { grid-template-columns: 1fr 4rem auto; }
+  .knob-label { grid-column: 1 / -1; }
+  .bar-row { grid-template-columns: 1fr auto; }
+  .bar-track { grid-column: 1 / -1; grid-row: 2; }
 }
-@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
-@media print { .top, .toc, .btn, [data-reset] { display: none; } .sec[data-level] [data-depth] { display: block !important; } }
+@media (prefers-reduced-motion: reduce) { .seg { transition: none; } }
 
 </style>
 </head>
-<body data-zoom="overview">
-<a class="skip" href="#s1">본문으로</a>
-<header class="top">
-  <div class="top-in">
-    <div class="brand">UNDERSTAND</div>
+<body>
+<main>
+  <header class="head">
+    <p class="brand">UNDERSTAND</p>
     <h1>트랜잭션 격리 수준</h1>
-    <div class="zoom" role="group" aria-label="탐색 깊이">
-      <button type="button" class="seg" data-zoom="overview" aria-pressed="true">개요</button>
-      <button type="button" class="seg" data-zoom="standard" aria-pressed="false">표준</button>
-      <button type="button" class="seg" data-zoom="deep" aria-pressed="false">심층</button>
-    </div>
-  </div>
-</header>
-<div class="frame">
-  <nav class="toc" aria-label="목차">
-    <button type="button" class="btn toc-toggle" aria-expanded="false" aria-controls="toc-list">목차</button>
-    <ol id="toc-list"><li><a href="#s1"><span class="sec-num">01</span>본질</a></li><li><a href="#s2"><span class="sec-num">02</span>전체 구조</a></li><li><a href="#s3"><span class="sec-num">03</span>작동 원리</a></li><li><a href="#s4"><span class="sec-num">04</span>조건과 한계</a></li><li><a href="#s5"><span class="sec-num">05</span>기억할 원리</a></li></ol>
-  </nav>
-  <main>
-<section class="sec" id="s1" data-level="overview" aria-labelledby="s1-h"><div class="sec-head"><span class="sec-num">01</span><h2 id="s1-h">본질</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s1-b" aria-label="본질 접기">접기</button></div><div class="sec-body" id="s1-b"><p class="lead">트랜잭션 격리 수준은 동시에 도는 트랜잭션들이 하나씩 차례로 돌았을 때와 다른 결과를 어디까지 허용할지 정한 등급이다.</p><p>모든 트랜잭션을 차례로 돌리면 결과는 늘 맞지만, 서로 기다리느라 처리량이 떨어진다.</p><p>그래서 DB 는 몇 가지 이상 현상을 허용하는 낮은 등급을 두고, 무엇을 감수할지는 애플리케이션이 고르게 한다.</p><p>같은 이름의 등급도 DB 마다 막는 현상이 달라서, 이름만 보고 고르면 동시성 버그가 남는다.</p><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section><section class="sec" id="s2" data-level="overview" aria-labelledby="s2-h"><div class="sec-head"><span class="sec-num">02</span><h2 id="s2-h">전체 구조</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s2-b" aria-label="전체 구조 접기">접기</button></div><div class="sec-body" id="s2-b"><div class="ladder"><div class="rung rung-1"><span class="rung-name">L1</span><div><strong>막을 현상과 치를 값의 교환</strong><p>등급을 올리면 막는 이상 현상이 늘고, 그만큼 대기나 중단 같은 값을 더 치른다.</p></div></div><div class="rung rung-2"><span class="rung-name">L2</span><div><span class="rel">교환을 이루는 네 요소</span><div class="picks" role="group" aria-label="주요 구조"><button type="button" class="pick" data-pick="anomaly" aria-expanded="false" aria-controls="panel-anomaly"><span class="pick-label">이상 현상</span><span class="pick-sum">동시 실행에서만 생기고 차례 실행에서는 생기지 않는 결과다.</span></button><button type="button" class="pick" data-pick="levels" aria-expanded="false" aria-controls="panel-levels"><span class="pick-label">SQL 표준 네 등급</span><span class="pick-sum">표준은 앞의 세 현상 가운데 무엇을 허용하는지로 네 등급을 나눈다.</span></button><button type="button" class="pick" data-pick="impl" aria-expanded="false" aria-controls="panel-impl"><span class="pick-label">막는 방법</span><span class="pick-sum">충돌하는 쪽을 잠금으로 기다리게 하거나, 행의 버전을 여럿 두고 정해진 시점을 읽게 한다.</span></button><button type="button" class="pick" data-pick="cost" aria-expanded="false" aria-controls="panel-cost"><span class="pick-label">치르는 값</span><span class="pick-sum">잠금은 대기와 교착을 낳고, 다중 버전 방식은 충돌한 트랜잭션의 중단과 재시도를 낳는다.</span></button></div><figure class="diagram"><svg viewBox="0 0 294 168" width="294" style="min-width:235px" role="img" aria-labelledby="dg-1-t" preserveAspectRatio="xMidYMin meet"><title id="dg-1-t">이상 현상 · SQL 표준 네 등급 · 막는 방법 · 치르는 값 관계도</title><defs><marker id="dg-1-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow"/></marker></defs><path d="M89.0,52.0 C89.0,84.0 89.0,84.0 89.0,114.0" class="edge" marker-end="url(#dg-1-a)"/><path d="M232.0,52.0 C232.0,84.0 89.0,84.0 89.0,114.0" class="edge" marker-end="url(#dg-1-a)"/><path d="M232.0,52.0 C232.0,84.0 205.0,84.0 205.0,114.0" class="edge" marker-end="url(#dg-1-a)"/><g class="edge-label"><rect x="40.1" y="74.0" width="97.7" height="20" rx="3"/><text x="89.0" y="88.0" text-anchor="middle">허용 범위 정함</text></g><g class="edge-label"><rect x="121.1" y="96.0" width="78.9" height="20" rx="3"/><text x="160.5" y="110.0" text-anchor="middle">실제로 막음</text></g><g class="edge-label"><rect x="179.1" y="74.0" width="78.9" height="20" rx="3"/><text x="218.5" y="88.0" text-anchor="middle">대가를 낳음</text></g><g class="node" tabindex="0" role="button" data-pick="anomaly" aria-label="이상 현상"><rect x="43.0" y="116.0" width="92.0" height="36" rx="4"/><text x="89.0" y="139.0" text-anchor="middle">이상 현상</text></g><g class="node" tabindex="0" role="button" data-pick="levels" aria-label="SQL 표준 네 등급"><rect x="16.0" y="16.0" width="146.0" height="36" rx="4"/><text x="89.0" y="39.0" text-anchor="middle">SQL 표준 네 등급</text></g><g class="node" tabindex="0" role="button" data-pick="impl" aria-label="막는 방법"><rect x="186.0" y="16.0" width="92.0" height="36" rx="4"/><text x="232.0" y="39.0" text-anchor="middle">막는 방법</text></g><g class="node" tabindex="0" role="button" data-pick="cost" aria-label="치르는 값"><rect x="159.0" y="116.0" width="92.0" height="36" rx="4"/><text x="205.0" y="139.0" text-anchor="middle">치르는 값</text></g></svg></figure><div class="panel" id="panel-anomaly" data-panel="anomaly" hidden><p class="panel-title">이상 현상</p><p>아래 다섯은 뒤로 갈수록 알아채기 어렵다. 앞의 셋은 SQL 표준이 이름 붙였고, 뒤의 둘은 표준의 표 밖에 있다.</p><ul class="l3"><li><span class="rung-name">L3</span><div><strong>dirty read</strong> <span>커밋 전 값 읽기다. 다른 트랜잭션이 아직 커밋하지 않은 값을 읽는다. 그쪽이 롤백하면 없던 값을 근거로 판단한 셈이 된다.</span></div></li><li><span class="rung-name">L3</span><div><strong>nonrepeatable read</strong> <span>다시 읽으면 값이 바뀌는 현상이다. 같은 행을 두 번 읽는 사이에 다른 트랜잭션이 그 행을 고치고 커밋했다.</span></div></li><li><span class="rung-name">L3</span><div><strong>phantom read</strong> <span>다시 세면 행이 늘거나 주는 현상이다. 같은 조건으로 두 번 조회하는 사이에 다른 트랜잭션이 조건에 맞는 행을 넣거나 지웠다.</span></div></li><li><span class="rung-name">L3</span><div><strong>lost update</strong> <span>갱신 손실이다. 두 트랜잭션이 같은 값을 읽고 각자 계산해 쓰면, 나중 쓰기가 먼저 쓰기를 덮어 한쪽 변경이 사라진다.</span></div></li><li><span class="rung-name">L3</span><div><strong>write skew</strong> <span>각자 맞고 합치면 틀리는 현상이다. 두 트랜잭션이 같은 조건을 읽고 서로 다른 행을 고쳐, 둘이 함께 지키던 규칙이 깨진다.</span></div></li></ul></div><div class="panel" id="panel-levels" data-panel="levels" hidden><p class="panel-title">SQL 표준 네 등급<sup class="ref"><a href="#src-berenson" aria-label="출처 5">5</a></sup></p><p>READ UNCOMMITTED(커밋 안 된 것도 읽음), READ COMMITTED(커밋된 것만 읽음), REPEATABLE READ(다시 읽어도 같음), SERIALIZABLE(차례 실행과 같음) 순으로 강해진다.</p><p>표준의 표에는 lost update 와 write skew 가 없다. 그래서 이 둘을 막는지는 같은 등급 이름이라도 DB 마다 다르다.</p></div><div class="panel" id="panel-impl" data-panel="impl" hidden><p class="panel-title">막는 방법</p><ul class="l3"><li data-depth="standard"><span class="rung-name">L3</span><div><strong>잠금</strong> <span>충돌하는 트랜잭션을 상대가 커밋할 때까지 기다리게 한다.</span><details class="more-detail"><summary>자세히</summary><p>읽으면서 행을 잠그는 조회를 잠금 읽기라고 한다. SELECT ... FOR UPDATE 가 그 예다.</p><p>InnoDB 의 갭 락(gap lock, 인덱스 값 사이 빈 구간에 거는 잠금)은 아직 없는 행이 새로 들어오는 것까지 막는다.</p></details></div></li><li data-depth="standard"><span class="rung-name">L3</span><div><strong>MVCC</strong><sup class="ref"><a href="#src-pg-iso" aria-label="출처 1">1</a></sup> <span>다중 버전 동시성 제어다. 쓸 때 행의 새 버전을 만들고, 읽기는 스냅샷(정해진 시점까지 커밋된 데이터의 모습)을 보게 한다.</span><details class="more-detail"><summary>자세히</summary><p>읽기가 옛 버전을 보므로 읽기와 쓰기가 서로 기다리지 않는다.</p><p>트랜잭션 전체가 스냅샷 하나를 읽는 방식을 스냅샷 격리라고 한다. PostgreSQL 의 REPEATABLE READ 가 이 방식이다.</p></details></div></li><li data-depth="standard"><span class="rung-name">L3</span><div><strong>SSI</strong><sup class="ref"><a href="#src-ports" aria-label="출처 6">6</a></sup> <span>직렬화 가능 스냅샷 격리다. 트랜잭션마다 스냅샷 하나를 읽게 하면서 서로의 읽기와 쓰기를 검사해, 차례 실행과 다른 결과가 날 수 있으면 하나를 중단한다.</span></div></li></ul></div><div class="panel" id="panel-cost" data-panel="cost" hidden><p class="panel-title">치르는 값</p><p>교착은 두 트랜잭션이 서로의 잠금을 기다려 둘 다 못 나가는 상태다. DB 는 한쪽을 끊어 푼다.</p><p>중단된 트랜잭션을 처음부터 다시 실행하는 일은 DB 가 아니라 애플리케이션의 몫이다.</p></div></div></div></div><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section><section class="sec" id="s3" data-level="overview" aria-labelledby="s3-h"><div class="sec-head"><span class="sec-num">03</span><h2 id="s3-h">작동 원리</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s3-b" aria-label="작동 원리 접기">접기</button></div><div class="sec-body" id="s3-b"><div class="block"><h3>SQL 표준이 등급마다 허용하는 현상<sup class="ref"><a href="#src-pg-iso" aria-label="출처 1">1</a></sup><sup class="ref"><a href="#src-berenson" aria-label="출처 5">5</a></sup></h3><p class="basis">비교 기준: 허용은 생길 수 있다는 뜻이다. 표준은 lost update 와 write skew 를 따로 다루지 않는다</p><div class="table-wrap" tabindex="0"><table><thead><tr><th scope="col"></th><th scope="col">READ UNCOMMITTED</th><th scope="col">READ COMMITTED</th><th scope="col">REPEATABLE READ</th><th scope="col">SERIALIZABLE</th></tr></thead><tbody><tr><th scope="row">dirty read</th><td>허용</td><td>막음</td><td>막음</td><td>막음</td></tr><tr><th scope="row">nonrepeatable read</th><td>허용</td><td>허용</td><td>막음</td><td>막음</td></tr><tr><th scope="row">phantom read</th><td>허용</td><td>허용</td><td>허용</td><td>막음</td></tr><tr><th scope="row">차례 실행과 같은 결과</th><td>보장 안 함</td><td>보장 안 함</td><td>보장 안 함</td><td>보장함</td></tr></tbody></table></div></div><div class="block" data-depth="standard"><h3>같은 REPEATABLE READ 가 쓰기에서 갈린다</h3><p>PostgreSQL 과 InnoDB 모두 REPEATABLE READ 의 일반 SELECT 는 트랜잭션에서 처음 데이터를 읽을 때 잡은 스냅샷을 끝까지 읽는다.</p><p>PostgreSQL 은 스냅샷 이후 다른 트랜잭션이 고치고 커밋한 행을 쓰려 하면 「could not serialize access due to concurrent update」 오류로 트랜잭션을 중단한다.</p><p>InnoDB 는 UPDATE 와 DELETE 를 할 때 스냅샷이 아니라 최신 커밋 값을 읽고 쓴다. 오류 없이 덮어쓰므로 lost update 가 생긴다.</p><p>InnoDB 에서는 자기가 고친 행이 그 뒤 조회에 보인다. 그래서 다른 트랜잭션이 막 넣은 행을 UPDATE 로 건드리면, 첫 조회에 없던 행이 나타난다.<sup class="ref"><a href="#src-pg-iso" aria-label="출처 1">1</a></sup><sup class="ref"><a href="#src-mysql-consistent" aria-label="출처 3">3</a></sup></p></div><div class="block" data-depth="standard"><h3>같은 등급 이름, DB 마다 다른 보장<sup class="ref"><a href="#src-pg-iso" aria-label="출처 1">1</a></sup><sup class="ref"><a href="#src-mysql-iso" aria-label="출처 2">2</a></sup></h3><p class="basis">비교 기준: 각 칸은 잠금 읽기를 쓰지 않을 때 그 DB 에서 실제로 생기는 이상 현상이다</p><div class="table-wrap" tabindex="0"><table><thead><tr><th scope="col"></th><th scope="col">PostgreSQL</th><th scope="col">MySQL InnoDB</th></tr></thead><tbody><tr><th scope="row">READ UNCOMMITTED</th><td>READ COMMITTED 로 돈다. dirty read 가 생기지 않는다.</td><td>dirty read 를 포함해 다섯 현상이 모두 생긴다.</td></tr><tr><th scope="row">READ COMMITTED</th><td>기본 등급이다. 문장마다 새 스냅샷을 잡는다. dirty read 를 뺀 넷이 생긴다.</td><td>문장마다 새 스냅샷을 잡고 갭 락을 거의 쓰지 않는다. dirty read 를 뺀 넷이 생긴다.</td></tr><tr><th scope="row">REPEATABLE READ</th><td>스냅샷 격리다. write skew 만 생긴다. lost update 는 오류로 중단해 막는다.</td><td>기본 등급이다. lost update 와 write skew 가 생긴다. UPDATE 는 스냅샷이 아닌 최신 값에 쓴다.</td></tr><tr><th scope="row">SERIALIZABLE</th><td>SSI 로 다섯 현상을 모두 막는다. 대신 직렬화 실패가 난다.</td><td>자동 커밋을 끄면 일반 SELECT 를 공유 잠금 읽기로 바꿔 막는다. 대기와 교착이 는다.</td></tr></tbody></table></div></div><div class="block example" data-depth="standard"><h3>당직 의사 두 명 <span class="tag tag-example">지어낸 예시</span></h3><p>규칙은 「당직 의사는 늘 한 명 이상」이다. 지금 의사 A 와 B 가 당직이다.</p><p>A 와 B 가 동시에 당직을 빼 달라고 요청한다. 두 트랜잭션은 각자의 스냅샷에서 당직 수를 세고 두 명을 본다.</p><p>A 의 트랜잭션은 A 의 행을, B 의 트랜잭션은 B 의 행을 당직 해제로 고친다. 고친 행이 서로 달라 쓰기 충돌이 없다.</p><p>REPEATABLE READ 에서는 둘 다 커밋되고 당직은 0 명이 된다. 두 판단은 각자의 스냅샷에서는 맞았다.</p><p>PostgreSQL SERIALIZABLE 에서는 둘 중 하나가 직렬화 실패로 중단된다. 다시 시도하면 당직 한 명을 보고 요청을 거절한다.</p></div><div class="block" data-depth="deep"><h3>PostgreSQL SSI 가 write skew 를 막는 법</h3><p>SSI 는 트랜잭션마다 무엇을 읽었는지 술어 잠금(predicate lock, 읽은 조건의 범위에 남기는 표시)으로 기록한다.</p><p>이 표시는 다른 트랜잭션을 기다리게 하지 않는다. 누가 누구의 쓰기를 못 본 채 읽었는지 알아내는 데만 쓴다.</p><p>그런 관계가 이어져 차례 실행으로 설명할 수 없는 모양이 될 수 있으면, 그중 하나를 「could not serialize access due to read/write dependencies among transactions」 오류로 중단한다.</p><p>표시가 많아 메모리가 모자라면 페이지 단위 표시를 테이블 단위로 합친다. 이때 직렬화 실패가 더 자주 난다.<sup class="ref"><a href="#src-pg-iso" aria-label="출처 1">1</a></sup><sup class="ref"><a href="#src-ports" aria-label="출처 6">6</a></sup></p></div><div class="block" data-depth="deep"><h3>InnoDB 의 갭 락과 next-key lock</h3><p>InnoDB 의 REPEATABLE READ 는 잠금 읽기, UPDATE, DELETE 에서 next-key lock(행 잠금과 그 앞 갭 락을 합친 것)을 건다.</p><p>next-key lock 은 훑은 인덱스 범위 전체에 새 행이 들어오지 못하게 해서 잠금 읽기의 phantom read 를 막는다.</p><p>유일 인덱스로 한 행을 정확히 찾을 때는 그 행만 잠그고 앞의 갭은 잠그지 않는다.</p><p>갭 락끼리는 충돌하지 않는다. 두 트랜잭션이 같은 갭을 잠근 뒤 둘 다 그 갭에 행을 넣으려 하면 서로 기다리다 교착이 난다.</p><p>READ COMMITTED 로 내리면 갭 락은 외래 키와 중복 키 검사에만 쓰인다. 대기는 줄고 phantom read 가 생긴다.<sup class="ref"><a href="#src-mysql-locking" aria-label="출처 4">4</a></sup><sup class="ref"><a href="#src-mysql-iso" aria-label="출처 2">2</a></sup></p></div><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section><section class="sec" id="s4" data-level="overview" aria-labelledby="s4-h"><div class="sec-head"><span class="sec-num">04</span><h2 id="s4-h">조건과 한계</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s4-b" aria-label="조건과 한계 접기">접기</button></div><div class="sec-body" id="s4-b"><div class="limit-group" data-kind="condition"><h3>성립 조건</h3><ul><li>높은 등급의 보장은 중단된 트랜잭션을 애플리케이션이 처음부터 다시 실행할 때 완성된다. 재시도 코드가 없으면 직렬화 실패가 그대로 사용자 오류가 된다.<sup class="ref"><a href="#src-pg-iso" aria-label="출처 1">1</a></sup></li></ul></div><div class="limit-group" data-kind="premise" data-depth="standard"><h3>핵심 전제</h3><ul><li data-depth="standard">격리 수준은 한 DB 안의 트랜잭션 사이의 약속이다. 캐시, 메시지 큐, 다른 DB 를 함께 고치는 흐름은 이 보장 밖에 있다.</li></ul></div><div class="limit-group" data-kind="counterexample" data-depth="standard"><h3>반례</h3><ul><li data-depth="standard">Oracle 의 SERIALIZABLE 은 스냅샷 격리라서 write skew 가 생긴다. 등급 이름이 같아도 막는 현상은 같지 않다.<sup class="ref"><a href="#src-fekete" aria-label="출처 7">7</a></sup></li></ul></div><div class="limit-group" data-kind="tradeoff" data-depth="standard"><h3>트레이드오프</h3><ul><li data-depth="standard">등급을 올리면 이상 현상은 줄지만 대기, 교착, 중단이 는다. 인기 상품 재고처럼 한 행에 쓰기가 몰리면 이 값이 커진다. 얼마나 커지는지는 실제 부하로 재야 안다.</li></ul></div><div class="limit-group" data-kind="boundary" data-depth="standard"><h3>적용 한계</h3><ul><li data-depth="standard">PostgreSQL 의 잠금 읽기는 이미 있는 행만 잠근다. 「같은 시간대 예약이 없음」을 확인하고 넣는 흐름은 잠금 읽기로 못 막고 SERIALIZABLE 이나 배타 제약(EXCLUDE)이 필요하다.</li><li data-depth="deep">InnoDB 의 REPEATABLE READ 에서는 같은 흐름을 잠금 읽기로 막을 수 있다. 조회 범위의 빈 구간에 갭 락이 걸려 다른 트랜잭션의 삽입이 기다리기 때문이다.<sup class="ref"><a href="#src-mysql-locking" aria-label="출처 4">4</a></sup></li></ul></div><fieldset class="scenario" data-depth="standard"><legend>재고가 1 개 남은 상품에 주문 두 건이 동시에 온다. 각 주문은 재고를 읽고, 1 이상이면 1 을 뺀 값을 써넣는다. 무엇을 고르면 어떻게 되는가?</legend><div class="choices"><label class="choice"><input type="radio" name="sc-2" value="0" data-scenario="sc-2"><span>PostgreSQL READ COMMITTED</span></label><label class="choice"><input type="radio" name="sc-2" value="1" data-scenario="sc-2"><span>PostgreSQL REPEATABLE READ</span></label><label class="choice"><input type="radio" name="sc-2" value="2" data-scenario="sc-2"><span>MySQL InnoDB 기본 등급</span></label><label class="choice"><input type="radio" name="sc-2" value="3" data-scenario="sc-2"><span>기본 등급 + 잠금 읽기</span></label><label class="choice"><input type="radio" name="sc-2" value="4" data-scenario="sc-2"><span>기본 등급 + 조건부 UPDATE</span></label></div><div class="outcome" aria-live="polite" data-outcome="sc-2"><p class="hint">조건을 고르면 결과와 이유가 보인다.</p><div data-option="0" hidden><p><strong>결과</strong> 두 주문이 모두 성공하고 재고는 0 이 된다. 한 개를 두 번 판다.</p><p><strong>이유</strong> 둘 다 재고 1 을 읽고 0 을 쓴다. 나중 쓰기가 먼저 쓰기를 덮어 lost update 가 된다.</p></div><div data-option="1" hidden><p><strong>결과</strong> 늦게 쓴 주문이 직렬화 실패로 중단된다. 다시 시도하면 재고 0 을 읽고 거절된다.</p><p><strong>이유</strong> 스냅샷 이후 다른 트랜잭션이 고친 행을 쓰려 하면 PostgreSQL 이 그 트랜잭션을 중단한다.</p></div><div data-option="2" hidden><p><strong>결과</strong> 두 주문이 모두 성공한다. REPEATABLE READ 인데도 한 개를 두 번 판다.</p><p><strong>이유</strong> 일반 SELECT 는 스냅샷을 읽지만 UPDATE 는 최신 값에 오류 없이 덮어쓴다.</p></div><div data-option="3" hidden><p><strong>결과</strong> 둘째 주문은 첫째가 끝날 때까지 기다린 뒤 재고 0 을 읽고 거절된다.</p><p><strong>이유</strong> 잠금 읽기는 최신 커밋 값을 읽고 행을 잡아 둔다. 읽기에서 쓰기까지 다른 쓰기가 끼어들지 못한다.</p></div><div data-option="4" hidden><p><strong>결과</strong> 둘째 주문의 UPDATE 는 0 행을 고친다. 애플리케이션은 이것을 보고 주문을 거절한다.</p><p><strong>이유</strong> 「재고가 1 이상일 때만 1 을 뺀다」를 UPDATE 한 문장으로 쓰면, DB 가 쓰는 순간의 최신 값으로 조건을 다시 확인한다.</p></div></div></fieldset><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section><section class="sec" id="s5" data-level="overview" aria-labelledby="s5-h"><div class="sec-head"><span class="sec-num">05</span><h2 id="s5-h">기억할 원리</h2><button type="button" class="btn more" data-more hidden>더 보기</button><button type="button" class="btn fold" data-fold aria-expanded="true" aria-controls="s5-b" aria-label="기억할 원리 접기">접기</button></div><div class="sec-body" id="s5-b"><ol class="principles"><li><p class="statement">읽고 판단하고 쓰는 일이 동시에 돌면, 각자 맞게 판단해도 합친 결과는 틀릴 수 있다.</p><p><span class="k">성립 조건</span> 여럿이 같은 상태를 읽고 그 판단으로 쓸 때 성립한다. 판단과 쓰기를 한 동작으로 묶거나 차례로 세우면 깨지지 않는다.</p><p><span class="k">적용 예</span> 운영자 둘이 「서버는 한 대 이상 켜 둔다」를 각자 확인하고 서로 다른 서버를 동시에 내리면, 서버가 모두 꺼진다.</p></li><li><p class="statement">같은 이름의 보장이라도 구현마다 막는 것이 다르다. 이름이 아니라 막는 현상의 목록으로 확인한다.</p><p><span class="k">성립 조건</span> 표준이 이름과 최소 조건만 정하고 구현의 재량이 큰 영역에서 성립한다.</p><p><span class="k">적용 예</span> HTTP 의 Cache-Control: no-cache 는 저장하지 말라는 뜻이 아니라 저장한 사본을 내주기 전에 서버에 다시 확인하라는 뜻이다. 저장을 막으려면 no-store 를 쓴다.</p></li><li data-depth="standard"><p class="statement">충돌이 드물면 일단 진행하고 끝에 검사하는 쪽이 싸고, 충돌이 잦으면 먼저 잠그는 쪽이 싸다.</p><p><span class="k">성립 조건</span> 실패한 작업을 다시 해도 결과가 같을 때 성립한다. 외부 결제 호출처럼 다시 할 수 없는 작업은 먼저 잠근다.</p><p><span class="k">적용 예</span> 위키는 편집 충돌이 드물어 저장할 때 버전을 견주고 겹치면 다시 고치게 한다. 공연 예매는 한 자리에 사람이 몰려 고르는 순간 좌석을 잡아 둔다.</p></li></ol><details class="checks" data-reset-close><summary>이해 확인</summary><p class="basis">먼저 답을 떠올린 뒤 연다.</p><div class="check"><p class="q">PostgreSQL REPEATABLE READ 트랜잭션 A 가 주문 수를 센 뒤, B 가 새 주문을 넣고 커밋했다. A 가 다시 세면 늘어난 수가 보이는가?</p><button type="button" class="btn" data-answer="ans-3" aria-expanded="false" aria-controls="ans-3">답 보기</button><div class="answer" id="ans-3" hidden><p><strong>답</strong> 보이지 않는다. A 는 처음 센 때의 스냅샷을 트랜잭션이 끝날 때까지 읽는다.</p><p>표준은 REPEATABLE READ 에서 phantom read 를 허용하지만 PostgreSQL 은 이것도 막는다.</p><p>A 가 READ COMMITTED 였다면 문장마다 새 스냅샷을 잡으므로 늘어난 수가 보인다.</p></div></div><div class="check" data-depth="deep"><p class="q">「MySQL 은 기본이 REPEATABLE READ 라서 읽고 계산해 쓰는 코드도 안전하다」는 판단의 틀린 점은?</p><button type="button" class="btn" data-answer="ans-4" aria-expanded="false" aria-controls="ans-4">답 보기</button><div class="answer" id="ans-4" hidden><p><strong>답</strong> InnoDB 의 UPDATE 는 스냅샷이 아니라 최신 값에 덮어써서 lost update 가 생긴다. write skew 는 어느 DB 의 REPEATABLE READ 에서도 생긴다.</p><p>막는 현상은 등급 이름이 아니라 DB 구현이 정한다. 같은 코드를 PostgreSQL REPEATABLE READ 에서 돌리면 lost update 는 오류로 바뀐다.</p></div></div><div class="check" data-depth="deep"><p class="q">두 사람이 같은 main 브랜치에서 갈라 각자 테스트를 통과한 변경을 동시에 머지했다. 충돌 없이 합쳐졌는데 main 의 테스트가 깨졌다. 어느 이상 현상과 같은 모양인가?</p><button type="button" class="btn" data-answer="ans-5" aria-expanded="false" aria-controls="ans-5">답 보기</button><div class="answer" id="ans-5" hidden><p><strong>답</strong> write skew 와 같다. 각자 갈라 낸 시점의 main 에서 맞게 판단했고, 고친 곳이 달라 쓰기 충돌이 감지되지 않았다.</p><p>머지를 하나씩 세우고 합친 결과로 다시 시험하는 머지 큐는, SERIALIZABLE 처럼 판단과 쓰기를 차례로 만든다.</p></div></div><div class="check" data-depth="deep"><p class="q">PostgreSQL 을 SERIALIZABLE 로 바꾸자, 실제로는 문제가 없었을 트랜잭션도 가끔 직렬화 실패로 중단된다. 왜 그런가?</p><button type="button" class="btn" data-answer="ans-6" aria-expanded="false" aria-controls="ans-6">답 보기</button><div class="answer" id="ans-6" hidden><p><strong>답</strong> SSI 는 이상이 실제로 생길지 끝까지 따지지 않고, 생길 수 있는 의존 모양만 보고 중단하기 때문이다.</p><p>모든 경우를 정확히 따지는 비용보다 가끔 다시 시도하는 비용이 싸다는 설계다.</p><p>순차 스캔처럼 테이블 전체를 읽으면 표시가 테이블 단위로 남아 중단이 더 잦아진다.</p></div></div></details><p class="hint empty-hint" hidden>이 깊이에서 보이는 항목이 없다. 더 보기를 누르면 이 섹션만 펼친다.</p></div></section>
-    <footer class="foot">
-      <section class="sources-box" id="sources" aria-labelledby="sources-h">
-        <h2 id="sources-h">출처</h2>
-        <ol class="sources"><li id="src-pg-iso"><a href="https://www.postgresql.org/docs/current/transaction-iso.html" rel="noopener noreferrer">PostgreSQL 문서, Transaction Isolation</a></li><li id="src-mysql-iso"><a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-transaction-isolation-levels.html" rel="noopener noreferrer">MySQL 8.0 Reference Manual, Transaction Isolation Levels</a></li><li id="src-mysql-consistent"><a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-consistent-read.html" rel="noopener noreferrer">MySQL 8.0 Reference Manual, Consistent Nonlocking Reads</a></li><li id="src-mysql-locking"><a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-locking.html" rel="noopener noreferrer">MySQL 8.0 Reference Manual, InnoDB Locking</a></li><li id="src-berenson"><a href="https://arxiv.org/abs/cs/0701157" rel="noopener noreferrer">Berenson 외, A Critique of ANSI SQL Isolation Levels, ACM SIGMOD 1995</a> <span class="muted">표준의 현상 정의가 lost update 와 스냅샷 격리의 이상을 놓친다고 짚은 논문이다.</span></li><li id="src-ports"><a href="https://arxiv.org/abs/1208.4179" rel="noopener noreferrer">Ports, Grittner, Serializable Snapshot Isolation in PostgreSQL, VLDB 2012</a></li><li id="src-fekete">Fekete 외, Making Snapshot Isolation Serializable, ACM TODS 30(2), 2005 <span class="muted">Oracle 의 SERIALIZABLE 설정이 스냅샷 격리라는 점을 다룬다.</span></li></ol>
-      </section>
-      <button type="button" class="btn" data-reset>초기화</button>
-    </footer>
-  </main>
-</div>
+    <p class="thesis">격리 수준은 동시에 도는 트랜잭션이 하나씩 차례로 돈 것과 다른 결과를 낼 때, DB 가 그 결과를 허용할지, 기다리게 할지, 중단시킬지를 정하는 설정이다.</p><p class="primer">스냅샷은 정해진 시점까지 커밋된 데이터의 모습이고, MVCC 는 행의 버전을 여럿 두어 읽기가 스냅샷을 보게 하는 방식이다.</p><p class="primer">직렬화 가능(serializable)은 동시 실행의 결과가 트랜잭션을 어떤 순서로 하나씩 돌린 결과와 같다는 뜻이다.</p><p class="primer">같은 등급 이름이라도 막는 현상은 DB 구현이 정한다. PostgreSQL 의 기본은 READ COMMITTED, MySQL InnoDB 의 기본은 REPEATABLE READ 다.</p>
+  </header>
+<section class="sec" id="structure" aria-labelledby="structure-h"><h2 id="structure-h"><span class="num">01</span>전체 구조</h2><p>문제는 한 트랜잭션이 읽은 값으로 판단하고 쓰는 사이에 다른 트랜잭션의 커밋이 끼는 자리에서 생긴다.</p><p>격리 수준은 B 의 마지막 쓰기에서 DB 가 덮어쓸지, 중단시킬지를 정한다. 잠금 읽기를 쓰면 B 의 첫 읽기부터 기다리게 할 수도 있다.</p><figure class="fig fig-sequence"><figcaption>재고 1개를 두 주문이 동시에 읽고 쓰는 순서</figcaption><div class="svg-wrap"><svg viewBox="0 0 561 390" width="561" style="min-width:477px" role="img" aria-labelledby="g1t" preserveAspectRatio="xMidYMin meet"><title id="g1t">재고 1개를 두 주문이 동시에 읽고 쓰는 순서</title><defs><marker id="g1a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow"/></marker></defs><line x1="76.0" y1="36" x2="76.0" y2="384" class="life"/><g class="node"><rect x="42.0" y="4" width="68.0" height="32" rx="4"/><text x="76.0" y="25" text-anchor="middle">주문 A</text></g><line x1="280.6" y1="36" x2="280.6" y2="384" class="life"/><g class="node"><rect x="260.6" y="4" width="40.0" height="32" rx="4"/><text x="280.6" y="25" text-anchor="middle">DB</text></g><line x1="485.1" y1="36" x2="485.1" y2="384" class="life"/><g class="node"><rect x="451.1" y="4" width="68.0" height="32" rx="4"/><text x="485.1" y="25" text-anchor="middle">주문 B</text></g><line x1="79.0" y1="76" x2="277.6" y2="76" class="edge" marker-end="url(#g1a)"/><text x="178.3" y="69" text-anchor="middle" class="msg">1. SELECT stock</text><line x1="277.6" y1="122" x2="79.0" y2="122" class="edge" marker-end="url(#g1a)"/><text x="178.3" y="115" text-anchor="middle" class="msg">2. stock = 1</text><line x1="482.1" y1="168" x2="283.6" y2="168" class="edge" marker-end="url(#g1a)"/><text x="382.9" y="161" text-anchor="middle" class="msg">3. SELECT stock</text><line x1="283.6" y1="214" x2="482.1" y2="214" class="edge" marker-end="url(#g1a)"/><text x="382.9" y="207" text-anchor="middle" class="msg">4. stock = 1 (A 미커밋)</text><line x1="79.0" y1="260" x2="277.6" y2="260" class="edge" marker-end="url(#g1a)"/><text x="178.3" y="253" text-anchor="middle" class="msg">5. UPDATE stock = 0, COMMIT</text><line x1="482.1" y1="306" x2="283.6" y2="306" class="edge" marker-end="url(#g1a)"/><text x="382.9" y="299" text-anchor="middle" class="msg">6. UPDATE stock = 0</text><line x1="283.6" y1="352" x2="482.1" y2="352" class="edge" marker-end="url(#g1a)"/><text x="382.9" y="345" text-anchor="middle" class="msg">7. RC 덮어씀 / RR 40001 중단</text></svg></div><ol class="sr"><li>주문 A → DB: SELECT stock</li><li>DB → 주문 A: stock = 1</li><li>주문 B → DB: SELECT stock</li><li>DB → 주문 B: stock = 1 (A 미커밋)</li><li>주문 A → DB: UPDATE stock = 0, COMMIT</li><li>주문 B → DB: UPDATE stock = 0</li><li>DB → 주문 B: RC 덮어씀 / RR 40001 중단</li></ol></figure></section><section class="sec" id="mechanism" aria-labelledby="mechanism-h"><h2 id="mechanism-h"><span class="num">02</span>작동 원리</h2><div class="case"><p class="k">대표 사례</p><h3>재고 1개에 주문 두 건 (PostgreSQL)</h3><p>상품 7번의 재고가 1개 남았을 때 주문 A 와 B 가 거의 같은 순간에 들어온다.</p><p>주문마다 트랜잭션 하나가 SELECT 로 재고를 읽고, 1 이상이면 앱에서 1 을 뺀 값을 UPDATE 로 써넣고 커밋한다.</p></div><ol class="chain"><li><h3>두 트랜잭션이 같은 값을 읽는다</h3><p>A 가 재고 1 을 읽고, A 가 커밋하기 전에 B 도 재고 1 을 읽는다.</p><p>둘 다 팔 수 있다고 판단하고 앱에서 써넣을 값 0 을 계산한다.</p></li><li><h3>READ COMMITTED 에서는 나중 쓰기가 덮어쓴다</h3><p>A 가 재고를 0 으로 고치고 커밋한다. B 의 UPDATE 는 A 의 행 잠금을 기다렸다가, A 가 커밋하면 갱신된 행에 B 가 계산한 0 을 쓴다.</p><p>두 주문이 모두 성공하고 재고는 0 이다. A 가 1 을 뺀 변경이 B 의 쓰기에 덮여 사라졌고, 이것을 lost update 라 한다.</p></li><li><h3>원인은 쓰는 순간 낡은 판단 근거다</h3><p>B 가 판단에 쓴 재고 1 은 B 가 쓰는 순간 이미 0 이다.</p><p>A 가 끝난 뒤 B 가 시작했다면 B 는 0 을 읽고 거절했다. 그래서 두 주문 성공은 어느 차례 순서로도 나오지 않는 결과다.</p></li><li><h3>REPEATABLE READ 는 낡은 근거의 쓰기를 중단시킨다</h3><p>REPEATABLE READ 트랜잭션은 첫 문장에서 잡은 스냅샷을 끝까지 읽는다.</p><p>B 가 자기 스냅샷 뒤에 A 가 고치고 커밋한 행을 쓰려 하면, PostgreSQL 은 「could not serialize access due to concurrent update」 오류(SQLSTATE 40001)로 B 를 롤백한다.</p></li><li><h3>앱이 처음부터 다시 돌려야 결과가 맞는다</h3><p>앱은 40001 을 받으면 B 를 새 트랜잭션으로 SELECT 부터 다시 실행한다.</p><p>새 스냅샷에서 B 는 재고 0 을 읽고 품절로 거절한다. A 다음에 B 가 돈 것과 같은 결과다.</p><p>UPDATE 만 다시 보내면 옛 판단으로 또 쓰므로 읽기부터 다시 한다.</p></li></ol></section><section class="sec" id="relations" aria-labelledby="relations-h"><h2 id="relations-h"><span class="num">03</span>핵심 관계</h2><article class="model"><h3>비관적·낙관적 동시성 제어</h3><p class="claim">DB 는 충돌하는 쓰기를 잠금으로 기다리게 하거나, 스냅샷으로 진행시킨 뒤 쓰는 순간 검사해 중단시킨다.</p><p><span class="k">작동</span>잠금은 충돌을 미리 가정해 상대를 멈추고, MVCC 스냅샷은 충돌이 없다고 가정해 진행한 뒤 쓰려는 행의 버전을 견준다.</p><p class="k">이 모델로 설명되는 현상</p><ul><li>PostgreSQL REPEATABLE READ 에서 동시 주문은 대기가 아니라 40001 오류로 끝나므로 앱에 재시도 코드가 있어야 한다.</li><li>SELECT ... FOR UPDATE 로 읽으면 오류는 없지만, 인기 상품 한 행에 주문이 몰리면 뒤 주문은 앞 주문들이 커밋할 때까지 기다린다.</li><li>MVCC 에서 일반 SELECT 는 옛 버전을 읽으므로 긴 조회가 주문 쓰기를 막지 않고, 쓰기도 조회를 막지 않는다.</li><li>InnoDB SERIALIZABLE 은 autocommit 이 꺼져 있으면 일반 SELECT 를 공유 잠금 읽기로 바꾸므로 대기와 교착이 는다.</li></ul><p class="boundary"><span class="k">설명하지 못하는 것</span>어느 쪽이 싼지는 충돌 빈도와 트랜잭션 길이로 정해지며, 실제 대기와 재시도 비용은 실제 부하로 재야 알 수 있다.</p></article><article class="model"><h3>직렬화 가능성</h3><p class="claim">동시 실행의 결과가 어떤 차례 순서와도 같지 않으면 틀린 것이고, SERIALIZABLE 아래 등급은 이 어긋남 가운데 일부 모양만 막는다.</p><p><span class="k">작동</span>판단 근거가 된 읽기와 그 판단으로 한 쓰기 사이에 다른 트랜잭션의 커밋이 끼면, 각자 맞게 판단해도 합친 결과는 어떤 순서로도 설명되지 않는다.</p><p class="k">이 모델로 설명되는 현상</p><ul><li>lost update 는 두 트랜잭션이 같은 행을 쓴 경우라, PostgreSQL REPEATABLE READ 의 쓰기 충돌 검사가 잡는다.</li><li>write skew 는 두 트랜잭션이 같은 조건을 읽고 서로 다른 행을 고쳐 함께 지키던 규칙을 깨는 경우다. 겹치는 쓰기가 없어 REPEATABLE READ 는 통과시키고 PostgreSQL SERIALIZABLE 의 SSI 만 잡는다.</li><li>「그 시간대 예약이 없음」을 확인하고 넣는 두 트랜잭션은 확인한 행이 아직 없어서 행 잠금으로 막을 수 없다.</li></ul><p class="boundary"><span class="k">설명하지 못하는 것</span>직렬화 가능성은 결과가 어떤 차례 순서와 같다는 것만 보장하고, 어느 주문이 먼저 성공할지는 정하지 않는다.</p></article><figure class="fig fig-table"><figcaption>잠금 읽기 없이 읽은 값으로 쓸 때 생기는 일</figcaption><p class="basis">일반 SELECT 로 읽고 그 값으로 판단해 쓰는 트랜잭션 둘이 동시에 돌 때. InnoDB SERIALIZABLE 은 autocommit 을 끈 경우</p><div class="table-wrap" tabindex="0"><table><thead><tr><th scope="col"></th><th scope="col">같은 행을 고침</th><th scope="col">서로 다른 행을 고침</th><th scope="col">같은 조건으로 다시 셈</th></tr></thead><tbody><tr><th scope="row">PG READ COMMITTED</th><td>덮어씀 (lost update)</td><td>둘 다 커밋 (write skew)</td><td>새로 커밋된 행이 보인다</td></tr><tr><th scope="row">PG REPEATABLE READ</th><td>늦은 쪽이 40001 로 롤백</td><td>둘 다 커밋 (write skew)</td><td>보이지 않는다 (스냅샷 유지)</td></tr><tr><th scope="row">PG SERIALIZABLE</th><td>늦은 쪽이 40001 로 롤백</td><td>한쪽이 40001 로 롤백</td><td>보이지 않는다</td></tr><tr><th scope="row">InnoDB READ COMMITTED</th><td>덮어씀 (lost update)</td><td>둘 다 커밋 (write skew)</td><td>새로 커밋된 행이 보인다</td></tr><tr><th scope="row">InnoDB REPEATABLE READ</th><td>덮어씀 (lost update)</td><td>둘 다 커밋 (write skew)</td><td>일반 SELECT 에는 보이지 않고, 그 행을 UPDATE 한 뒤에는 보인다</td></tr><tr><th scope="row">InnoDB SERIALIZABLE</th><td>공유 잠금끼리 교착, 한쪽 롤백</td><td>공유 잠금끼리 교착, 한쪽 롤백</td><td>범위 잠금으로 삽입이 기다린다</td></tr></tbody></table></div></figure></section><section class="sec" id="application" aria-labelledby="application-h"><h2 id="application-h"><span class="num">04</span>적용과 한계</h2><div class="judge"><p class="sit">InnoDB 기본 설정에서 쿠폰 잔여 수를 SELECT 로 읽고, 앱에서 1 을 뺀 값을 UPDATE 로 써넣는다.</p><p class="res">동시 요청 두 건이 같은 값을 쓰고 쿠폰이 한 장 더 나간다.</p><p class="why">InnoDB 의 UPDATE 는 스냅샷이 아니라 최신 커밋 값에 오류 없이 쓰므로, REPEATABLE READ 라는 이름과 달리 lost update 가 생긴다.</p></div><div class="judge"><p class="sit">PostgreSQL 을 SERIALIZABLE 로 올렸는데 앱에 40001 재시도 코드가 없다.</p><p class="res">주문이 몰리면 일부 사용자는 품절 안내가 아니라 오류 화면을 본다.</p><p class="why">높은 등급은 틀린 결과를 직렬화 실패로 바꿀 뿐이고, 실패한 트랜잭션을 다시 돌리는 일은 앱이 맡는다.</p></div><div class="judge"><p class="sit">PostgreSQL READ COMMITTED 에서 회의실 예약 전에 같은 시간대 예약이 없는지 SELECT ... FOR UPDATE 로 확인하고 INSERT 한다.</p><p class="res">동시 요청 두 건이 모두 예약된다.</p><p class="why">FOR UPDATE 는 찾은 행만 잠그는데 확인 결과가 빈 집합이라 잠글 행이 없으므로, SERIALIZABLE 이나 배타 제약(EXCLUDE)이 있어야 막힌다.</p></div><div class="judge"><p class="sit">PostgreSQL REPEATABLE READ 로 월말 정산 조회를 몇 분 돌리는 동안 주문이 계속 들어온다.</p><p class="res">정산은 시작 시점의 일관된 합계를 내고, 주문 쓰기는 조회를 기다리지 않는다.</p><p class="why">MVCC 에서 읽기는 옛 버전을 보고 쓰기는 새 버전을 만들어 서로 막지 않는다.</p></div><div class="sim" data-sim><h3>한 행에 몰린 주문: 중단과 재시도 대 대기</h3><p class="assume">가정 모델: 주문 n 건이 재고가 넉넉한 같은 행을 동시에 고치고, 트랜잭션마다 같은 시간이 걸리며, 40001 로 실패한 주문은 곧바로 함께 다시 시작한다.</p><div class="sim-in"><label class="knob" for="in2"><span class="knob-label">동시에 온 주문 수</span><input type="range" id="in2" data-in="n" min="1" max="30" step="1" value="5"><output data-show="n" for="in2">5</output><span class="unit">건</span></label><label class="knob" for="in3"><span class="knob-label">트랜잭션 하나의 시간</span><input type="range" id="in3" data-in="d" min="1" max="200" step="1" value="20"><output data-show="d" for="in3">20</output><span class="unit">ms</span></label></div><dl class="sim-out" aria-live="polite"><div><dt>RR 총 실행 수</dt><dd><span data-out="rrruns" data-digits="0" data-rpn="[[&quot;v&quot;, &quot;n&quot;], [&quot;v&quot;, &quot;n&quot;], [&quot;n&quot;, 1.0], [&quot;o&quot;, &quot;+&quot;], [&quot;o&quot;, &quot;*&quot;], [&quot;n&quot;, 2.0], [&quot;o&quot;, &quot;/&quot;]]">15</span> 회</dd></div><div><dt>RR 직렬화 실패 수</dt><dd><span data-out="rrfails" data-digits="0" data-rpn="[[&quot;v&quot;, &quot;rrruns&quot;], [&quot;v&quot;, &quot;n&quot;], [&quot;o&quot;, &quot;-&quot;]]">10</span> 회</dd></div><div><dt>주문 하나당 RR 실행 수</dt><dd><span data-out="ratio" data-digits="1" data-rpn="[[&quot;v&quot;, &quot;rrruns&quot;], [&quot;v&quot;, &quot;n&quot;], [&quot;o&quot;, &quot;/&quot;]]">3.0</span> 회</dd></div><div><dt>FOR UPDATE 총 실행 수</dt><dd><span data-out="lockruns" data-digits="0" data-rpn="[[&quot;v&quot;, &quot;n&quot;]]">5</span> 회</dd></div><div><dt>마지막 주문 완료 시각</dt><dd><span data-out="last" data-digits="0" data-rpn="[[&quot;v&quot;, &quot;n&quot;], [&quot;v&quot;, &quot;d&quot;], [&quot;o&quot;, &quot;*&quot;]]">100</span> ms</dd></div></dl><p class="note" data-when="[[&quot;v&quot;, &quot;n&quot;], [&quot;n&quot;, 1.0], [&quot;o&quot;, &quot;==&quot;]]" hidden>동시 주문이 하나면 충돌이 없어 두 방식의 결과와 비용이 같다.</p><p class="note" data-when="[[&quot;v&quot;, &quot;n&quot;], [&quot;n&quot;, 1.0], [&quot;o&quot;, &quot;&gt;&quot;]]">두 방식 모두 이 행의 쓰기를 하나씩 처리하므로 마지막 주문의 완료 시각은 같고, 차이는 RR 이 버리는 실행 수다.</p><p class="note" data-when="[[&quot;v&quot;, &quot;ratio&quot;], [&quot;n&quot;, 3.0], [&quot;o&quot;, &quot;&gt;=&quot;]]">RR 의 실행 수가 주문 수의 세 배를 넘는다. 이 경합에서는 잠금 읽기나 조건부 UPDATE 가 DB 의 일을 덜 쓴다.</p></div><div class="switch"><p class="q" id="sw4q">PostgreSQL 에서 늦은 주문 B 는 막는 방법마다 어떻게 끝나는가?</p><div class="choices" role="radiogroup" aria-labelledby="sw4q"><label class="choice"><input type="radio" name="sw4" value="0" data-switch="sw4" checked><span>READ COMMITTED + FOR UPDATE</span></label><label class="choice"><input type="radio" name="sw4" value="1" data-switch="sw4"><span>조건부 UPDATE 한 문장</span></label><label class="choice"><input type="radio" name="sw4" value="2" data-switch="sw4"><span>REPEATABLE READ + 재시도</span></label><label class="choice"><input type="radio" name="sw4" value="3" data-switch="sw4"><span>REPEATABLE READ, 재시도 없음</span></label></div><div class="outcome" aria-live="polite" data-outcome="sw4"><div data-option="0"><p class="res">B 의 SELECT ... FOR UPDATE 는 A 가 커밋할 때까지 기다린 뒤 재고 0 을 받고, B 는 품절로 거절된다.</p><p class="why">READ COMMITTED 의 잠금 읽기는 상대가 커밋하면 갱신된 행을 잠가 돌려주므로 오류 없이 차례로 돈다.</p></div><div data-option="1" hidden><p class="res">UPDATE ... SET stock = stock - 1 WHERE id = 7 AND stock &gt;= 1 에서 B 는 0 행을 고치고, 앱은 고친 행 수 0 을 보고 거절한다.</p><p class="why">READ COMMITTED 의 UPDATE 는 상대 커밋 뒤 갱신된 행으로 WHERE 를 다시 평가하므로 판단과 쓰기가 한 문장에서 일어난다.</p></div><div data-option="2" hidden><p class="res">B 는 40001 로 롤백되고, 다시 돌면 재고 0 을 읽고 거절된다.</p><p class="why">스냅샷 뒤에 남이 고친 행을 쓰려는 트랜잭션을 중단시키고, 다시 읽는 일은 앱의 재시도가 한다.</p></div><div data-option="3" hidden><p class="res">재고는 맞게 0 이 되지만 B 의 사용자는 품절 안내 대신 오류를 받는다.</p><p class="why">DB 는 틀린 쓰기를 막는 데서 멈추고, 실패를 품절 판단으로 바꾸는 것은 앱의 몫이다.</p></div></div></div><div class="limits"><h3>성립 조건</h3><ul><li>격리 수준은 한 DB 안의 트랜잭션 사이 보장이다. 캐시, 메시지 큐, 외부 결제 호출은 그 밖에 있어서 재시도하면 두 번 일어날 수 있다.</li><li>InnoDB 의 잠금 읽기는 autocommit 이 꺼져 있을 때(START TRANSACTION 이나 autocommit = 0)만 잠금으로 동작한다.</li></ul></div><div class="limits"><h3>반례</h3><ul><li>PostgreSQL SERIALIZABLE 은 차례 실행이었다면 나지 않았을 직렬화 실패도 낸다. 순차 스캔은 테이블 단위 술어 잠금을 남겨 실패가 더 잦아진다.</li></ul></div></section><section class="sec" id="principles" aria-labelledby="principles-h"><h2 id="principles-h"><span class="num">05</span>재사용할 원리</h2><article class="principle"><h3>확인 후 실행 경쟁 조건(TOCTOU)</h3><p>상태를 확인한 시점과 그 확인으로 행동하는 시점 사이에 다른 행위자가 상태를 바꾸면 판단이 틀리므로, 확인을 행동 안에 넣거나 그 구간을 차례로 세운다.</p><p><span class="k">적용 조건</span>여러 행위자가 같은 상태를 읽고 그 판단으로 쓸 때 성립한다.</p><ul class="cases"><li><span class="field">파일 시스템</span>파일이 없는지 확인하고 만드는 대신 open 의 O_CREAT 와 O_EXCL 을 함께 써서 확인과 생성을 한 호출로 묶는다.</li><li><span class="field">HTTP API</span>If-Match 헤더에 읽은 ETag 를 실어, 서버의 자원이 그 버전일 때만 덮어쓰게 한다.</li><li><span class="field">코드 머지</span>두 사람이 각자 테스트를 통과한 변경을 동시에 머지하면 충돌 없이 main 이 깨질 수 있고, 머지 큐는 합친 결과로 하나씩 다시 시험해 차례를 세운다.</li></ul></article><article class="principle"><h3>충돌 빈도로 낙관과 비관 고르기</h3><p>충돌이 드물면 먼저 진행하고 끝에 검사하는 쪽이 싸고, 충돌이 잦으면 먼저 잠그는 쪽이 싸다.</p><p><span class="k">적용 조건</span>실패한 작업을 다시 해도 결과가 같을 때 낙관적 방식을 쓸 수 있고, 다시 할 수 없는 작업은 먼저 잠근다.</p><ul class="cases"><li><span class="field">문서 편집</span>위키는 편집 충돌이 드물어 저장할 때 버전을 견주고, 겹치면 사용자에게 다시 고치게 한다.</li><li><span class="field">좌석 예매</span>공연 예매는 한 좌석에 사람이 몰려 고르는 순간 좌석을 일정 시간 잡아 둔다.</li></ul></article></section>
+</main>
 <script>
 (function () {
   "use strict";
-  var LEVELS = ["overview", "standard", "deep"];
-  var LABEL = { overview: "개요", standard: "표준", deep: "심층" };
-  var body = document.body;
-  var sections = Array.prototype.slice.call(document.querySelectorAll(".sec"));
-  var global = 0;
-  var local = {};
   var all = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
-  var idx = function (d) { return Math.max(0, LEVELS.indexOf(d)); };
 
-  function anchor() {
-    var top = document.querySelector(".top").getBoundingClientRect().bottom + 8;
-    var candidates = all(".sec-head, .block, .rung, .limit-group, .principles > li, .lead");
-    for (var i = 0; i < candidates.length; i++) {
-      var r = candidates[i].getBoundingClientRect();
-      if (r.bottom > top && r.height > 0) return { el: candidates[i], y: r.top };
-    }
-    return null;
+  function evaluate(rpn, env) {
+    var st = [];
+    rpn.forEach(function (t) {
+      if (t[0] === "n") st.push(t[1]);
+      else if (t[0] === "v") st.push(env[t[1]]);
+      else if (t[0] === "f") {
+        if (t[1] === "round") st.push(Math.floor(st.pop() + 0.5));
+        else if (t[1] === "abs") st.push(Math.abs(st.pop()));
+        else { var b = st.pop(), a = st.pop(); st.push(t[1] === "min" ? Math.min(a, b) : Math.max(a, b)); }
+      } else if (t[1] === "neg") st.push(-st.pop());
+      else {
+        var y = st.pop(), x = st.pop();
+        switch (t[1]) {
+          case "+": st.push(x + y); break;
+          case "-": st.push(x - y); break;
+          case "*": st.push(x * y); break;
+          case "/": st.push(y ? x / y : NaN); break;
+          case "<": st.push(+(x < y)); break;
+          case "<=": st.push(+(x <= y)); break;
+          case ">": st.push(+(x > y)); break;
+          case ">=": st.push(+(x >= y)); break;
+          case "==": st.push(+(x === y)); break;
+          case "!=": st.push(+(x !== y)); break;
+          case "&&": st.push(+(!!x && !!y)); break;
+          default: st.push(+(!!x || !!y));
+        }
+      }
+    });
+    return st[0];
   }
 
-  function apply(keep) {
-    var a = keep ? anchor() : null;
-    body.setAttribute("data-zoom", LEVELS[global]);
-    all(".seg").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-zoom") === LEVELS[global])); });
-    sections.forEach(function (sec) {
-      var lv = Math.max(global, local[sec.id] || 0);
-      sec.setAttribute("data-level", LEVELS[lv]);
-      var hidden = all("[data-depth]", sec).filter(function (el) { return idx(el.getAttribute("data-depth")) > lv; });
-      var more = sec.querySelector("[data-more]");
-      var next = Math.min.apply(null, hidden.map(function (el) { return idx(el.getAttribute("data-depth")); }).concat([3]));
-      more.hidden = next > 2;
-      more.setAttribute("data-next", String(next));
-      if (next <= 2) more.textContent = LABEL[LEVELS[next]] + "까지 더 보기";
-      var b = sec.querySelector(".sec-body");
-      var hint = b.querySelector(".empty-hint");
-      var shown = all(":scope > *", b).filter(function (el) {
-        return el !== hint && !(el.hasAttribute("data-depth") && idx(el.getAttribute("data-depth")) > lv);
+  function fmt(v, digits) {
+    if (!isFinite(v)) return "계산 불가";
+    var s = v.toLocaleString("en-US", { minimumFractionDigits: digits, maximumFractionDigits: digits });
+    return /^-0(\.0+)?$/.test(s) ? "0" : s;
+  }
+
+  all("[data-sim]").forEach(function (sim) {
+    var inputs = all("[data-in]", sim);
+    function update() {
+      var env = {};
+      inputs.forEach(function (i) {
+        env[i.getAttribute("data-in")] = Number(i.value);
+        var show = sim.querySelector('[data-show="' + i.getAttribute("data-in") + '"]');
+        show.textContent = fmt(Number(i.value), Number(i.step) % 1 === 0 ? 0 : 2);
       });
-      hint.hidden = shown.length > 0;
-    });
-    if (a && a.el.getBoundingClientRect().height > 0) window.scrollBy({ top: a.el.getBoundingClientRect().top - a.y, behavior: "instant" });
-  }
-
-  all(".seg").forEach(function (b) {
-    b.addEventListener("click", function () {
-      global = idx(b.getAttribute("data-zoom"));
-      local = {};
-      apply(true);
-    });
-  });
-
-  sections.forEach(function (sec) {
-    sec.querySelector("[data-more]").addEventListener("click", function () {
-      local[sec.id] = Number(sec.querySelector("[data-more]").getAttribute("data-next"));
-      apply(false);
-      var more = sec.querySelector("[data-more]");
-      (more.hidden ? sec.querySelector("[data-fold]") : more).focus();
-    });
-    var fold = sec.querySelector("[data-fold]");
-    var name = sec.querySelector("h2").textContent;
-    fold.addEventListener("click", function () {
-      var folded = sec.classList.toggle("folded");
-      fold.setAttribute("aria-expanded", String(!folded));
-      fold.textContent = folded ? "펼치기" : "접기";
-      fold.setAttribute("aria-label", name + (folded ? " 펼치기" : " 접기"));
-    });
-  });
-
-  function pick(trigger) {
-    var scope = trigger.closest(".ladder, .block");
-    var id = trigger.getAttribute("data-pick");
-    var panel = scope.querySelector('[data-panel="' + id + '"]');
-    var open = panel && panel.hidden;
-    all("[data-panel]", scope).forEach(function (p) { p.hidden = true; });
-    all("[data-pick]", scope).forEach(function (t) {
-      var on = open && t.getAttribute("data-pick") === id;
-      t.setAttribute(t.tagName === "BUTTON" ? "aria-expanded" : "aria-pressed", String(on));
-    });
-    if (panel) panel.hidden = !open;
-    if (document.activeElement !== trigger) trigger.focus({ preventScroll: true });
-  }
-  all("[data-pick]").forEach(function (t) {
-    t.addEventListener("click", function () { pick(t); });
-    if (t.tagName !== "BUTTON") {
-      t.addEventListener("keydown", function (ev) {
-        if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); pick(t); }
+      all("[data-out]", sim).forEach(function (o) {
+        var v = evaluate(JSON.parse(o.getAttribute("data-rpn")), env);
+        env[o.getAttribute("data-out")] = v;
+        o.textContent = fmt(v, Number(o.getAttribute("data-digits")));
       });
+      var segs = all("[data-part]", sim);
+      var total = segs.reduce(function (s, g) { return s + Math.max(0, env[g.getAttribute("data-part")]); }, 0) || 1;
+      segs.forEach(function (g) { g.style.width = (Math.max(0, env[g.getAttribute("data-part")]) / total * 100).toFixed(1) + "%"; });
+      all("[data-when]", sim).forEach(function (n) { n.hidden = !evaluate(JSON.parse(n.getAttribute("data-when")), env); });
     }
+    inputs.forEach(function (i) { i.addEventListener("input", update); });
   });
 
-  all("[data-answer]").forEach(function (b) {
-    b.addEventListener("click", function () {
-      var a = document.getElementById(b.getAttribute("data-answer"));
-      a.hidden = !a.hidden;
-      b.setAttribute("aria-expanded", String(!a.hidden));
-      b.textContent = a.hidden ? "답 보기" : "답 숨기기";
-    });
-  });
-
-  all("[data-scenario]").forEach(function (r) {
+  all("[data-switch]").forEach(function (r) {
     r.addEventListener("change", function () {
-      var out = document.querySelector('[data-outcome="' + r.getAttribute("data-scenario") + '"]');
-      out.querySelector(".hint").hidden = true;
+      var out = document.querySelector('[data-outcome="' + r.getAttribute("data-switch") + '"]');
       all("[data-option]", out).forEach(function (o) { o.hidden = o.getAttribute("data-option") !== r.value; });
     });
   });
-
-  var toc = document.querySelector(".toc");
-  var tocBtn = toc.querySelector(".toc-toggle");
-  function setToc(open) {
-    toc.classList.toggle("open", open);
-    tocBtn.setAttribute("aria-expanded", String(open));
-  }
-  tocBtn.addEventListener("click", function () { setToc(!toc.classList.contains("open")); });
-  all(".toc a").forEach(function (a) {
-    a.addEventListener("click", function () {
-      var sec = document.querySelector(a.getAttribute("href"));
-      if (sec && sec.classList.contains("folded")) sec.querySelector("[data-fold]").click();
-      setToc(false);
-    });
-  });
-  if ("IntersectionObserver" in window) {
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) {
-        if (!en.isIntersecting) return;
-        all(".toc a").forEach(function (a) { a.setAttribute("aria-current", String(a.getAttribute("href") === "#" + en.target.id)); });
-      });
-    }, { rootMargin: "-30% 0px -60% 0px" });
-    sections.forEach(function (s) { io.observe(s); });
-  }
-
-  document.querySelector("[data-reset]").addEventListener("click", function () {
-    global = 0;
-    local = {};
-    all(".sec.folded [data-fold]").forEach(function (f) { f.click(); });
-    all("[data-panel]").forEach(function (p) { p.hidden = true; });
-    all("[data-pick]").forEach(function (t) { t.setAttribute(t.tagName === "BUTTON" ? "aria-expanded" : "aria-pressed", "false"); });
-    all("[data-answer]").forEach(function (b) {
-      document.getElementById(b.getAttribute("data-answer")).hidden = true;
-      b.setAttribute("aria-expanded", "false");
-      b.textContent = "답 보기";
-    });
-    all("[data-scenario]").forEach(function (r) { r.checked = false; });
-    all("[data-outcome]").forEach(function (o) {
-      o.querySelector(".hint").hidden = false;
-      all("[data-option]", o).forEach(function (x) { x.hidden = true; });
-    });
-    all("details").forEach(function (d) { d.open = false; });
-    setToc(false);
-    apply(false);
-    window.scrollTo({ top: 0, behavior: "instant" });
-    document.querySelector('.seg[data-zoom="overview"]').focus({ preventScroll: true });
-  });
-
-  apply(false);
 })();
 
 </script>
